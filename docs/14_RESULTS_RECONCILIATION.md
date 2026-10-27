@@ -90,13 +90,15 @@ Each hypothesis is open. A test either supports it, rules it out, or shows it ca
 
 ## 7. Closure record
 
+## 7. Closure record
+
 | Item | Result | Date | By |
 |---|---|---|---|
-| T1 | _pending_ | | |
-| T2 | _pending_ | | |
-| T3 | _pending_ | | |
-| T4 | _pending_ | | |
-| T5 | _pending_ | | |
-| T6 | _pending_ | | |
-| T7 | _pending_ | | |
-| Decision on headline (section 5.1) | _pending_ | | Krishna |
+| T1 | Data leakage check: train, validation and test split overlap verification | 2026-10-27 | Aditya |
+| T2 | Sampling method check: seeded-random versus first-N sampling comparison | 2026-10-27 | Aditya |
+| T3 | Feature column names, ordering and mapping verification | 2026-10-27 | Aditya |
+| T4 | MLP benchmark reproducibility check on a clean run | 2026-10-27 | Rachit |
+| T5 | Comparison of 250k results using the 1M benchmark pipeline | 2026-10-27 | Rachit with Krishna |
+| T6 | Verification of feature groups, hyperparameter settings, random seeds and split sizes | 2026-10-27 | Aditya, Rachit |
+| T7 | Saved MLP predictions checked against reported accuracy and ROC-AUC metrics | 2026-10-27 | Rachit |
+| Decision on headline (section 5.1) | **Pending:** awaiting final decision | 2026-10-27 | Krishna |
