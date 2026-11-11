@@ -29,7 +29,7 @@ These inputs retain relatively direct kinematic information. Their limitation is
 
 ### 2.2 High-level derived features (7 inputs)
 
-The high-level variables are composite invariant-mass quantities: (m_{jj},m_{jjj},m_{lv},m_{jlv},m_{bb},m_{wbb},m_{wwbb}). For a set of reconstructed four-momenta, the invariant mass is calculated (using natural units, (c=1)) as
+The high-level variables are composite invariant-mass quantities: $m_{jj},m_{jjj},m_{lv},m_{jlv},m_{bb},m_{wbb},m_{wwbb}$. For a set of reconstructed four-momenta, the invariant mass is calculated (using natural units, (c=1)) as
 
 [
 m_{\mathrm{inv}}^2 = \left(\sum_i E_i\right)^2 -
@@ -56,7 +56,7 @@ The experimental design compares models with different inductive biases. The poi
 
 Logistic Regression models the log-odds of the signal class as a linear function of the input features. It is fast, relatively interpretable and provides a useful reference for the value of nonlinear interactions. If its performance is lower than a nonlinear model under the same split and inputs, that is evidence that a linear boundary is insufficient for all the event structure—not evidence that Logistic Regression is inherently a poor classifier.
 
-The implementation places `StandardScaler` inside the scikit-learn pipeline so the scaler is fitted on training data only. The configured inverse regularization strength is (C=1.0), with L-BFGS and a maximum of 1,000 iterations.
+The implementation places `StandardScaler` inside the scikit-learn pipeline so the scaler is fitted on training data only. The configured inverse regularization strength is $C=1.0$, with L-BFGS and a maximum of 1,000 iterations.
 
 ### 3.2 XGBoost — strong tabular nonlinear baseline
 
@@ -80,7 +80,7 @@ Each hidden block applies Linear → BatchNorm1d → ReLU → Dropout(0.20). The
 - **Batch Normalization** normalizes hidden activations within a mini-batch and can make optimization more stable.
 - **Dropout (0.20)** randomly masks hidden activations during training, discouraging brittle co-adaptation and helping control overfitting.
 - **BCEWithLogitsLoss** combines the sigmoid and binary cross-entropy calculation in a numerically stable form.
-- **AdamW** uses adaptive gradient steps and decoupled weight decay; the current configuration uses learning rate (10^{-3}), weight decay (10^{-4}), and batch size 1,024.
+- **AdamW** uses adaptive gradient steps and decoupled weight decay; the current configuration uses learning rate $10^{-3}$, weight decay $10^{-4}$, and batch size 1,024.
 - **Early stopping** monitors validation ROC-AUC with patience 5 and restores the best validation checkpoint. This helps avoid selecting a model simply because it trained for more epochs.
 
 The configured network is a compact baseline, not a claim that a deeper or larger model would necessarily be better.
