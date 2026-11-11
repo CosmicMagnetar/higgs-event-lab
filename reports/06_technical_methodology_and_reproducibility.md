@@ -19,9 +19,9 @@ The data file has 29 columns: one binary label and 28 inputs. The feature sets d
 
 ### 2.1 Low-level kinematics (21 inputs)
 
-- **Transverse momentum, (p_T):** momentum perpendicular to the collider beam, (p_T=\sqrt{p_x^2+p_y^2}). Collider beams travel mainly along the longitudinal axis, so transverse quantities are particularly useful for reconstructing the event's balance.
-- **Pseudorapidity, (\eta):** an angular coordinate, (\eta=-\ln(\tan(\theta/2))), that expresses direction relative to the beam. It is convenient because differences in pseudorapidity are useful in collider geometry.
-- **Azimuth, (\phi):** the angle around the beam axis. Together, (p_T,\eta,\phi) describe a particle's momentum direction and transverse scale.
+- **Transverse momentum, $p_T$:** momentum perpendicular to the collider beam, $p_T=\sqrt{p_x^2+p_y^2}$. Collider beams travel mainly along the longitudinal axis, so transverse quantities are particularly useful for reconstructing the event's balance.
+- **Pseudorapidity, $\eta$:** an angular coordinate, $\eta=-\ln(\tan(\theta/2))$, that expresses direction relative to the beam. It is convenient because differences in pseudorapidity are useful in collider geometry.
+- **Azimuth, $\phi$:** the angle around the beam axis. Together, $p_T,\eta,\phi$ describe a particle's momentum direction and transverse scale.
 - **Missing transverse energy (MET):** the magnitude and azimuth of the imbalance in visible transverse momentum. Neutrinos interact too weakly to be measured directly in the detector; their presence is inferred through missing transverse momentum, subject to detector and reconstruction effects.
 - **Jet variables:** jets are reconstructed sprays of particles produced by quarks or gluons. The jet (p_T,\eta,\phi) describe their kinematics. A **b-tag** is an algorithmic discriminant indicating how compatible a jet is with originating from a bottom quark; it is not a direct observation of a free bottom quark.
 
@@ -29,12 +29,12 @@ These inputs retain relatively direct kinematic information. Their limitation is
 
 ### 2.2 High-level derived features (7 inputs)
 
-The high-level variables are composite invariant-mass quantities: $m_{jj},m_{jjj},m_{lv},m_{jlv},m_{bb},m_{wbb},m_{wwbb}$. For a set of reconstructed four-momenta, the invariant mass is calculated (using natural units, (c=1)) as
+The high-level variables are composite invariant-mass quantities: $m_{jj},m_{jjj},m_{lv},m_{jlv},m_{bb},m_{wbb},m_{wwbb}$. For a set of reconstructed four-momenta, the invariant mass is calculated (using natural units, $c=1$) as
 
-[
+$
 m_{\mathrm{inv}}^2 = \left(\sum_i E_i\right)^2 -
 \left\|\sum_i \vec p_i\right\|^2.
-]
+$
 
 The mass is invariant under a Lorentz transformation. A suitable combination can expose a resonance or decay-topology pattern more directly than asking a generic classifier to discover that combination from raw coordinates alone.
 
@@ -68,10 +68,10 @@ The XGBoost implementation and configuration must be read from the exact run art
 
 The current compact MLP is a feed-forward neural network. Its configured path is:
 
-[
+$
 D \rightarrow 64 \rightarrow 32 \rightarrow 1,
 \qquad D\in\{7,21,28\}.
-]
+$
 
 Each hidden block applies Linear → BatchNorm1d → ReLU → Dropout(0.20). The output is one logit.
 
