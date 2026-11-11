@@ -32,8 +32,7 @@ These inputs retain relatively direct kinematic information. Their limitation is
 The high-level variables are composite invariant-mass quantities: $m_{jj},m_{jjj},m_{lv},m_{jlv},m_{bb},m_{wbb},m_{wwbb}$. For a set of reconstructed four-momenta, the invariant mass is calculated (using natural units, $c=1$) as
 
 $
-m_{\mathrm{inv}}^2 = \left(\sum_i E_i\right)^2 -
-\left\|\sum_i \vec p_i\right\|^2.
+m_{\mathrm{inv}}^2 = (\sum_i E_i)^2 - \left\|\sum_i \vec p_i\right\|^2.
 $
 
 The mass is invariant under a Lorentz transformation. A suitable combination can expose a resonance or decay-topology pattern more directly than asking a generic classifier to discover that combination from raw coordinates alone.
