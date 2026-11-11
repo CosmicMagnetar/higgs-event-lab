@@ -21,7 +21,7 @@
 ## 2. Get the code **[works now]**
 
 ```bash
-git clone https://github.com/<OWNER>/higgs-event-lab.git
+git clone https://github.com/CosmicMagnetar/higgs-event-lab.git
 cd higgs-event-lab
 git checkout -b docs/<yourname>-<topic>
 ```
@@ -159,7 +159,7 @@ When opened locally without prior model runs, the dashboard renders an honest em
 
 1. Push your changes to the team's GitHub repository (confirm the owner account; see BUG-025).
 2. Navigate to [Streamlit Community Cloud](https://share.streamlit.io/) and click **New app**.
-3. Choose the team's repository (confirm the owner account before deploying; see BUG-025), branch `main`, and main file `streamlit_app.py`.
+3. Choose repository `CosmicMagnetar/higgs-event-lab`, branch `main`, and main file `streamlit_app.py`.
 4. Click **Deploy!** The cloud instance automatically boots with all 6 precomputed mid-sem benchmark models with full interactivity.
 
 ---
