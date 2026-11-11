@@ -157,7 +157,7 @@ When opened locally without prior model runs, the dashboard renders an honest em
 
 ### 8.2 Streamlit Community Cloud Hosting
 
-1. Push your changes to the team's GitHub repository (confirm the owner account; see BUG-025).
+1. Push your changes to `https://github.com/CosmicMagnetar/higgs-event-lab`.
 2. Navigate to [Streamlit Community Cloud](https://share.streamlit.io/) and click **New app**.
 3. Choose repository `CosmicMagnetar/higgs-event-lab`, branch `main`, and main file `streamlit_app.py`.
 4. Click **Deploy!** The cloud instance automatically boots with all 6 precomputed mid-sem benchmark models with full interactivity.
