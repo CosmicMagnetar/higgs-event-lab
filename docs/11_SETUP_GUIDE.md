@@ -26,7 +26,7 @@ cd higgs-event-lab
 git checkout -b docs/<yourname>-<topic>
 ```
 
-`<OWNER>` is whichever account Krishna created the repository under. Never work directly on `main`.
+The canonical repository owner is `CosmicMagnetar`. Never work directly on `main`.
 
 ---
 
