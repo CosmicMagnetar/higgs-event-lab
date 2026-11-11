@@ -159,5 +159,6 @@ Avoid:
 7. T. Fawcett, “An Introduction to ROC Analysis,” *Pattern Recognition Letters* 27(8) (2006), 861–874.
 8. J. Davis and M. Goadrich, “The Relationship Between Precision-Recall and ROC Curves,” *ICML* (2006).
 9. G. W. Brier, “Verification of Forecasts Expressed in Terms of Probability,” *Monthly Weather Review* 78(1) (1950), 1–3.
+10. P. Sadowski, J. Collado, D. Whiteson and P. Baldi, “Deep Learning, Dark Knowledge, and Dark Matter,” *Proceedings of the NIPS 2014 Workshop on High-energy Physics and Machine Learning*, Proceedings of Machine Learning Research 42 (2015), 81–87. [https://proceedings.mlr.press/v42/sado14.html](https://proceedings.mlr.press/v42/sado14.html).
 
 For the complete physics background, feature dictionary and project-specific protocol, see `docs/08_PHYSICS_BACKGROUND.md`, `docs/09_DATASET_GUIDE.md`, `docs/13_EXPERIMENT_PROTOCOL_AND_ARTIFACTS.md` and `docs/14_RESULTS_RECONCILIATION.md`.
