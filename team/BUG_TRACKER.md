@@ -61,9 +61,9 @@ Sweep scope: every file in the uploaded scaffold (60 entries), read in full and 
 | BUG-023 | P2 | Documentation / reports | The Saumya report draft (`HiggsLens_Project_Report`) states that XGBoost is not implemented and omits the 1M benchmark. Both are now in the repo. | `docs/` and report draft | Saumya | **Open.** Report rewrite waits for BUG-015 |
 | BUG-024 | P2 | Governance | Legacy flat artifact schema conflicts with the implemented nested `higgs-experiment-v1` contract. | `docs/decisions/DRAFT-ADR-0002-experiment-artifact-schema.md`; `app/loader.py`; `app/utils/schema.py` | Krishna / Ronit | **Decision accepted 2026-11-12:** `higgs-experiment-v1` is canonical. Legacy loader consolidation and regression tests remain open under issue #21. |
 | BUG-025 | P2 | Deployment | The setup guide had a generic `<OWNER>` clone placeholder and did not identify the canonical Streamlit Cloud repository. | `docs/11_SETUP_GUIDE.md` | Krishna | **Fixed 2026-11-12 in merged PR #23.** Canonical repository is `CosmicMagnetar/higgs-event-lab`; clone URL and Streamlit Cloud repository are explicit. |
-| BUG-026 | P2 | Data privacy | The tracked 250k sample manifest contained absolute workstation paths for the source and output files. | `data/processed/higgs_sample_250k.csv.gz.manifest.json` | Krishna | **Fix prepared in branch `fix/krishna-release-gate-privacy-schema`; pending merge.** Both paths are now repository-relative, with source hash and sampling metadata preserved. |
+| BUG-026 | P2 | Data privacy | The tracked 250k sample manifest contained absolute workstation paths for the source and output files. | `data/processed/higgs_sample_250k.csv.gz.manifest.json` | Krishna | **Fixed 2026-11-12 in merged PR #24.** Both paths are repository-relative; source hash and sampling metadata are preserved, and a regression test guards against absolute local paths. |
 
-### Summary counts (2026-10-26, after the final results push)
+### Summary counts (2026-11-12, after Krishna PR #24)
 
 | Severity | Total | Fixed | Open |
 |---|---|---|---|
