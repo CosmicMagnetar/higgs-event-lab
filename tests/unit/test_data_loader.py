@@ -22,6 +22,7 @@ from higgs_event_lab.data import (
     MissingOrNonFiniteValueError,
     NonNumericDataError,
     SchemaValidationError,
+    extract_sample,
     iter_higgs_chunks,
     load_higgs_sample,
     validate_raw_chunk,
@@ -246,3 +247,54 @@ def test_stage_interim_clean_data(tiny_csv: Path, tmp_path: Path):
     assert (out_dir / "cleaning_manifest.json").exists()
     assert (out_dir / "interim_chunk_0000.csv.gz").exists()
 
+
+
+def test_seeded_extract_sample_is_global_reproducible_and_without_replacement(tmp_path: Path):
+    """A seeded sample must draw from the whole file, not take full early chunks."""
+    raw = create_synthetic_data(n_rows=60, seed=987)
+    raw[:, 1] = np.arange(len(raw), dtype=np.float64)
+    source = tmp_path / "source.csv"
+    np.savetxt(source, raw, delimiter=",", fmt="%.8f")
+
+    first_output = tmp_path / "sample_a.csv.gz"
+    second_output = tmp_path / "sample_b.csv.gz"
+    first_manifest = extract_sample(
+        source, first_output, n_rows=20, chunk_size=10, seed=17,
+        compare_later_chunk=False,
+    )
+    extract_sample(
+        source, second_output, n_rows=20, chunk_size=10, seed=17,
+        compare_later_chunk=False,
+    )
+
+    first = pd.read_csv(first_output, header=None).to_numpy()
+    second = pd.read_csv(second_output, header=None).to_numpy()
+    selected_ids = first[:, 1].astype(int)
+
+    assert first_manifest["sampling_method"] == "seeded_random"
+    assert first_manifest["rows_extracted"] == 20
+    assert np.array_equal(first, second)
+    assert len(np.unique(selected_ids)) == 20
+    # The old chunk-level implementation always included the first 20 rows
+    # in full when n_rows and chunk_size were multiples of chunk_size.
+    assert not np.array_equal(np.sort(selected_ids), np.arange(20))
+    assert np.any(selected_ids >= 20)
+
+
+def test_seeded_extract_sample_handles_sample_larger_than_first_chunk(tmp_path: Path):
+    raw = create_synthetic_data(n_rows=35, seed=654)
+    raw[:, 1] = np.arange(len(raw), dtype=np.float64)
+    source = tmp_path / "source.csv"
+    output = tmp_path / "sample.csv.gz"
+    np.savetxt(source, raw, delimiter=",", fmt="%.8f")
+
+    manifest = extract_sample(
+        source, output, n_rows=30, chunk_size=7, seed=5,
+        compare_later_chunk=False,
+    )
+    sample = pd.read_csv(output, header=None).to_numpy()
+
+    assert manifest["rows_extracted"] == 30
+    assert len(sample) == 30
+    assert len(np.unique(sample[:, 1])) == 30
+    assert np.all(np.diff(sample[:, 1]) > 0)

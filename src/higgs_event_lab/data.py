@@ -386,8 +386,8 @@ def extract_sample(
     chunk_size : int, default=50_000
         Chunk size for reading.
     seed : int, optional
-        Random seed if random sampling within chunks is used. If None, extracts the
-        first n_rows sequentially.
+        Random seed for uniform sampling without replacement across the entire source
+        file. If None, extracts the first n_rows sequentially.
     compare_later_chunk : bool, default=True
         Whether to inspect a later chunk to evaluate sampling consistency.
     later_chunk_offset_rows : int, default=500_000
@@ -415,11 +415,16 @@ def extract_sample(
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
     rows_collected = []
-    labels_collected = []
     total_written = 0
 
-    # Sequential or seeded sampling
+    # A seeded sample must be uniform over the whole file, not independently
+    # sampled from each chunk. Random priorities let us retain the globally
+    # smallest n_rows keys using O(n_rows + chunk_size) memory.
     rng = np.random.default_rng(seed) if seed is not None else None
+    sampled_rows: pd.DataFrame | None = None
+    sampled_priorities = np.empty(0, dtype=np.float64)
+    sampled_source_indices = np.empty(0, dtype=np.int64)
+    source_rows_seen = 0
 
     reader = pd.read_csv(
         source_path,
@@ -431,30 +436,59 @@ def extract_sample(
     for chunk in reader:
         validate_raw_chunk(chunk, expected_num_cols=EXPECTED_NUM_COLUMNS)
 
-        remaining = n_rows - total_written
-        if remaining <= 0:
-            break
-
-        if rng is not None:
-            # Seeded chunk-level subsampling if needed
-            take_count = min(len(chunk), remaining)
-            indices = rng.choice(len(chunk), size=take_count, replace=False)
-            indices.sort()
-            sub = chunk.iloc[indices]
-        else:
+        if rng is None:
+            remaining = n_rows - total_written
+            if remaining <= 0:
+                break
             sub = chunk.iloc[:remaining]
+            rows_collected.append(sub)
+            total_written += len(sub)
+        else:
+            chunk_length = len(chunk)
+            candidate_rows = (
+                chunk.reset_index(drop=True)
+                if sampled_rows is None
+                else pd.concat([sampled_rows, chunk], ignore_index=True)
+            )
+            candidate_priorities = np.concatenate(
+                [sampled_priorities, rng.random(chunk_length)]
+            )
+            candidate_source_indices = np.concatenate(
+                [
+                    sampled_source_indices,
+                    np.arange(
+                        source_rows_seen,
+                        source_rows_seen + chunk_length,
+                        dtype=np.int64,
+                    ),
+                ]
+            )
 
-        rows_collected.append(sub)
-        labels_collected.extend(sub.iloc[:, 0].tolist())
-        total_written += len(sub)
+            if len(candidate_rows) > n_rows:
+                selected = np.argpartition(candidate_priorities, n_rows - 1)[:n_rows]
+                sampled_rows = candidate_rows.iloc[selected].reset_index(drop=True)
+                sampled_priorities = candidate_priorities[selected]
+                sampled_source_indices = candidate_source_indices[selected]
+            else:
+                sampled_rows = candidate_rows
+                sampled_priorities = candidate_priorities
+                sampled_source_indices = candidate_source_indices
 
-        if total_written >= n_rows:
-            break
+            source_rows_seen += chunk_length
+
+    if rng is not None and sampled_rows is not None:
+        # Preserve original file order in the exported sample for easier auditing.
+        order = np.argsort(sampled_source_indices)
+        combined_df = sampled_rows.iloc[order].reset_index(drop=True)
+        total_written = len(combined_df)
+    else:
+        if not rows_collected:
+            raise SchemaValidationError("No data was extracted from source file.")
+        combined_df = pd.concat(rows_collected, axis=0, ignore_index=True)
+        total_written = len(combined_df)
 
     if total_written == 0:
         raise SchemaValidationError("No data was extracted from source file.")
-
-    combined_df = pd.concat(rows_collected, axis=0, ignore_index=True)
 
     # Save format
     if output_path.suffix == ".parquet":
