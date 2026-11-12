@@ -1,8 +1,8 @@
 {
-  "source_path": "/Users/ronitsingh/Desktop/AML_PROJECT /higgs-event-lab/data/raw/HIGGS.csv.gz",
+  "source_path": "data/raw/HIGGS.csv.gz",
   "source_size_bytes": 2816407858,
   "source_sha256_prefix": "e3c49164aba986e5c46abd64f7d0d7de8304f7c1fbc97f3197e3aaf272392649",
-  "output_path": "/Users/ronitsingh/Desktop/AML_PROJECT /higgs-event-lab/data/processed/higgs_sample_250k.csv.gz",
+  "output_path": "data/processed/higgs_sample_250k.csv.gz",
   "rows_extracted": 250000,
   "sampling_method": "seeded_random",
   "random_seed": 42,
@@ -15,8 +15,8 @@
     "later_chunk_offset_rows": 500000,
     "later_chunk_rows_inspected": 50000,
     "later_chunk_label_counts": {
-      "1": 26476,
-      "0": 23524
+      "0": 23524,
+      "1": 26476
     },
     "later_chunk_signal_fraction": 0.5295,
     "sample_signal_fraction": 0.5278,
