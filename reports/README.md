@@ -40,6 +40,7 @@ Store report source files and selected small figures in this folder. Place large
 | `03_classical_baseline_benchmarks.md` | Aditya Rana | Draft | Logistic Regression pipeline, leakage-free scaling, cross-group benchmarks, artifact export. |
 | `04_midsem_presentation_and_demo.md` | Ronit Singh | Draft | 12-slide presentation structure and live demo script. |
 | `05_viva_defense_guide.md` | Krishna | Draft | Viva examination Q&A preparation pack (20 questions). |
+| `06_technical_methodology_and_reproducibility.md` | Krishna | **Added on `docs/krishna-technical-methodology`; awaiting Saumya's integration review** | Technical rationale for physics scope, feature groups, model choices, leakage-safe protocol, metrics, reproducibility, and scientific limitations. |
 
 ## Final generated deliverables
 
