@@ -357,6 +357,21 @@ def compute_file_sha256(path: Path, max_bytes: int = 100 * 1024 * 1024) -> str:
     return hasher.hexdigest()
 
 
+def to_relative_manifest_path(path: Path | str) -> str:
+    """Normalize a path to be repository-relative for privacy and portability in manifests."""
+    p = Path(path)
+    try:
+        resolved = p.resolve()
+        for parent in [resolved] + list(resolved.parents):
+            if (parent / "pyproject.toml").is_file() or (parent / ".git").exists():
+                return resolved.relative_to(parent).as_posix()
+        if not p.is_absolute():
+            return p.as_posix()
+        return p.name
+    except Exception:
+        return str(p)
+
+
 def extract_sample(
     source_path: str | Path,
     output_path: str | Path,
@@ -524,10 +539,10 @@ def extract_sample(
             }
 
     manifest = {
-        "source_path": str(source_path),
+        "source_path": to_relative_manifest_path(source_path),
         "source_size_bytes": source_path.stat().st_size,
         "source_sha256_prefix": compute_file_sha256(source_path),
-        "output_path": str(output_path),
+        "output_path": to_relative_manifest_path(output_path),
         "rows_extracted": total_written,
         "sampling_method": "seeded_random" if seed is not None else "sequential_head",
         "random_seed": seed,
@@ -614,12 +629,12 @@ def stage_interim_clean_data(
 
     total_dropped = sum(dropped_breakdown.values())
     manifest = {
-        "source_path": str(source_path),
+        "source_path": to_relative_manifest_path(source_path),
         "total_rows_read": total_rows_read,
         "total_rows_clean": total_rows_clean,
         "total_dropped_rows": total_dropped,
         "dropped_reasons": dropped_breakdown,
-        "chunks_written": chunks_written,
+        "chunks_written": [to_relative_manifest_path(c) for c in chunks_written],
         "created_at_utc": datetime.now(timezone.utc).isoformat(),
         "status": "PASS: All records validated successfully" if total_dropped == 0 else f"NOTE: {total_dropped} rows dropped",
     }

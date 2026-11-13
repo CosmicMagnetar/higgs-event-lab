@@ -1,0 +1,29 @@
+{
+  "source_path": "data/raw/HIGGS.csv.gz",
+  "source_size_bytes": 2816407858,
+  "source_sha256_prefix": "e3c49164aba986e5c46abd64f7d0d7de8304f7c1fbc97f3197e3aaf272392649",
+  "output_path": "data/processed/higgs_sample_1m.csv.gz",
+  "rows_extracted": 1000000,
+  "sampling_method": "sequential_head",
+  "random_seed": null,
+  "label_counts": {
+    "0.0": 470327,
+    "1.0": 529673
+  },
+  "signal_fraction": 0.5297,
+  "later_chunk_comparison": {
+    "later_chunk_offset_rows": 1500000,
+    "later_chunk_rows_inspected": 50000,
+    "later_chunk_label_counts": {
+      "1": 26603,
+      "0": 23397
+    },
+    "later_chunk_signal_fraction": 0.5321,
+    "sample_signal_fraction": 0.5297,
+    "fraction_difference": 0.0024,
+    "is_consistent_within_2pct": true
+  },
+  "columns_count": 29,
+  "created_at_utc": "2026-10-26T09:00:00+00:00",
+  "_note": "Sample was extracted on Kaggle/Colab during the 1M benchmark run. Signal fraction and label counts verified from HIGGS.csv.gz first 1M rows. Regenerate with: python -m higgs_event_lab.data --source data/raw/HIGGS.csv.gz --output data/processed/higgs_sample_1m.csv.gz --rows 1000000"
+}

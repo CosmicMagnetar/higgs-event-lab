@@ -18,8 +18,10 @@ data/raw/*
 !data/raw/README.md
 data/processed/*
 !data/processed/README.md
+!data/processed/*.manifest.json
 data/interim/*
 !data/interim/README.md
+!data/interim/cleaning_manifest.json
 data/external/*
 !data/external/README.md
 

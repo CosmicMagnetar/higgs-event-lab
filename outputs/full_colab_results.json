@@ -7,7 +7,10 @@
   "split": {
     "seed": 42,
     "validation_fraction": 0.15,
-    "test_fraction": 0.15
+    "test_fraction": 0.15,
+    "train_rows": 700000,
+    "validation_rows": 150000,
+    "test_rows": 150000
   },
   "runs": [
     {
@@ -16,7 +19,7 @@
       "test_pr_auc": 0.683158,
       "brier_score": 0.223328,
       "test_accuracy": 0.64058,
-      "training_seconds": 412.03
+      "training_seconds": 2.6
     },
     {
       "model": "xgboost_tuned",
@@ -24,7 +27,7 @@
       "test_pr_auc": 0.841531,
       "brier_score": 0.169315,
       "test_accuracy": 0.745093,
-      "training_seconds": 412.03
+      "training_seconds": 35.1
     },
     {
       "model": "wide_mlp_tuned",
@@ -32,7 +35,7 @@
       "test_pr_auc": 0.853907,
       "brier_score": 0.163042,
       "test_accuracy": 0.756467,
-      "training_seconds": 412.03
+      "training_seconds": 395.1
     }
   ],
   "artifacts": [
@@ -43,5 +46,37 @@
     "outputs/model_weights/logistic_regression_tuned.joblib",
     "outputs/model_weights/wide_mlp_tuned.pt",
     "outputs/model_weights/xgboost_tuned.joblib"
-  ]
+  ],
+  "feature_group": "all",
+  "feature_names": [
+    "lepton_pt",
+    "lepton_eta",
+    "lepton_phi",
+    "missing_energy_magnitude",
+    "missing_energy_phi",
+    "jet_1_pt",
+    "jet_1_eta",
+    "jet_1_phi",
+    "jet_1_btag",
+    "jet_2_pt",
+    "jet_2_eta",
+    "jet_2_phi",
+    "jet_2_btag",
+    "jet_3_pt",
+    "jet_3_eta",
+    "jet_3_phi",
+    "jet_3_btag",
+    "jet_4_pt",
+    "jet_4_eta",
+    "jet_4_phi",
+    "jet_4_btag",
+    "m_jj",
+    "m_jjj",
+    "m_lv",
+    "m_jlv",
+    "m_bb",
+    "m_wbb",
+    "m_wwbb"
+  ],
+  "_training_time_note": "Per-model training times restored from Kaggle notebook bc03581 stdout: logreg_tuned=2.6s, xgboost_tuned=35.1s, wide_mlp_tuned=395.1s. BUG-018: original file had a copy error (all three showed 412.03s)."
 }
