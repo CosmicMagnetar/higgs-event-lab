@@ -1,6 +1,6 @@
 {
   "schema_version": "higgs-eda-v1",
-  "data_source": "/content/higgs-event-lab/data/raw/HIGGS.csv.gz",
+  "data_source": "data/raw/HIGGS.csv.gz",
   "rows": 250000,
   "feature_count": 28,
   "label_counts": {

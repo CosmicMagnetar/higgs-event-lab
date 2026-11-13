@@ -40,7 +40,7 @@
     ]
   },
   "data": {
-    "source": "/content/higgs-event-lab/data/raw/HIGGS.csv.gz",
+    "source": "data/raw/HIGGS.csv.gz",
     "row_count": 250000
   },
   "split": {

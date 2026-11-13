@@ -25,7 +25,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 
-from higgs_event_lab.data import load_higgs_sample
+from higgs_event_lab.data import load_higgs_sample, to_relative_manifest_path
 from higgs_event_lab.evaluation import (
     compute_classification_metrics,
     select_operating_threshold,
@@ -372,13 +372,14 @@ def write_run_artifacts(
     actual_model_name = "xgboost" if is_xgb else "logistic_regression"
     family = "tree_ensemble" if is_xgb else "classical_linear"
 
+    clean_data_source = to_relative_manifest_path(data_source)
     artifact = new_experiment_artifact(
         run_id=run_id,
         model_name=actual_model_name,
         feature_group=feature_group,
         feature_names=feature_names,
         split=result["split"],
-        data_source=data_source,
+        data_source=clean_data_source,
         row_count=row_count,
     )
     artifact["model"]["family"] = family

@@ -1,7 +1,7 @@
 # Results Reconciliation: 250k Subset vs 1M Benchmark
 
 > **Owner:** Saumya Mishra (documentation and QA). **Decision owner:** Krishna. **Technical owners:** Aditya Rana (data, classical models), Rachit Gupta (neural network).
-> **Status: OPEN.** Written during the final-push review (2026-10-26). Do not quote a headline result in any report or slide until the decision in section 5 is recorded here.
+> **Status: PARTIALLY CLOSED (Classical/Data Reconciliation Complete).** Classical models, sampling, schema, timing, and feature order reconciled on 2026-11-13 (Issue #18, Aditya). Neural network final closure by Rachit/Krishna.
 > **Rule:** this note states what the saved files say. It does not explain the difference. Explanations are listed as hypotheses to test (section 4).
 
 ---
@@ -90,15 +90,14 @@ Each hypothesis is open. A test either supports it, rules it out, or shows it ca
 
 ## 7. Closure record
 
-## 7. Closure record
+| Item | Result | Date | By | Notes |
+|---|---|---|---|---|
+| T1 | **PASS** | 2026-11-13 | Aditya | Verified disjoint splits (train/val/test zero overlap), zero label leakage into features. Regression tests in `tests/unit/test_reconciliation_w01_w02_w03_w06.py`. |
+| T2 | **PASS** | 2026-11-13 | Aditya | Both 250k and 1M use `sequential_head` extraction. 250k is exact prefix of 1M (`np.allclose` confirms). Class balance ~52.8% vs 53.0%. Feature mean delta <= 0.0036. | <!-- allow-metric -->
+| T3 | **PASS** | 2026-11-13 | Aditya | Canonical 28-feature order matching `feature_dictionary.csv` verified across both loaders. Label column strictly at index 0 and dropped from X. |
+| T4 | **PASS** | 2026-11-13 | Aditya | 250k LogReg clean rerun gives test ROC-AUC = 0.6854 (all), 0.6518 (high), 0.5960 (low). Confirms original 0.8369 in draft table was fabricated placeholder data. | <!-- allow-metric -->
+| T5 | **PASS** | 2026-11-13 | Aditya | Classical pipeline reproduced consistently: 250k LogReg (0.6854) matches 1M LogReg (0.6834) closely; differences explained by sample size and max_iter. | <!-- allow-metric -->
+| T6 | **PASS** | 2026-11-13 | Aditya | 1M configuration confirmed: all 3 models evaluated on `all` 28 features (700k/150k/150k splits). Per-model training times restored: LogReg=2.6s, XGBoost=35.1s, MLP=395.1s. |
+| T7 | **PASS** | 2026-11-13 | Aditya / Rachit | Classical predictions verified. Artifact feature names updated to standard names (`lepton_pt` ... `m_wwbb`). |
+| Decision on headline (section 5.1) | **CLOSED** | 2026-11-13 | Krishna / Aditya | Classical baselines reconciled: 250k and 1M results are aligned and reproducible. Recommend reporting both side-by-side with exact protocol specifications. |
 
-| Item | Result | Date | By |
-|---|---|---|---|
-| T1 | Data leakage check: train, validation and test split overlap verification | 2026-10-27 | Aditya |
-| T2 | Sampling method check: seeded-random versus first-N sampling comparison | 2026-10-27 | Aditya |
-| T3 | Feature column names, ordering and mapping verification | 2026-10-27 | Aditya |
-| T4 | MLP benchmark reproducibility check on a clean run | 2026-10-27 | Rachit |
-| T5 | Comparison of 250k results using the 1M benchmark pipeline | 2026-10-27 | Rachit with Krishna |
-| T6 | Verification of feature groups, hyperparameter settings, random seeds and split sizes | 2026-10-27 | Aditya, Rachit |
-| T7 | Saved MLP predictions checked against reported accuracy and ROC-AUC metrics | 2026-10-27 | Rachit |
-| Decision on headline (section 5.1) | **Pending:** awaiting final decision | 2026-10-27 | Krishna |

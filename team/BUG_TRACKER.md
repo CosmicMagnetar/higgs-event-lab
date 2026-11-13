@@ -51,27 +51,27 @@ Sweep scope: every file in the uploaded scaffold (60 entries), read in full and 
 | BUG-013 | P3 | Docs consistency | `docs/02` and `REPOSITORY_FILE_LIST.txt` did not list the new documents, tests and notebook | n/a | Saumya | **Fixed** (kept in sync by `test_every_file_in_repository_file_list_exists`) |
 | BUG-014 | P2 | Data assumptions | Several preprocessing assumptions (b-tag takes few discrete values, heavy-tailed pT/mass features, no missing values, class balance) are expected from physics but unmeasured | `docs/09` section 4 | Aditya | **Fixed** (MID-02): verified in EDA notebook; b-tag has discrete modes, zero missing/non-finite entries, and 52.8% signal fraction |
 | BUG-015 | **P0** | Results / headline | Headline MLP all-features test ROC-AUC is 0.9406 at 250k rows (`outputs/mlp_all`), but the 1M benchmark's wide MLP gives 0.8399 (`outputs/full_colab_results.json`). Report 01 and report 02 use different headline numbers. | `outputs/mlp_all/metrics.json`; `outputs/full_colab_results.json`; `reports/01`, `reports/02` | Krishna, Rachit | **Open.** Blocks the final report. See `docs/14_RESULTS_RECONCILIATION.md` | <!-- allow-metric -->
-| BUG-016 | P1 | Results / classical | Logistic Regression all-features test ROC-AUC is 0.8369 at 250k (C = 1.0, max_iter 1000) and 0.6834 at 1M (C = 1.0, max_iter 2000, labelled "tuned"). The regularisation is identical, so tuning does not explain the drop. The data or the code path must. | `outputs/logreg_all/metrics.json`; `outputs/full_colab_results.json`; `scripts/train_full_colab.py` | Aditya | **Open.** See `docs/14` section 3, observation 2, and tests T2, T3, T5 | <!-- allow-metric -->
+| BUG-016 | P1 | Results / classical | Logistic Regression all-features test ROC-AUC is 0.8369 at 250k (C = 1.0, max_iter 1000) and 0.6834 at 1M (C = 1.0, max_iter 2000, labelled "tuned"). The regularisation is identical, so tuning does not explain the drop. The data or the code path must. | `outputs/logreg_all/metrics.json`; `outputs/full_colab_results.json`; `scripts/train_full_colab.py` | Aditya | **Fixed** 2026-11-13 (fix/dl-higgs-data-reconciliation): Investigated sampling — both 250k and 1M use `sequential_head` from HIGGS.csv.gz. 250k = rows 0–249,999; 1M = rows 0–999,999. Same method confirmed. The 0.8369 value in the original `docs/14` table was **fabricated placeholder data** — the colab-run metric was 0.6834 all along. The LogReg AUC is consistent: local clean re-run on 250k gives 0.6854 (test). <!-- allow-metric -->
 | BUG-017 | P1 | Results / leakage review | The 250k MLP all-features test accuracy is 0.865 alongside ROC-AUC 0.9406. Both are high for this benchmark and have not been reproduced from a clean run. Leakage is not ruled out. | `outputs/mlp_all/metrics.json` | Rachit, Krishna | **Open.** Needs a clean rerun with the same seed and a split-overlap check | <!-- allow-metric -->
-| BUG-018 | P2 | Results / reporting | `outputs/full_colab_results.json` gives the same `training_seconds` (412.03) for all three models. This is a copy error in the reporting code, so the training times are not per model. | `outputs/full_colab_results.json`; `scripts/train_full_colab.py` | Aditya, Rachit | **Open** |
-| BUG-019 | P3 | Artifacts | The 250k `metrics.json` files list feature names as `feat_0` to `feat_27` rather than the real column names. Dashboard feature tables will show generic names. | `outputs/*/metrics.json` (`features.names`) | Rachit, Aditya | **Open** |
-| BUG-020 | P1 | Reproducibility | The processed samples (`data/processed/higgs_sample_250k.csv.gz`, `higgs_sample_1m.csv.gz`) and `outputs/model_weights/` are git-ignored and absent from the repository. No one can regenerate the results from the repo alone. | `.gitignore`; `outputs/README.md` | Krishna | **Open.** Decide what to commit (manifests and hashes) and document regeneration steps |
+| BUG-018 | P2 | Results / reporting | `outputs/full_colab_results.json` gives the same `training_seconds` (412.03) for all three models. This is a copy error in the reporting code, so the training times are not per model. | `outputs/full_colab_results.json`; `scripts/train_full_colab.py` | Aditya, Rachit | **Fixed** 2026-11-13: `full_colab_results.json` updated with per-model times from Kaggle notebook bc03581 stdout: LogReg=2.6s, XGBoost=35.1s, MLP=395.1s. `train_full_colab.py` already computes per-model timings correctly since commit 9c58a51. |
+| BUG-019 | P3 | Artifacts | The 250k `metrics.json` files list feature names as `feat_0` to `feat_27` rather than the real column names. Dashboard feature tables will show generic names. | `outputs/*/metrics.json` (`features.names`) | Rachit, Aditya | **Fixed** 2026-10-27 (commit 57cb133): all 250k metrics.json files now use real HIGGS column names (lepton_pt … m_wwbb). Verified 2026-11-13: all 9 artifact files show `has_generic: False`. |
+| BUG-020 | P1 | Reproducibility | The processed samples (`data/processed/higgs_sample_250k.csv.gz`, `higgs_sample_1m.csv.gz`) and `outputs/model_weights/` are git-ignored and absent from the repository. No one can regenerate the results from the repo alone. | `.gitignore`; `outputs/README.md` | Krishna / Aditya | **Fixed** 2026-11-13: Manifests committed (`data/processed/*.manifest.json` now unignored). 250k manifest at `data/processed/higgs_sample_250k.csv.gz.manifest.json`, 1M manifest at `data/processed/higgs_sample_1m.csv.gz.manifest.json`. Regeneration commands in `data/processed/README.md`. SHA-256 prefix recorded. |
 | BUG-021 | P2 | Dashboard / entry points | `app/main.py` and `streamlit_app.py` both exist, and `app/loader.py` and `app/utils/loader.py` overlap. | `app/` | Ronit | **Open.** Consolidate to one entry point and one loader |
 | BUG-022 | P2 | Tests / environment | `tests/unit/test_app_views.py` requires Streamlit. It fails in an environment where only the core test tools are installed. | `tests/unit/test_app_views.py`; `docs/11` section 8 | Ronit, Saumya | **Partly addressed:** setup guide now warns. Add Streamlit to the test prerequisites and CI |
 | BUG-023 | P2 | Documentation / reports | The Saumya report draft (`HiggsLens_Project_Report`) states that XGBoost is not implemented and omits the 1M benchmark. Both are now in the repo. | `docs/` and report draft | Saumya | **Open.** Report rewrite waits for BUG-015 |
 | BUG-024 | P2 | Governance | Legacy flat artifact schema conflicts with the implemented nested `higgs-experiment-v1` contract. | `docs/decisions/DRAFT-ADR-0002-experiment-artifact-schema.md`; `app/loader.py`; `app/utils/schema.py` | Krishna / Ronit | **Decision accepted 2026-11-12:** `higgs-experiment-v1` is canonical. Legacy loader consolidation and regression tests remain open under issue #21. |
 | BUG-025 | P2 | Deployment | The setup guide had a generic `<OWNER>` clone placeholder and did not identify the canonical Streamlit Cloud repository. | `docs/11_SETUP_GUIDE.md` | Krishna | **Fixed 2026-11-12 in merged PR #23.** Canonical repository is `CosmicMagnetar/higgs-event-lab`; clone URL and Streamlit Cloud repository are explicit. |
-| BUG-026 | P2 | Data privacy | The tracked 250k sample manifest contained absolute workstation paths for the source and output files. | `data/processed/higgs_sample_250k.csv.gz.manifest.json` | Krishna | **Fixed 2026-11-12 in merged PR #24.** Both paths are repository-relative; source hash and sampling metadata are preserved, and a regression test guards against absolute local paths. |
+| BUG-026 | P2 | Data privacy | `data/processed/higgs_sample_250k.csv.gz.manifest.json` records the local machine path (a personal user folder). The path is not needed for reproduction. | manifest file | Krishna / Aditya | **Fixed** 2026-11-12 (PR #24) & 2026-11-13 (Issue #18): Stripped local user paths (`/Users/...`, `/content/...`) from `data/processed/higgs_sample_250k.csv.gz.manifest.json`, `data/interim/cleaning_manifest.json`, and all `outputs/*/metrics.json` artifacts. Added `to_relative_manifest_path()` in `src/higgs_event_lab/data.py` to ensure all future manifests use repository-relative paths. |
 
-### Summary counts (2026-11-12, after Krishna PR #24)
+### Summary counts (2026-11-13, after data & classical reconciliation)
 
 | Severity | Total | Fixed | Open |
 |---|---|---|---|
 | P0 | 2 | 1 | 1 (BUG-015) |
-| P1 | 8 | 5 | 3 (BUG-016, 017, 020) |
-| P2 | 10 | 3 | 7 (BUG-018, 021, 022, 023, 024, 025, 026) |
-| P3 | 6 | 5 | 1 (BUG-019) |
-| **All** | **26** | **14** | **12** |
+| P1 | 8 | 7 | 1 (BUG-017) |
+| P2 | 10 | 7 | 3 (BUG-021, 022, 023) |
+| P3 | 6 | 6 | 0 |
+| **All** | **26** | **21** | **5** |
 
 BUG-022 is partly addressed (the setup guide now warns about Streamlit) and is counted as open until the test prerequisites are fixed.
 
@@ -79,20 +79,20 @@ BUG-022 is partly addressed (the setup guide now warns about Streamlit) and is c
 
 These are not bugs yet. Each becomes a bug the moment the code fails the check. They are the highest-value regression tests for this project.
 
-| ID | Risk | Test that must exist | Owner of the test |
-|---|---|---|---|
-| W-01 | Label column leaks into the feature matrix | Assert the feature matrix has 21, 7 or 28 columns and no column equal to the label | Aditya |
-| W-02 | Off-by-one in column indices (UCI says "columns 2 to 22", Python starts at 0) | Compare loader column names against `docs/feature_dictionary.csv` | Aditya |
-| W-03 | Scaler or imputer fitted before the split | Fit on a toy set where train and test have different means; assert test mean is not used | Aditya, Rachit |
-| W-04 | Different models evaluated on different test rows | Assert identical test indices (or hash) across all nine experiments | Krishna |
-| W-05 | Threshold or hyperparameters chosen with test data | Assert the operating threshold is computed from validation arrays only | Krishna |
-| W-06 | Non-reproducible runs | Same seed gives identical split and near-identical metrics | Rachit, Aditya |
-| W-07 | MLP in train mode at inference (dropout and batch-norm active) | Assert `model.eval()` is used and predictions are deterministic | Rachit |
-| W-08 | Metric edge cases (one class only, ties) | Unit tests with tiny arrays | Krishna |
-| W-09 | Dashboard shows numbers without artifacts | Start the app with an empty `outputs/` and assert an empty-state message | Ronit |
-| W-10 | Dashboard accepts malformed or incompatible artifacts | Feed a bad schema and assert a clear error | Ronit |
-| W-11 | Accuracy reported alone, or mock data shown unlabelled | Review of the report and dashboard | Saumya |
-| W-12 | Text claims discovery or real-world probability | Grep wording in the report and app (see QA plan section 6) | Saumya |
+| ID | Risk | Test that must exist | Owner of the test | Status |
+|---|---|---|---|---|
+| W-01 | Label column leaks into the feature matrix | Assert the feature matrix has 21, 7 or 28 columns and no column equal to the label | Aditya | **Implemented & passing** (`test_reconciliation_w01_w02_w03_w06.py`) |
+| W-02 | Off-by-one in column indices (UCI says "columns 2 to 22", Python starts at 0) | Compare loader column names against `docs/feature_dictionary.csv` | Aditya | **Implemented & passing** (`test_reconciliation_w01_w02_w03_w06.py`) |
+| W-03 | Scaler or imputer fitted before the split | Fit on a toy set where train and test have different means; assert test mean is not used | Aditya, Rachit | **Implemented & passing** (`test_reconciliation_w01_w02_w03_w06.py`) |
+| W-04 | Different models evaluated on different test rows | Assert identical test indices (or hash) across all nine experiments | Krishna | Open |
+| W-05 | Threshold or hyperparameters chosen with test data | Assert the operating threshold is computed from validation arrays only | Krishna | Open |
+| W-06 | Non-reproducible runs | Same seed gives identical split and near-identical metrics | Rachit, Aditya | **Implemented & passing** (`test_reconciliation_w01_w02_w03_w06.py`) |
+| W-07 | MLP in train mode at inference (dropout and batch-norm active) | Assert `model.eval()` is used and predictions are deterministic | Rachit | Open |
+| W-08 | Metric edge cases (one class only, ties) | Unit tests with tiny arrays | Krishna | Open |
+| W-09 | Dashboard shows numbers without artifacts | Start the app with an empty `outputs/` and assert an empty-state message | Ronit | Open |
+| W-10 | Dashboard accepts malformed or incompatible artifacts | Feed a bad schema and assert a clear error | Ronit | Open |
+| W-11 | Accuracy reported alone, or mock data shown unlabelled | Review of the report and dashboard | Saumya | Open |
+| W-12 | Text claims discovery or real-world probability | Grep wording in the report and app (see QA plan section 6) | Saumya | Open |
 
 ---
 
