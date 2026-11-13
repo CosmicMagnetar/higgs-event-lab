@@ -25,7 +25,7 @@ def render_validation(discovery: RunDiscoveryResult) -> None:
     """Render Validation & Threshold Analysis view."""
     st.markdown(
         '<div class="section-header">'
-        '<span class="material-icons icon-md" style="color:#00e5ff;">insights</span>'
+        '<span class="material-icons icon-md" style="color:#127c80;">insights</span>'
         '<h2 style="margin:0;">Validation &amp; Threshold Analysis</h2>'
         "</div>",
         unsafe_allow_html=True,
@@ -54,6 +54,11 @@ def render_validation(discovery: RunDiscoveryResult) -> None:
     )
 
     selected_runs = [run_options[rid] for rid in selected_run_ids if rid in run_options]
+    st.dataframe([
+        {"Run ID": run.run_id, "Source": run.data_source, "Sample size": run.row_count,
+         "Model": run.model_name, "Feature group": run.feature_group, "Split": run.split}
+        for run in selected_runs
+    ], hide_index=True)
 
     t1, t2, t3, t4, t5, t6 = st.tabs([
         "ROC Curves",
@@ -158,9 +163,9 @@ def render_validation(discovery: RunDiscoveryResult) -> None:
 
         if op_info and "validation_threshold" in op_info:
             st.info(
-                f"Validation-selected frozen threshold for target 50% signal efficiency: "
+                f"Validation-selected frozen threshold for target {op_info['target_signal_efficiency']:.0%} signal efficiency: "
                 f"**$\\tau_{{val}} = {default_thresh:.4f}$** "
-                f"(achieved test background rejection: {op_info.get('test_background_rejection', 0.0):.2%})"
+                f"(achieved test background rejection: {op_info['test_background_rejection']:.2%})"
             )
 
         threshold_val = st.slider(

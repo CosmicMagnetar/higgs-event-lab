@@ -1,15 +1,2 @@
-# PROPOSED dependency list (BUG-005). Krishna, Aditya and Rachit: confirm or adjust
-# in a PR, then pin exact versions after the first successful real run and record
-# them in the run metadata.
-# Checked 2026-10-21: every package below has a release newer than its lower bound on PyPI.
-# NOT checked: a full install of all packages together (the sandbox timed out on large wheels).
-numpy>=1.26
-pandas>=2.1
-scikit-learn>=1.4
-xgboost>=2.0
-torch>=2.2
-matplotlib>=3.8
-streamlit>=1.32
-jupyterlab>=4.0
-nbformat>=5.9
-pytest>=8.0
+# Full local development and Streamlit Cloud environment.
+-e .[dev,notebooks]

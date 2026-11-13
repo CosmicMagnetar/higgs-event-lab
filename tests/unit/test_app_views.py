@@ -1,55 +1,86 @@
-"""Unit tests for the dashboard view components and sample artifact generator."""
-
+"""Dashboard rendering uses temporary fixtures, never benchmark generation."""
+import copy
 import json
-import sys
+import runpy
 from pathlib import Path
 
-import pytest
-
-ROOT_DIR = Path(__file__).resolve().parents[2]
-if str(ROOT_DIR) not in sys.path:
-    sys.path.insert(0, str(ROOT_DIR))
+from streamlit.testing.v1 import AppTest
 
 from app.loader import discover_and_load_runs
-from app.utils.loader import inspect_pipeline_status, load_experiments
-from scripts.generate_sample_artifacts import main as generate_artifacts
+from app.utils.loader import load_experiments
+from tests.unit.test_app_loader import valid_run_envelope, valid_predictions_df
+
+ROOT = Path(__file__).resolve().parents[2]
 
 
-def test_generate_sample_artifacts_produces_valid_schema(tmp_path, monkeypatch):
-    """Verify generate_sample_artifacts populates valid higgs-experiment-v1 artifacts."""
-    monkeypatch.setattr("scripts.generate_sample_artifacts.OUTPUTS_DIR", tmp_path / "outputs")
-    monkeypatch.setattr("scripts.generate_sample_artifacts.CURVES_DIR", tmp_path / "outputs" / "curves")
-
-    generate_artifacts()
-
-    outputs_dir = tmp_path / "outputs"
-    assert outputs_dir.is_dir()
-    assert (outputs_dir / "experiments.json").is_file()
-
-    # Verify discovery under app.loader
-    discovery = discover_and_load_runs(outputs_dir)
-    assert len(discovery.valid_runs) == 9
-    assert len(discovery.incomplete_runs) == 0
-    assert len(discovery.malformed_runs) == 0
-
-    # Verify discovery under app.utils.loader
-    loaded = load_experiments(tmp_path)
-    assert len(loaded.experiments) >= 9
-    assert len(loaded.curves) >= 9
-    assert not loaded.errors
+def save_run(root, envelope, predictions):
+    folder = root / "outputs" / envelope["run_id"]
+    folder.mkdir(parents=True)
+    (folder / "metrics.json").write_text(json.dumps(envelope))
+    predictions.to_csv(folder / "test_predictions.csv", index=False)
+    return folder
 
 
-def test_bootstrap_cloud_artifacts_if_needed(tmp_path, monkeypatch):
-    """Verify that cloud entrypoint bootstrap creates runs when outputs/ is empty."""
-    import streamlit_app
+def test_adapter_uses_canonical_runs(tmp_path, valid_run_envelope, valid_predictions_df):
+    save_run(tmp_path, valid_run_envelope, valid_predictions_df)
+    nested = discover_and_load_runs(tmp_path / "outputs")
+    adapted = load_experiments(tmp_path)
+    assert len(adapted.experiments) == len(nested.valid_runs) == 1
+    assert adapted.experiments[0].metrics.roc_auc == nested.valid_runs[0].test_roc_auc
+    assert adapted.experiments[0].provenance["source_file"] == nested.valid_runs[0].data_source
+    assert len(adapted.curves) == 1
 
-    fake_outputs = tmp_path / "outputs"
-    fake_outputs.mkdir()
-    monkeypatch.setattr(streamlit_app, "REPO_ROOT", tmp_path)
-    monkeypatch.setattr("scripts.generate_sample_artifacts.OUTPUTS_DIR", fake_outputs)
-    monkeypatch.setattr("scripts.generate_sample_artifacts.CURVES_DIR", fake_outputs / "curves")
 
-    streamlit_app.bootstrap_cloud_artifacts_if_needed()
+def test_import_launcher_never_generates_artifacts(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    runpy.run_path(str(ROOT / "streamlit_app.py"), run_name="launcher_import_test")
+    assert list(tmp_path.iterdir()) == []
 
-    runs = [d for d in fake_outputs.iterdir() if d.is_dir() and (d / "metrics.json").exists()]
-    assert len(runs) == 9
+
+def test_empty_dashboard_does_not_write_outputs(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    app = AppTest.from_file(str(ROOT / "streamlit_app.py")).run(timeout=30)
+    assert not app.exception
+    assert any("Awaiting validated experiment artifacts" in item.value for item in app.markdown)
+    assert not (tmp_path / "outputs").exists()
+    assert not any("Bootstrap" in button.label for button in app.button)
+
+
+def test_malformed_dashboard_shows_diagnostic(tmp_path, monkeypatch):
+    folder = tmp_path / "outputs" / "bad"
+    folder.mkdir(parents=True)
+    (folder / "metrics.json").write_text("{bad")
+    (folder / "test_predictions.csv").write_text("row_index,class_label,score\n0,0,0.1\n")
+    monkeypatch.chdir(tmp_path)
+    app = AppTest.from_file(str(ROOT / "streamlit_app.py")).run(timeout=30)
+    assert not app.exception
+    assert any("bad: Unparseable metrics.json" in item.value for item in app.error)
+
+
+def test_valid_multiple_run_comparison(tmp_path, monkeypatch, valid_run_envelope, valid_predictions_df):
+    save_run(tmp_path, valid_run_envelope, valid_predictions_df)
+    second = copy.deepcopy(valid_run_envelope)
+    second["run_id"] = "second_run"
+    save_run(tmp_path, second, valid_predictions_df)
+    monkeypatch.chdir(tmp_path)
+    app = AppTest.from_file(str(ROOT / "streamlit_app.py")).run(timeout=30)
+    app.sidebar.radio[0].set_value(3).run(timeout=30)
+    assert not app.exception
+    table = app.dataframe[0].value
+    assert set(table["Run ID"]) == {valid_run_envelope["run_id"], "second_run"}
+    assert set(table["Sample size"]) == {1000}
+    assert set(table["Source"]) == {valid_run_envelope["data"]["source"]}
+    assert any("one run per model" in item.value for item in app.info)
+
+
+def test_malformed_eda_does_not_crash_dashboard(tmp_path, monkeypatch):
+    folder = tmp_path / "outputs" / "eda"
+    folder.mkdir(parents=True)
+    (folder / "summary.json").write_text("{broken")
+    monkeypatch.chdir(tmp_path)
+    app = AppTest.from_file(str(ROOT / "streamlit_app.py")).run(timeout=30)
+    assert not app.exception
+    assert any("Invalid saved EDA" in item.value for item in app.warning)
+    app.sidebar.radio[0].set_value(2).run(timeout=30)
+    assert not app.exception
+    assert any("Invalid saved EDA" in item.value for item in app.error)

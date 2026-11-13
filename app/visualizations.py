@@ -198,9 +198,14 @@ def plot_feature_group_comparison(runs: list[ExperimentArtifact]) -> Figure:
     x = np.arange(len(group_order))
 
     for m_idx, model in enumerate(models):
-        m_runs = {r.feature_group: r for r in runs if r.model_name == model}
-        roc_vals = [m_runs[g].test_roc_auc if g in m_runs and m_runs[g].test_roc_auc is not None else 0.0 for g in group_order]
-        pr_vals = [m_runs[g].test_pr_auc if g in m_runs and m_runs[g].test_pr_auc is not None else 0.0 for g in group_order]
+        model_runs = [r for r in runs if r.model_name == model]
+        m_runs = {}
+        for run in model_runs:
+            if run.feature_group in m_runs:
+                raise ValueError("Select one run per model and feature group for grouped charts")
+            m_runs[run.feature_group] = run
+        roc_vals = [m_runs[g].test_roc_auc if g in m_runs and m_runs[g].test_roc_auc is not None else np.nan for g in group_order]
+        pr_vals = [m_runs[g].test_pr_auc if g in m_runs and m_runs[g].test_pr_auc is not None else np.nan for g in group_order]
 
         color = model_colors.get(model, MPL_COLORS[m_idx % len(MPL_COLORS)])
         offset = (m_idx - (len(models) - 1) / 2) * width
@@ -247,8 +252,8 @@ def plot_mlp_training_history(run: ExperimentArtifact) -> Figure | None:
 
     history = run.training_history
     epochs = [h.get("epoch", idx + 1) for idx, h in enumerate(history)]
-    train_loss = [h.get("train_loss", 0.0) for h in history]
-    val_auc = [h.get("validation_roc_auc", 0.0) for h in history]
+    train_loss = [h["train_loss"] for h in history]
+    val_auc = [h["validation_roc_auc"] for h in history]
 
     fig, ax1 = plt.subplots(figsize=(7.5, 4.6), dpi=150, facecolor=SURFACE_BASE)
     _configure_dark_ax(
@@ -311,7 +316,7 @@ def plot_confusion_matrix_heatmap(cm_dict: dict[str, int]) -> Figure:
     for i in range(2):
         for j in range(2):
             val = matrix[i, j]
-            txt_color = "black" if val > matrix.max() * 0.55 else TEXT_PRIMARY
+            txt_color = "white" if val > matrix.max() * 0.55 else TEXT_PRIMARY
             ax.text(j, i, labels[i][j], ha="center", va="center", color=txt_color, fontsize=11, fontweight="bold")
 
     fig.tight_layout()
@@ -398,7 +403,12 @@ def plot_feature_group_heatmap(runs: list[ExperimentArtifact]) -> Figure:
     pr_matrix = np.full((len(models), len(group_order)), np.nan)
 
     for m_idx, model in enumerate(models):
-        m_runs = {r.feature_group: r for r in runs if r.model_name == model}
+        model_runs = [r for r in runs if r.model_name == model]
+        m_runs = {}
+        for run in model_runs:
+            if run.feature_group in m_runs:
+                raise ValueError("Select one run per model and feature group for grouped charts")
+            m_runs[run.feature_group] = run
         for g_idx, group in enumerate(group_order):
             if group in m_runs and m_runs[group].test_roc_auc is not None:
                 roc_matrix[m_idx, g_idx] = m_runs[group].test_roc_auc
@@ -453,11 +463,11 @@ def plot_model_performance_radar(runs: list[ExperimentArtifact]) -> Figure:
 
     for idx, run in enumerate(runs[:5]):
         color = MPL_COLORS[idx % len(MPL_COLORS)]
-        roc = run.test_roc_auc if run.test_roc_auc is not None else 0.0
-        pr = run.test_pr_auc if run.test_pr_auc is not None else 0.0
-        brier = run.test_brier_score if run.test_brier_score is not None else 0.5
+        roc = run.test_roc_auc if run.test_roc_auc is not None else np.nan
+        pr = run.test_pr_auc if run.test_pr_auc is not None else np.nan
+        brier = run.test_brier_score if run.test_brier_score is not None else np.nan
         op = run.operating_point
-        bkg_rej = op.get("test_background_rejection", 0.0) if op else 0.0
+        bkg_rej = op.get("test_background_rejection", np.nan) if op else np.nan
 
         values = [roc, pr, 1.0 - brier, bkg_rej]
         values += values[:1]

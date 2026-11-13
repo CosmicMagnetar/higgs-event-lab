@@ -1,39 +1,27 @@
 """Scientific theme styling, color tokens, and custom CSS for HiggsLens dashboard.
 
-Implements a cohesive dark graphite and navy palette with restrained cyan and
-electric blue accents, crisp typography, Material Icons, and scientific data tables.
+Uses a light canvas, navy navigation and restrained teal, blue and amber accents.
 Material Icons are loaded from Google Fonts CDN and used via <span class="material-icons">...</span>.
 """
 
 from __future__ import annotations
 
-# Color Palette Tokens
-SURFACE_BASE = "#0a0e17"        # Deep dark navy-graphite background
-SURFACE_CARD = "#111827"        # Card / container background
-SURFACE_CARD_HOVER = "#172033"  # Hover container state
-SURFACE_BORDER = "#1f293d"      # Subtle border tone
-TEXT_PRIMARY = "#f8fafc"        # High-contrast crisp white
-TEXT_SECONDARY = "#94a3b8"      # Muted slate secondary text
-TEXT_MUTED = "#64748b"          # Faded caption text
-
-ACCENT_CYAN = "#00e5ff"         # Primary scientific cyan accent
-ACCENT_BLUE = "#38bdf8"         # Sky / electric blue accent
-ACCENT_TEAL = "#14b8a6"         # Verification teal
-ACCENT_AMBER = "#f59e0b"        # Warning / incomplete amber
-ACCENT_RED = "#ef4444"          # Error / malformed red
-ACCENT_GREEN = "#34d399"        # Success green
-ACCENT_VIOLET = "#a78bfa"       # Violet accent
-
-# Matplotlib Scientific Colors
-MPL_COLORS = [
-    "#00e5ff",  # Cyan
-    "#38bdf8",  # Sky Blue
-    "#818cf8",  # Indigo
-    "#34d399",  # Emerald
-    "#f472b6",  # Rose
-    "#fbbf24",  # Amber
-    "#a78bfa",  # Violet
-]
+# Shared UI and chart palette.
+SURFACE_BASE = "#f6f8fa"
+SURFACE_CARD = "#ffffff"
+SURFACE_CARD_HOVER = "#eef5f6"
+SURFACE_BORDER = "#dce4eb"
+TEXT_PRIMARY = "#15283f"
+TEXT_SECONDARY = "#475b70"
+TEXT_MUTED = "#5f7082"
+ACCENT_CYAN = "#127c80"
+ACCENT_BLUE = "#4c79a4"
+ACCENT_TEAL = "#16858a"
+ACCENT_AMBER = "#b57b30"
+ACCENT_RED = "#b33b43"
+ACCENT_GREEN = "#19745c"
+ACCENT_VIOLET = "#637687"
+MPL_COLORS = ["#16858a", "#628bb5", "#b98645", "#537568", "#b66b66", "#6c8196", "#706d59"]
 
 MATERIAL_ICONS_CSS = (
     '<link rel="preconnect" href="https://fonts.googleapis.com">'
@@ -48,259 +36,129 @@ MATERIAL_ICONS_CSS = (
 
 CUSTOM_CSS = """
 <style>
-/* Main Page Dark Surface */
+:root { color-scheme: light; }
 .stApp {
-    background-color: #0a0e17;
-    color: #f8fafc;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: #f6f8fa;
+    color: #15283f;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
-
-/* Sidebar styling */
-section[data-testid="stSidebar"] {
-    background-color: #0f172a !important;
-    border-right: 1px solid #1f293d;
+[data-testid="stMainBlockContainer"] { max-width: 1600px; padding: 2rem 2.2rem 3rem; }
+[data-testid="stHeader"] { background: #f6f8fa; }
+h1, h2, h3, h4 { color: #15283f; font-weight: 650; letter-spacing: -0.025em; }
+h1 { font-size: 2rem; line-height: 1.2; }
+h2 { font-size: 1.45rem; }
+h3 { font-size: 1.15rem; margin-top: .35rem; }
+p, li { line-height: 1.6; }
+[data-testid="stCaptionContainer"] { color: #5f7082; }
+section[data-testid="stSidebar"] { background: #142b43; border-right: 1px solid #233f57; }
+section[data-testid="stSidebar"] [data-testid="stSidebarContent"] { padding-top: 1rem; }
+section[data-testid="stSidebar"] h2,
+section[data-testid="stSidebar"] [data-testid="stMarkdownContainer"],
+section[data-testid="stSidebar"] [data-testid="stWidgetLabel"] { color: #d9e6ee; }
+section[data-testid="stSidebar"] hr { border-color: #355065; }
+section[data-testid="stSidebar"] { min-width: 290px; max-width: 340px; }
+section[data-testid="stSidebar"] [data-testid="stSidebarUserContent"] { padding: 1.25rem 1rem 1.5rem; }
+.sidebar-nav-label { color: #9db7ca; font-size: .68rem; font-weight: 650; letter-spacing: .12em; margin: .7rem .7rem .3rem; }
+section[data-testid="stSidebar"] [role="radiogroup"] { gap: .35rem; }
+section[data-testid="stSidebar"] [role="radiogroup"] label {
+    box-sizing: border-box; min-height: 48px; width: 100%; margin: 0;
+    padding: .65rem .75rem; gap: .75rem;
+    border: 1px solid transparent; border-radius: 8px; color: #ccdae5;
+    transition: background 150ms ease, border-color 150ms ease;
 }
-
-section[data-testid="stSidebar"] div.stRadio > label {
-    font-weight: 600;
-    color: #94a3b8;
-    text-transform: uppercase;
-    font-size: 0.75rem;
-    letter-spacing: 0.08em;
+section[data-testid="stSidebar"] [role="radiogroup"] label:hover { background: #203e56; color: #fff; }
+section[data-testid="stSidebar"] [role="radiogroup"] label:has(input:checked) {
+    background: #127c80; color: #fff; border-color: #279297; box-shadow: inset 3px 0 #8cdbd5;
 }
-
-/* Metric card containers */
-div[data-testid="stMetric"] {
-    background-color: #111827;
-    border: 1px solid #1f293d;
-    border-radius: 8px;
-    padding: 14px 18px;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+section[data-testid="stSidebar"] [role="radiogroup"] label:has(input:focus-visible) { outline: 2px solid #b3e8e1; outline-offset: 2px; }
+/* Keep the native radio input for keyboard navigation; replace its visual dot with an icon. */
+section[data-testid="stSidebar"] [role="radiogroup"] label > div:first-of-type { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+section[data-testid="stSidebar"] [role="radiogroup"] label::before {
+    font-family: "Material Symbols Outlined"; font-size: 21px; line-height: 1;
+    flex: 0 0 22px; font-weight: 400; color: #9fc6d9;
 }
-
-div[data-testid="stMetric"] label {
-    color: #94a3b8 !important;
-    font-size: 0.8rem !important;
-    font-weight: 500 !important;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+section[data-testid="stSidebar"] [role="radiogroup"] label:has(input:checked)::before { color: #fff; }
+section[data-testid="stSidebar"] [role="radiogroup"] label:nth-of-type(1)::before { content: "home"; }
+section[data-testid="stSidebar"] [role="radiogroup"] label:nth-of-type(2)::before { content: "science"; }
+section[data-testid="stSidebar"] [role="radiogroup"] label:nth-of-type(3)::before { content: "database"; }
+section[data-testid="stSidebar"] [role="radiogroup"] label:nth-of-type(4)::before { content: "bar_chart"; }
+section[data-testid="stSidebar"] [role="radiogroup"] label:nth-of-type(5)::before { content: "verified_user"; }
+section[data-testid="stSidebar"] [role="radiogroup"] label:nth-of-type(6)::before { content: "article"; }
+section[data-testid="stSidebar"] [role="radiogroup"] label:nth-of-type(7)::before { content: "play_circle"; }
+section[data-testid="stSidebar"] [role="radiogroup"] label p { color: inherit; font-size: .88rem; line-height: 1.4; font-weight: 500; }
+section[data-testid="stSidebar"] [data-testid="stExpander"] { border: 1px solid #355065; border-radius: 8px; margin-top: .6rem; background: #18334b; }
+section[data-testid="stSidebar"] [data-testid="stExpander"] summary,
+section[data-testid="stSidebar"] [data-testid="stExpander"] summary p { color: #d9e6ee; }
+section[data-testid="stSidebar"] [data-testid="stExpander"] [data-testid="stTooltipIcon"] { color: #bdcedc; }
+section[data-testid="stSidebar"] .scientific-badge { background: #1c3e4a; border-color: #315a61; color: #c6eae2; text-align: left !important; font-weight: 500; font-size: .8rem; margin-bottom: .25rem !important; }
+section[data-testid="stSidebar"] .scientific-badge-amber { background: #453c2c; color: #f3dbaf; border-color: #6b5736; }
+section[data-testid="stSidebar"] .scientific-badge-cyan { background: #213e56; color: #d1e4f0; border-color: #3a5b74; }
+section[data-testid="stSidebar"] [data-baseweb="input"] { background: #fff; color: #15283f; }
+section[data-testid="stSidebar"] input { color: #15283f; caret-color: #127c80; }
+section[data-testid="stSidebar"] .stButton button { background: #e7f4f3; color: #125e64; border-color: #b8dedc; }
+section[data-testid="stSidebar"] .stButton button:hover { background: #fff; }
+.sidebar-brand { padding: 0 .65rem 1rem; border-bottom: 1px solid #355065; margin-bottom: .8rem; }
+.sidebar-brand h2 { color: #fff !important; font-size: 1.7rem; margin: 0; }
+.sidebar-brand p { color: #c1d2df; font-size: .82rem; margin: .2rem 0 0; }
+.sidebar-details { color: #bdcedc; font-size: .72rem; line-height: 1.9; padding: 0 .5rem; }
+[data-testid="stMetric"] {
+    background: white; border: 1px solid #dce4eb; border-radius: 10px;
+    padding: 1rem; box-shadow: 0 2px 4px #142b4306; height: 100%;
 }
-
-div[data-testid="stMetric"] div[data-testid="stMetricValue"] {
-    color: #00e5ff !important;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    font-size: 1.6rem !important;
-    font-weight: 700;
+[data-testid="stMetricLabel"] { color: #475b70; font-size: .85rem; }
+[data-testid="stMetricValue"] { color: #15283f; font-size: 1.9rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+[data-testid="stMetric"]::after { content: ""; display: block; width: 28px; height: 3px; margin-top: .7rem; background: #16858a; border-radius: 2px; }
+.scientific-panel, .chart-container, .evidence-card {
+    background: #fff; border: 1px solid #dce4eb; border-radius: 10px;
+    padding: 1.2rem; margin-bottom: .8rem; box-shadow: 0 2px 4px #142b4305;
 }
-
-/* Headers */
-h1, h2, h3, h4 {
-    color: #f8fafc !important;
-    letter-spacing: -0.02em;
-    font-weight: 700;
+.scientific-panel-cyan { background: #edf7f6; border: 1px solid #c8e4e1; border-left: 3px solid #16858a; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+.evidence-card { min-height: 140px; height: 100%; margin-bottom: 0; }
+.evidence-card .eyebrow { color: #127c80; font-size: .75rem; font-weight: 650; }
+.evidence-card .value { color: #15283f; font-size: 1.2rem; font-weight: 650; margin: .4rem 0 .25rem; }
+.evidence-card .detail { color: #475b70; font-size: .85rem; line-height: 1.5; }
+.section-header { display: flex; align-items: center; gap: .6rem; margin-bottom: .6rem; }
+.section-header h2 { margin: 0; }
+.section-rule { border-top: 1px solid #dce4eb; margin: 1.3rem 0 .7rem; }
+.hero-shell { margin-bottom: 1.2rem; }
+.hero-title { font-size: clamp(1.65rem, 2.8vw, 2.25rem); font-weight: 700; line-height: 1.2; letter-spacing: -.035em; color: #15283f; margin-bottom: .45rem; }
+.hero-copy { color: #475b70; font-size: 1rem; max-width: 850px; }
+.hero-kicker { color: #127c80; font-size: .72rem; font-weight: 650; margin-bottom: .35rem; }
+.proof-strip { display: flex; flex-wrap: wrap; gap: .65rem 1.2rem; border: 1px solid #c8e4e1; background: #eaf6f4; border-radius: 8px; padding: .7rem .9rem; margin: 1rem 0 .5rem; }
+.proof-pill { color: #285762; font-size: .8rem; }
+.proof-pill strong { color: #125e64; margin-right: .25rem; }
+.scientific-badge { display: inline-block; border-radius: 7px; padding: .5rem .65rem; font-size: .8rem; font-weight: 600; border: 1px solid; }
+.scientific-badge-green { background: #e7f4ef; color: #17634f; border-color: #c3dfd3; }
+.scientific-badge-cyan { background: #e9f3f8; color: #285b76; border-color: #c9dfe9; }
+.scientific-badge-amber { background: #fff4e4; color: #80551f; border-color: #ebd2ad; }
+[data-testid="stDataFrame"], [data-testid="stImage"] { border: 1px solid #dce4eb; border-radius: 9px; background: #fff; overflow: hidden; }
+[data-testid="stVerticalBlockBorderWrapper"] > div { border-color: #dce4eb; border-radius: 10px; }
+.stButton button, .stDownloadButton button {
+    border: 1px solid #b7c7d5; border-radius: 8px; background: #fff;
+    color: #15283f; min-height: 44px; font-weight: 600;
+    transition: background 150ms ease, border-color 150ms ease, transform 150ms ease;
 }
-
-h1 {
-    font-size: 2.1rem !important;
-    border-bottom: 1px solid #1f293d;
-    padding-bottom: 0.6rem;
-    margin-bottom: 1.2rem;
+.stButton button:hover, .stDownloadButton button:hover { background: #edf7f6; color: #125e64; border-color: #16858a; }
+.stButton button:active, .stDownloadButton button:active { transform: translateY(1px); }
+button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid #16858a; outline-offset: 3px; }
+button[data-baseweb="tab"] { color: #475b70; min-height: 44px; }
+button[data-baseweb="tab"][aria-selected="true"] { color: #127c80; font-weight: 650; }
+[data-baseweb="tab-highlight"] { background: #127c80; }
+[data-testid="stFileUploader"] { border: 1px dashed #b7c7d5; border-radius: 8px; padding: .7rem; }
+@media (max-width: 1100px) {
+    [data-testid="stMainBlockContainer"] { padding: 1.5rem; }
+    [data-testid="stMetricValue"] { font-size: 1.45rem; }
 }
-
-h2 {
-    font-size: 1.45rem !important;
-    margin-top: 1.5rem;
-    margin-bottom: 0.8rem;
-    color: #e2e8f0 !important;
+@media (max-width: 640px) {
+    [data-testid="stMainBlockContainer"] { padding: 1rem; }
+    [data-testid="stHorizontalBlock"] { flex-wrap: wrap; }
+    [data-testid="stHorizontalBlock"] > [data-testid="stColumn"] { width: 100% !important; flex: 1 1 100% !important; min-width: 0; }
+    .proof-strip { flex-direction: column; }
+    .evidence-card { min-height: auto; }
 }
-
-h3 {
-    font-size: 1.15rem !important;
-    color: #cbd5e1 !important;
+@media (prefers-reduced-motion: reduce) {
+    .stButton button, .stDownloadButton button, section[data-testid="stSidebar"] label { transition: none; }
 }
-
-/* Section header with icon */
-.section-header {
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    margin-bottom: 0.5rem;
-}
-
-/* Styled containers */
-.scientific-panel {
-    background-color: #111827;
-    border: 1px solid #1f293d;
-    border-radius: 8px;
-    padding: 1.25rem;
-    margin-bottom: 1.25rem;
-}
-
-.scientific-panel-cyan {
-    background-color: #0c182b;
-    border: 1px solid #0284c7;
-    border-left: 4px solid #00e5ff;
-    border-radius: 6px;
-    padding: 1rem 1.25rem;
-    margin: 1rem 0;
-}
-
-.scientific-badge {
-    display: inline-block;
-    padding: 0.2rem 0.6rem;
-    border-radius: 4px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    font-family: ui-monospace, monospace;
-    letter-spacing: 0.04em;
-    background-color: #1e293b;
-    color: #38bdf8;
-    border: 1px solid #334155;
-}
-
-.scientific-badge-cyan {
-    background-color: #082f49;
-    color: #38bdf8;
-    border: 1px solid #0284c7;
-}
-
-.scientific-badge-green {
-    background-color: #064e3b;
-    color: #34d399;
-    border: 1px solid #059669;
-}
-
-.scientific-badge-amber {
-    background-color: #451a03;
-    color: #fbbf24;
-    border: 1px solid #d97706;
-}
-
-/* Streamlit Tabs */
-button[data-baseweb="tab"] {
-    color: #94a3b8 !important;
-    font-weight: 500;
-}
-
-button[data-baseweb="tab"][aria-selected="true"] {
-    color: #00e5ff !important;
-    border-bottom-color: #00e5ff !important;
-}
-
-/* Streamlit DataFrames */
-div[data-testid="stDataFrame"] {
-    border: 1px solid #1f293d;
-    border-radius: 6px;
-}
-
-/* Code block adjustments */
-pre code {
-    background-color: #090d16 !important;
-    border: 1px solid #1f293d;
-    border-radius: 6px;
-    font-size: 0.85rem !important;
-}
-
-/* Sliders */
-div[data-testid="stSlider"] label {
-    color: #cbd5e1 !important;
-    font-weight: 600;
-}
-
-/* File uploader */
-div[data-testid="stFileUploader"] {
-    border: 1px dashed #1f293d;
-    border-radius: 8px;
-    padding: 1rem;
-}
-
-/* Charts container */
-.chart-container {
-    background-color: #111827;
-    border: 1px solid #1f293d;
-    border-radius: 8px;
-    padding: 1rem;
-    margin-bottom: 1.25rem;
-}
-
-/* HiggsLens v2 evidence-first interface */
-.hero-shell {
-    position: relative;
-    overflow: hidden;
-    padding: 2rem 2.2rem 1.8rem;
-    margin: 0 0 1.4rem;
-    border: 1px solid #25435f;
-    border-radius: 18px;
-    background:
-        radial-gradient(circle at 85% 15%, rgba(0,229,255,0.18), transparent 32%),
-        linear-gradient(135deg, #101d33 0%, #0b1221 58%, #111a2c 100%);
-    box-shadow: 0 18px 50px rgba(0,0,0,0.24), inset 0 1px 0 rgba(255,255,255,0.04);
-}
-.hero-shell::after {
-    content: "";
-    position: absolute;
-    width: 260px;
-    height: 260px;
-    right: -90px;
-    bottom: -150px;
-    border: 1px solid rgba(0,229,255,0.20);
-    border-radius: 50%;
-    box-shadow: 0 0 0 22px rgba(0,229,255,0.035), 0 0 0 44px rgba(0,229,255,0.025);
-}
-.hero-kicker {
-    color: #67e8f9;
-    font: 700 0.72rem/1.2 ui-monospace, SFMono-Regular, Menlo, monospace;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-}
-.hero-title {
-    margin: 0.35rem 0 0.45rem;
-    color: #f8fafc;
-    font-size: clamp(2rem, 4vw, 3.3rem);
-    line-height: 1.02;
-    letter-spacing: -0.05em;
-    font-weight: 800;
-}
-.hero-copy { max-width: 780px; color: #b8c7d9; font-size: 1rem; line-height: 1.6; }
-.proof-strip { display: flex; gap: 0.7rem; flex-wrap: wrap; margin-top: 1.1rem; }
-.proof-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-    padding: 0.42rem 0.7rem;
-    border: 1px solid #294666;
-    border-radius: 999px;
-    background: rgba(7,15,29,0.58);
-    color: #d5e8f4;
-    font-size: 0.78rem;
-}
-.proof-pill strong { color: #67e8f9; }
-.evidence-card {
-    min-height: 112px;
-    padding: 1rem 1.05rem;
-    border: 1px solid #223853;
-    border-radius: 13px;
-    background: linear-gradient(145deg, #111d31, #0d1627);
-}
-.evidence-card .eyebrow {
-    color: #7dd3fc;
-    font: 700 0.68rem/1.2 ui-monospace, SFMono-Regular, Menlo, monospace;
-    letter-spacing: 0.11em;
-    text-transform: uppercase;
-}
-.evidence-card .value { margin-top: 0.45rem; color: #f8fafc; font-size: 1.35rem; font-weight: 800; }
-.evidence-card .detail { margin-top: 0.25rem; color: #94a3b8; font-size: 0.78rem; }
-.section-rule { height: 1px; margin: 1.6rem 0 1.1rem; background: linear-gradient(90deg, #2dd4bf, transparent); }
-.stButton > button {
-    border: 1px solid #2b597b !important;
-    border-radius: 9px !important;
-    background: linear-gradient(135deg, #123554, #0d2137) !important;
-    color: #dff8ff !important;
-    font-weight: 700 !important;
-}
-.stButton > button:hover { border-color: #22d3ee !important; box-shadow: 0 0 18px rgba(34,211,238,0.16); }
-div[data-testid="stMetric"] { transition: transform 160ms ease, border-color 160ms ease; }
-div[data-testid="stMetric"]:hover { transform: translateY(-2px); border-color: #2b6a8c; }
 </style>
 """
 

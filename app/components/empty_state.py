@@ -91,7 +91,7 @@ def render_empty_state(status: PipelineStatus, loaded: LoadedExperiments) -> Non
                     <span style="color: #6e7681;"> → Train LR, XGBoost, MLP</span><br>
                     <span style="color: #6e7681;">04</span>
                     <span style="color: #00ff9c;"> schema</span>
-                    <span style="color: #6e7681;"> → Export to outputs/experiments.json</span>
+                    <span style="color: #6e7681;"> → Export a canonical outputs/&lt;run_id&gt;/ package</span>
                 </div>
             </div>
             """,
@@ -101,29 +101,16 @@ def render_empty_state(status: PipelineStatus, loaded: LoadedExperiments) -> Non
     with col2:
         # Expected artifact schema
         schema_snippet = """{
-  "run_id": "<model>_<features>_seed<n>",
-  "model_name": "Logistic Regression | XGBoost | Compact MLP",
-  "feature_group": "low_level | high_level | all",
-  "seed": 42,
-  "sample_size": 250000,
-  "metrics": {
-    "roc_auc": float,       // [0.0, 1.0] required
-    "pr_auc":  float,       // [0.0, 1.0] required
-    "brier_score": float,   // optional
-    "accuracy": float,      // optional
-    "training_time_sec": float,
-    "inference_latency_ms": float
-  },
-  "operating_point": {
-    "target_signal_efficiency": float,
-    "selected_threshold": float,
-    "test_background_rejection": float,
-    "test_signal_efficiency": float
-  },
-  "provenance": {
-    "source_file": "...",
-    "timestamp_utc": "ISO-8601"
-  }
+  "schema_version": "higgs-experiment-v1",
+  "run_id": "<unique-run-id>",
+  "model": {"name": "<model>", "family": "<family>"},
+  "features": {"group": "all", "count": 28, "names": ["<ordered feature names>"]},
+  "data": {"source": "<repository-relative source>", "row_count": "<sample rows>"},
+  "split": {"protocol_version": "higgs-split-v1", "seed": "<recorded seed>",
+            "train_rows": "<count>", "validation_rows": "<count>", "test_rows": "<count>",
+            "validation_fraction": "<fraction>", "test_fraction": "<fraction>"},
+  "training": {"training_seconds": "<measured runtime>"},
+  "evaluation": {"validation": "<saved metrics>", "test": "<saved metrics>"}
 }"""
         st.markdown(
             '<div style="color: #00e5ff; font-size: 0.7rem; text-transform: uppercase; '

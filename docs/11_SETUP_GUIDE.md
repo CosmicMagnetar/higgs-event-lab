@@ -137,30 +137,28 @@ All baseline models and data loaders are fully implemented and verified.
 | Train the MLP | `PYTHONPATH=src python -m higgs_event_lab.neural --data data/processed/higgs_sample_250k.csv.gz --rows 250000 --all-groups --output-dir outputs` | **[works now]** Rachit (MID-04) | Measured `metrics.json` and `test_predictions.csv` for each feature group in `outputs/mlp_<group>/` |
 | Shared split and artifact contract | `PYTHONPATH=src python -m pytest tests/unit/test_protocol.py tests/unit/test_neural.py -q` | **[works now]** Krishna (MID-05) | Contract and MLP unit-test result |
 
-## 8. Run the dashboard **[works now]**
+## 8. Run the dashboard
 
-> **Before you start:** the dashboard and the test `tests/unit/test_app_views.py` both need Streamlit. If you install only the test tools, `test_app_views.py` fails with `ModuleNotFoundError: No module named 'streamlit'`. Install everything with `pip install -r requirements.txt`, or run `pip install streamlit` on its own.
-
-### 8.1 Local Execution
+From the repository root, use Python 3.10 or newer:
 
 ```bash
-# Launch the primary HiggsLens scientific dashboard:
-streamlit run app/main.py
-
-# Or launch via the root cloud entrypoint:
+python -m pip install -e ".[dev]"
+python -m pytest -q
 streamlit run streamlit_app.py
 ```
 
-`app/main.py` is the primary entry point. `streamlit_app.py` is the root entry point used by Streamlit Community Cloud. Both load the same application code. Consolidating them is tracked as BUG-021.
+The `dev` extra includes Streamlit, plotting, training and test dependencies.
+For dashboard-only use, install `.[dashboard]`. Neural inference requires the
+optional `training` extra. Launch from the repository root so artifact paths resolve.
 
-When opened locally without prior model runs, the dashboard renders an honest empty state with a one-click **! Bootstrap Demo Benchmarks** button, or loads existing artifacts from `outputs/`.
+The root `streamlit_app.py` is the canonical launcher. `app/main.py` implements
+the application; the legacy launcher delegates to it. The dashboard reads saved
+`outputs/<run_id>/metrics.json` and `test_predictions.csv` packages using the
+accepted `higgs-experiment-v1` schema. Startup never generates benchmark results.
+Missing artifacts show an empty state; invalid runs show actionable diagnostics.
 
-### 8.2 Streamlit Community Cloud Hosting
-
-1. Push your changes to `https://github.com/CosmicMagnetar/higgs-event-lab`.
-2. Navigate to [Streamlit Community Cloud](https://share.streamlit.io/) and click **New app**.
-3. Choose repository `CosmicMagnetar/higgs-event-lab`, branch `main`, and main file `streamlit_app.py`.
-4. Click **Deploy!** The cloud instance automatically boots with all 6 precomputed mid-sem benchmark models with full interactivity.
+For Streamlit Cloud, choose `streamlit_app.py` and provide real saved run packages.
+Do not generate sample artifacts as experiment evidence.
 
 ---
 

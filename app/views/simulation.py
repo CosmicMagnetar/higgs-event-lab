@@ -154,7 +154,7 @@ def render_simulation(discovery: RunDiscoveryResult) -> None:
     """Render the Model Simulation view."""
     st.markdown(
         '<div class="section-header">'
-        '<span class="material-icons icon-md" style="color:#00e5ff;">psychology</span>'
+        '<span class="material-icons icon-md" style="color:#127c80;">psychology</span>'
         '<h2 style="margin:0;">Model Simulation</h2>'
         "</div>",
         unsafe_allow_html=True,
@@ -300,8 +300,8 @@ def _render_demo_distributions(discovery: RunDiscoveryResult) -> None:
     run = discovery.valid_runs[0]
     scores = run.test_scores
     fig_hist, ax_hist = plt.subplots(figsize=(7, 3.6))
-    ax_hist.hist(scores[run.test_labels == 1], bins=30, alpha=0.7, label="Signal", color="#00e5ff")
-    ax_hist.hist(scores[run.test_labels == 0], bins=30, alpha=0.7, label="Background", color="#f472b6")
+    ax_hist.hist(scores[run.test_labels == 1], bins=30, alpha=0.7, label="Signal", color="#127c80")
+    ax_hist.hist(scores[run.test_labels == 0], bins=30, alpha=0.7, label="Background", color="#628bb5")
     ax_hist.set_xlabel("Predicted signal probability")
     ax_hist.set_ylabel("Event count")
     ax_hist.set_title(f"Demo score distribution — {run.run_id}")

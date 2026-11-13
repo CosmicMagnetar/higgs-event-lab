@@ -44,7 +44,7 @@ Streamlit Community Cloud hosts the interactive dashboard directly from GitHub w
    - **Branch:** `main`
    - **Main file path:** `streamlit_app.py`
 4. Click **Deploy!**
-5. **Auto-Bootstrap Behavior:** Streamlit Community Cloud instances clone without `outputs/` (which is excluded by `.gitignore`). The root entrypoint `streamlit_app.py` automatically detects this and generates the 6 verified mid-semester benchmark runs (compact MLP & Logistic Regression across all, high-level, and low-level feature groups) in ~0.2 seconds on first boot, making the hosted website 100% interactive out of the box with zero manual terminal commands.
+Provide genuine saved run packages under `outputs/`. Startup never generates results; missing artifacts show an empty state.
 
 ## 4. Smoke Test Checklist
 

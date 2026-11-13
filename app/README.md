@@ -25,24 +25,16 @@ pip install -e .
 Run from the repository root:
 
 ```bash
-# Primary Scientific Laboratory Dashboard (recommended)
-streamlit run app/main.py
-
-# Alternative Retro Terminal HUD Dashboard
-streamlit run app/streamlit_app.py
+python -m pip install -e ".[dev]"
+streamlit run streamlit_app.py
 ```
 
-The application launches locally at `http://localhost:8501`.
-
-### Instant Sample Artifact Generation (Optional)
-
-To test and explore the dashboard immediately without downloading the full dataset:
-
-```bash
-python scripts/generate_sample_artifacts.py
-```
-
-This generates schema-compliant benchmark artifacts across all 3 feature groups in `outputs/`.
+This is the canonical command for local use, Docker and Streamlit Cloud.
+`app/main.py` implements the application; `app/streamlit_app.py` delegates to it
+for compatibility. Startup and rescans never generate or overwrite experiments.
+Missing results produce an empty state; invalid runs produce diagnostics.
+Do not use `scripts/generate_sample_artifacts.py` as benchmark evidence: it
+creates synthetic predictions and hard-coded metrics.
 
 ---
 
@@ -142,3 +134,12 @@ pytest
 ```
 
 ---
+
+## Loader compatibility
+
+`app/loader.py` owns experiment discovery and nested `higgs-experiment-v1` validation.
+`app/utils/loader.py` delegates to it and adapts validated results for legacy components.
+Flat summary JSON/CSV records are unsupported as dashboard experiment evidence.
+Curves are computed from saved held-out predictions; optional metrics remain unavailable
+when absent. Run IDs must be unique. Compare sources, sample sizes and splits before
+interpreting differences between runs.

@@ -47,7 +47,7 @@ The dashboard will be available at `http://localhost:8501`.
 One-click deployment:
 1. Connect repository `CosmicMagnetar/higgs-event-lab` on branch `main`.
 2. Main file path: `streamlit_app.py`.
-3. The app auto-initializes benchmark artifacts on first boot.
+Provide genuine saved run packages under `outputs/`. Startup never generates results; missing artifacts show an empty state.
 
 ---
 

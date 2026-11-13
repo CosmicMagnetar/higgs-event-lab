@@ -251,3 +251,56 @@ def test_successful_load_mlp_and_logreg_artifacts(
     assert lr_run.feature_count == 7
     assert lr_run.operating_point is not None
     assert lr_run.operating_point["validation_threshold"] == 0.5234
+
+
+@pytest.mark.parametrize("section,value", [("data", None), ("training", []), ("evaluation", 42), ("features", {"group": []})])
+def test_invalid_nested_sections_do_not_crash(tmp_path, valid_run_envelope, valid_predictions_df, section, value):
+    valid_run_envelope[section] = value
+    folder = tmp_path / "bad"
+    folder.mkdir()
+    (folder / "metrics.json").write_text(json.dumps(valid_run_envelope))
+    valid_predictions_df.to_csv(folder / "test_predictions.csv", index=False)
+    result = discover_and_load_runs(tmp_path)
+    assert not result.valid_runs
+    assert len(result.malformed_runs) == 1
+
+
+@pytest.mark.parametrize("column,value", [("class_label", np.nan), ("row_index", -1), ("row_index", 0.5)])
+def test_invalid_prediction_values(valid_predictions_df, column, value):
+    valid_predictions_df[column] = valid_predictions_df[column].astype(float)
+    valid_predictions_df.loc[0, column] = value
+    assert validate_test_predictions_df(valid_predictions_df)
+
+
+def test_missing_required_metric_rejected(valid_run_envelope):
+    del valid_run_envelope["evaluation"]["test"]["roc_auc"]
+    assert "roc_auc" in validate_metrics_json(valid_run_envelope)
+
+
+def test_mixed_runs_and_prediction_count(tmp_path, valid_run_envelope, valid_predictions_df):
+    for name in ("good", "bad"):
+        folder = tmp_path / name
+        folder.mkdir()
+        (folder / "metrics.json").write_text(json.dumps(valid_run_envelope))
+        frame = valid_predictions_df if name == "good" else valid_predictions_df.iloc[:3]
+        frame.to_csv(folder / "test_predictions.csv", index=False)
+    result = discover_and_load_runs(tmp_path)
+    assert len(result.valid_runs) == len(result.malformed_runs) == 1
+    assert "row count" in result.malformed_runs[0].reason
+
+
+def test_duplicate_run_ids_are_diagnosed(tmp_path, valid_run_envelope, valid_predictions_df):
+    for name in ("first", "second"):
+        folder = tmp_path / name
+        folder.mkdir()
+        (folder / "metrics.json").write_text(json.dumps(valid_run_envelope))
+        valid_predictions_df.to_csv(folder / "test_predictions.csv", index=False)
+    result = discover_and_load_runs(tmp_path)
+    assert len(result.valid_runs) == len(result.malformed_runs) == 1
+    assert result.malformed_runs[0].reason == "Duplicate run_id"
+
+
+@pytest.mark.parametrize("value", [True, float("nan"), -0.1, 1.1])
+def test_invalid_metric_values_rejected(valid_run_envelope, value):
+    valid_run_envelope["evaluation"]["test"]["roc_auc"] = value
+    assert validate_metrics_json(valid_run_envelope)
