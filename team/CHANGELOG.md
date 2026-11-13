@@ -20,6 +20,10 @@
 
 ## [Unreleased]
 
+### Fixed
+
+* **2026-11-13:** Issue #21 / BUG-021 and BUG-022: unified dashboard launch and artifact validation, removed synthetic startup fallbacks, exposed run metadata and errors, and declared dashboard/test extras with CI and regression coverage. Local verification complete; peer QA and integration pending. *(Ronit Singh)*
+
 ### Added
 
 * **2026-10-26:** `docs/14_RESULTS_RECONCILIATION.md`: side-by-side record of the 250k and 1M results, the inconsistency found in the final review, the tests that would resolve it, and the decisions needed. *(Saumya Mishra)*

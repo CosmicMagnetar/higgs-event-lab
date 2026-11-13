@@ -19,11 +19,14 @@ def _model_name(name: str) -> str:
     }.get(name, name.replace("_", " ").title())
 
 
-def _eda_summary() -> dict[str, object] | None:
-    path = Path("outputs/eda/summary.json")
-    if not path.is_file():
+def _eda_summary(base_dir: str) -> dict[str, object] | None:
+    from app.utils.loader import load_saved_eda
+    try:
+        loaded = load_saved_eda(base_dir)
+        return loaded[0] if loaded else None
+    except ValueError as exc:
+        st.warning(str(exc))
         return None
-    return json.loads(path.read_text(encoding="utf-8"))
 
 
 def _hero(best_run, valid_count: int, rows: int) -> None:
@@ -37,14 +40,14 @@ def _hero(best_run, valid_count: int, rows: int) -> None:
         f"""
         <div class="hero-shell">
             <div class="hero-kicker">HIGGSLENS / EVIDENCE WORKBENCH</div>
-            <div class="hero-title">See the signal in the artifacts.</div>
+            <div class="hero-title">Experiment overview</div>
             <div class="hero-copy">A transparent view of simulated HIGGS classification experiments, from saved EDA evidence to held-out model predictions.</div>
             <div class="proof-strip">
                 <span class="proof-pill"><strong>LIVE REGISTRY</strong> {valid_count} valid runs</span>
                 <span class="proof-pill"><strong>HEADLINE</strong> {headline}</span>
-                <span class="proof-pill"><strong>PROTOCOL</strong> higgs-split-v1 · seed 42</span>
+                <span class="proof-pill"><strong>PROTOCOL</strong> {best_run.split["protocol_version"] if best_run else "N/A"} · seed {best_run.split["seed"] if best_run else "N/A"}</span>
             </div>
-            <div style="margin-top:0.8rem;color:#94a3b8;font-size:0.82rem;">{detail}</div>
+            <div style="margin-top:0.8rem;color:#5f7082;font-size:0.82rem;">{detail}</div>
         </div>
         """,
         unsafe_allow_html=True,
@@ -56,24 +59,24 @@ def render_overview(discovery: RunDiscoveryResult) -> None:
     valid_runs = discovery.valid_runs
     best_run = max(valid_runs, key=lambda run: run.test_roc_auc or float("-inf"), default=None)
     all_runs = [run for run in valid_runs if run.feature_group == "all"]
-    best_all = max(all_runs, key=lambda run: run.test_roc_auc or float("-inf"), default=best_run)
-    rows = max((run.row_count for run in valid_runs), default=0)
-    eda = _eda_summary()
+    best_all = max(all_runs, key=lambda run: run.test_roc_auc or float("-inf"), default=None)
+    rows = best_run.row_count if best_run else 0
+    eda = _eda_summary(discovery.base_dir)
 
     _hero(best_run, len(valid_runs), rows)
 
     c1, c2, c3, c4, c5 = st.columns(5)
-    c1.metric("Current rows", f"{rows:,}" if rows else "N/A")
+    c1.metric("Sample size", f"{rows:,}" if rows else "N/A")
     c2.metric("Valid runs", str(len(valid_runs)))
     c3.metric("Best ROC-AUC", f"{best_run.test_roc_auc:.4f}" if best_run else "N/A")
-    c4.metric("Features", "28")
+    c4.metric("Input features", "28")
     c5.metric("Missing values", str(eda.get("missing_values", "N/A")) if eda else "N/A")
 
     st.markdown('<div class="section-rule"></div>', unsafe_allow_html=True)
-    st.markdown("### What is proven in this workspace")
+    st.markdown("### Saved experiment evidence")
     proof_cols = st.columns(3)
     proof_data = [
-        ("DATA PROOF", f"{eda.get('signal_fraction', 0):.2%} signal" if eda else "EDA not loaded", "Saved EDA summary, zero missing and non-finite values."),
+        ("DATA PROOF", f"{eda['signal_fraction']:.2%} signal" if eda and isinstance(eda.get("signal_fraction"), (int, float)) else "EDA not loaded", "Saved EDA summary; inspect recorded quality checks."),
         ("MODEL PROOF", f"{_model_name(best_all.model_name)}" if best_all else "No best run", f"All-feature leader: {best_all.test_roc_auc:.4f} ROC-AUC" if best_all else "Run models to populate this card."),
         ("APP PROOF", "Artifact-backed", "Metrics, predictions, curves and EDA are read from outputs/; no training at startup."),
     ]
@@ -85,11 +88,14 @@ def render_overview(discovery: RunDiscoveryResult) -> None:
             )
 
     if best_all:
-        st.markdown("### Current all-feature leaders")
+        st.markdown("### All-feature results")
         leader_rows = []
         for run in sorted(all_runs, key=lambda item: item.test_roc_auc or 0, reverse=True):
             leader_rows.append({
                 "Model": _model_name(run.model_name),
+                "Source": run.data_source,
+                "Sample size": run.row_count,
+                "Split": run.split,
                 "Test ROC-AUC": run.test_roc_auc,
                 "PR-AUC": run.test_pr_auc,
                 "Brier": run.test_brier_score,
@@ -101,7 +107,7 @@ def render_overview(discovery: RunDiscoveryResult) -> None:
     left, right = st.columns([1.15, 1])
     with left:
         st.markdown("### Saved evidence preview")
-        image = Path("outputs/eda/feature_group_separation.png")
+        image = Path(discovery.base_dir) / "eda" / "feature_group_separation.png"
         if image.is_file():
             st.image(str(image), caption="Feature-group separation from saved EDA")
         else:
@@ -122,4 +128,4 @@ def render_overview(discovery: RunDiscoveryResult) -> None:
 
     if not valid_runs:
         st.markdown("### Reproduce the registry")
-        st.code("streamlit run app/main.py\n\n# Then run notebooks/03_full/00_full_higgs_colab.ipynb", language="bash")
+        st.code("streamlit run streamlit_app.py\n\n# Then run notebooks/03_full/00_full_higgs_colab.ipynb", language="bash")

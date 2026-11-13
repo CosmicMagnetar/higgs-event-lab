@@ -6,7 +6,6 @@ triggering training or falling back to hardcoded scores.
 
 from __future__ import annotations
 
-import csv
 import json
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -17,8 +16,6 @@ import pandas as pd
 from app.utils.schema import (
     CurveData,
     ExperimentRecord,
-    ValidationError,
-    validate_curve_payload,
     validate_experiment_payload,
 )
 
@@ -126,116 +123,59 @@ def inspect_pipeline_status(root: Path | None = None) -> PipelineStatus:
 
 
 def load_experiments(root: Path | None = None) -> LoadedExperiments:
-    """Safely load and validate all experiment runs and curve artifacts.
+    """Adapt canonical run packages for legacy components; never read flat records."""
+    from app.loader import discover_and_load_runs
+    from app.metrics import compute_calibration_points, compute_pr_points, compute_roc_points
 
-    Scans:
-    1. outputs/experiments.json (multi-run list)
-    2. outputs/runs/*.json (individual run records)
-    3. outputs/curves/*.json (curve coordinate records)
-
-    Returns
-    -------
-    LoadedExperiments
-        Container of validated experiment records, curve objects, and diagnostic messages.
-    """
     root = root or get_project_root()
-    outputs_dir = root / "outputs"
+    discovery = discover_and_load_runs(root / "outputs")
     result = LoadedExperiments()
-
-    if not outputs_dir.is_dir():
-        result.warnings.append(f"Directory 'outputs/' does not exist at {outputs_dir}.")
-        return result
-
-    # 1. Look for outputs/experiments.json
-    agg_file = outputs_dir / "experiments.json"
-    if agg_file.is_file():
-        try:
-            with open(agg_file, "r", encoding="utf-8") as f:
-                payload = json.load(f)
-            if isinstance(payload, list):
-                for idx, item in enumerate(payload):
-                    if isinstance(item, dict):
-                        try:
-                            rec = validate_experiment_payload(item, source_file=f"experiments.json[{idx}]")
-                            result.experiments.append(rec)
-                        except ValidationError as err:
-                            result.errors.append(str(err))
-                    else:
-                        result.errors.append(f"[experiments.json[{idx}]] Entry is not a JSON object")
-            else:
-                result.errors.append(f"[{agg_file.name}] Expected a JSON array of experiment records")
-        except json.JSONDecodeError as err:
-            result.errors.append(f"[{agg_file.name}] JSON syntax error: {err}")
-        except Exception as exc:
-            result.errors.append(f"[{agg_file.name}] Failed to read file: {exc}")
-
-    # 2. Look for individual run records in outputs/runs/*.json
-    runs_dir = outputs_dir / "runs"
-    if runs_dir.is_dir():
-        for run_file in sorted(runs_dir.glob("*.json")):
-            try:
-                with open(run_file, "r", encoding="utf-8") as f:
-                    payload = json.load(f)
-                if isinstance(payload, dict):
-                    rec = validate_experiment_payload(payload, source_file=f"runs/{run_file.name}")
-                    result.experiments.append(rec)
-                else:
-                    result.errors.append(f"[runs/{run_file.name}] Expected a JSON object")
-            except (ValidationError, json.JSONDecodeError) as err:
-                result.errors.append(f"[runs/{run_file.name}] {err}")
-            except Exception as exc:
-                result.errors.append(f"[runs/{run_file.name}] Failed to read: {exc}")
-
-    # 3. Look for CSV summary files (outputs/experiments.csv or outputs/experiments_summary.csv)
-    for csv_candidate in ("experiments.csv", "experiments_summary.csv"):
-        csv_path = outputs_dir / csv_candidate
-        if csv_path.is_file():
-            try:
-                df_csv = pd.read_csv(csv_path)
-                for idx, row in df_csv.iterrows():
-                    payload = {
-                        "run_id": str(row.get("run_id", "")),
-                        "model_name": str(row.get("model_name", "")),
-                        "feature_group": str(row.get("feature_group", "")),
-                        "seed": row.get("seed"),
-                        "sample_size": row.get("sample_size"),
-                        "metrics": {
-                            "roc_auc": row.get("roc_auc"),
-                            "pr_auc": row.get("pr_auc"),
-                            "brier_score": row.get("brier_score") if pd.notna(row.get("brier_score")) else None,
-                            "accuracy": row.get("accuracy") if pd.notna(row.get("accuracy")) else None,
-                            "training_time_sec": row.get("training_time_sec") if pd.notna(row.get("training_time_sec")) else None,
-                            "inference_latency_ms": row.get("inference_latency_ms") if pd.notna(row.get("inference_latency_ms")) else None,
-                        },
-                    }
-                    if pd.notna(row.get("target_signal_efficiency")):
-                        payload["operating_point"] = {
-                            "target_signal_efficiency": row.get("target_signal_efficiency"),
-                            "selected_threshold": row.get("selected_threshold"),
-                            "test_background_rejection": row.get("test_background_rejection"),
-                            "test_signal_efficiency": row.get("test_signal_efficiency"),
-                        }
-                    rec = validate_experiment_payload(payload, source_file=f"{csv_candidate}[{idx}]")
-                    if not any(e.run_id == rec.run_id for e in result.experiments):
-                        result.experiments.append(rec)
-            except Exception as exc:
-                result.errors.append(f"[{csv_candidate}] Failed to parse CSV: {exc}")
-
-    # 4. Look for curves in outputs/curves/*.json
-    curves_dir = outputs_dir / "curves"
-    if curves_dir.is_dir():
-        for curve_file in sorted(curves_dir.glob("*.json")):
-            try:
-                with open(curve_file, "r", encoding="utf-8") as f:
-                    payload = json.load(f)
-                if isinstance(payload, dict):
-                    curve = validate_curve_payload(payload, source_file=f"curves/{curve_file.name}")
-                    result.curves[curve.run_id] = curve
-                else:
-                    result.errors.append(f"[curves/{curve_file.name}] Expected a JSON object")
-            except (ValidationError, json.JSONDecodeError) as err:
-                result.errors.append(f"[curves/{curve_file.name}] {err}")
-            except Exception as exc:
-                result.errors.append(f"[curves/{curve_file.name}] Failed to read: {exc}")
-
+    if not discovery.dir_exists:
+        result.warnings.append(f"Outputs directory unavailable: {discovery.base_dir}")
+    result.warnings.extend(f"{run.run_id}: {run.reason}" for run in discovery.incomplete_runs)
+    result.errors.extend(f"{run.run_id}: {run.reason}" for run in discovery.malformed_runs)
+    for run in discovery.valid_runs:
+        result.experiments.append(validate_experiment_payload(run.raw_metrics, str(run.run_dir)))
+        fpr, tpr, _ = compute_roc_points(run.test_labels, run.test_scores)
+        precision, recall, _ = compute_pr_points(run.test_labels, run.test_scores)
+        prob_true, prob_pred, _ = compute_calibration_points(run.test_labels, run.test_scores)
+        result.curves[run.run_id] = CurveData(
+            run.run_id, fpr.tolist(), tpr.tolist(), precision.tolist(), recall.tolist(),
+            prob_pred.tolist(), prob_true.tolist(),
+        )
     return result
+
+
+def load_saved_eda(base_dir: str | Path = "outputs") -> tuple[dict[str, Any], pd.DataFrame, pd.DataFrame] | None:
+    """Read saved EDA with the fields required by the dashboard validated."""
+    import math
+
+    folder = Path(base_dir) / "eda"
+    summary_path, feature_path = folder / "summary.json", folder / "feature_summary.csv"
+    if not summary_path.is_file() and not feature_path.is_file():
+        return None
+    try:
+        summary = json.loads(summary_path.read_text(encoding="utf-8"))
+        features = pd.read_csv(feature_path)
+        correlations = pd.read_csv(folder / "top_correlations.csv") if (folder / "top_correlations.csv").is_file() else pd.DataFrame()
+        if not isinstance(summary, dict):
+            raise ValueError("summary must be a JSON object")
+        rows = summary.get("rows")
+        counts = summary.get("label_counts")
+        if type(rows) is not int or rows <= 0 or not isinstance(counts, dict):
+            raise ValueError("rows and label_counts are required")
+        if any(type(counts.get(k)) is not int or counts[k] <= 0 for k in ("0", "1")) or counts["0"] + counts["1"] != rows:
+            raise ValueError("label_counts must contain positive class counts summing to rows")
+        fraction = summary.get("signal_fraction")
+        if type(fraction) not in (int, float) or not math.isfinite(fraction) or not 0 <= fraction <= 1:
+            raise ValueError("signal_fraction must be a finite fraction")
+        columns = {"feature", "signal_mean", "background_mean", "unique_count"}
+        if not columns.issubset(features.columns):
+            raise ValueError("feature summary is missing required columns")
+        for name in columns - {"feature"}:
+            values = pd.to_numeric(features[name], errors="raise")
+            if not values.map(math.isfinite).all():
+                raise ValueError(f"{name} contains non-finite values")
+        return summary, features, correlations
+    except (OSError, ValueError, TypeError) as exc:
+        raise ValueError(f"Invalid saved EDA under {folder}: {exc}") from exc

@@ -26,7 +26,7 @@ the measured values from the generated artifacts into the report source.
 4. **Full benchmark:** run the corrected training cell in the full notebook.
    The output summary now includes separate Logistic Regression, XGBoost and
    MLP times, operating points and genuine MLP learning history.
-5. **Dashboard:** start `streamlit run app/main.py`, capture the four required
+5. **Dashboard:** start `streamlit run streamlit_app.py`, capture the four required
    views, and verify the CSV export. Save screenshots outside git or in the
    submission package if the university requires them.
 6. **Final checks:** run `python -m pytest tests/unit -q`, then record the real

@@ -1,8 +1,7 @@
 """HiggsEvent — Streamlit Community Cloud Root Entrypoint.
 
 Main web entrypoint deployed on Streamlit Community Cloud for the mid-semester evaluation.
-Automatically bootstraps verified mid-semester benchmark artifacts when running in a fresh
-cloud container where outputs/ is excluded by .gitignore, and runs the HiggsEvent scientific dashboard.
+Loads saved experiment artifacts without creating or modifying results.
 """
 
 from __future__ import annotations
@@ -19,29 +18,6 @@ if str(SRC_DIR) not in sys.path:
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-
-def bootstrap_cloud_artifacts_if_needed() -> None:
-    """Ensure benchmark artifacts exist so hosted web visitors see genuine results."""
-    outputs_dir = REPO_ROOT / "outputs"
-    has_valid_runs = False
-    if outputs_dir.exists():
-        for item in outputs_dir.iterdir():
-            if item.is_dir() and (item / "metrics.json").is_file():
-                has_valid_runs = True
-                break
-
-    if not has_valid_runs:
-        try:
-            from scripts.generate_sample_artifacts import main as generate_artifacts
-
-            generate_artifacts()
-        except Exception as exc:  # pragma: no cover
-            # Fall back gracefully; app.main will display honest empty state
-            print(f"Notice: Artifact bootstrap skipped: {exc}")
-
-
-# Run bootstrap before launching dashboard
-bootstrap_cloud_artifacts_if_needed()
 
 # Launch HiggsLens Dashboard
 from app.main import main

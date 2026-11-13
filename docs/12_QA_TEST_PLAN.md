@@ -212,3 +212,21 @@ Saumya signs off only when every box is ticked. Any unticked box blocks document
 | Verify the fix | Does | Confirms |
 | Update changelog and known issues | Does | Supplies details in PR |
 | Release decision | Reports status | Krishna decides |
+
+
+## Issue #21 local verification — 2026-11-13
+
+- Full suite: `python -m pytest -q` — **143 passed** using Python 3.13.
+- Editable package build and installation succeeded in a temporary virtual environment
+  with existing system packages, using `pip install --no-deps --no-build-isolation -e ".[dev]"`.
+  This verifies editable packaging, not a fresh network dependency resolution.
+- Streamlit AppTest rendered all seven dashboard sections against the nine saved
+  canonical run packages without exceptions. No browser screenshots were taken.
+- Recomputed test metrics from each saved prediction file matched the recorded metrics
+  to numerical precision. This checks internal consistency, not independent training provenance.
+- Regression coverage includes empty, malformed, mixed and valid runs; duplicate IDs;
+  prediction counts and invalid values; malformed EDA; multiple-run comparison;
+  legacy loader delegation; and startup without generated results.
+- Saved output artifacts were not modified.
+- Not run: Docker build, hosted CI, fresh network installation or independent retraining.
+  Saumya clean-clone QA and Krishna integration review remain pending.

@@ -90,109 +90,33 @@ def validate_experiment_payload(data: dict[str, Any], source_file: str = "") -> 
     ValidationError
         If required keys are missing or values are out of bounds.
     """
-    prefix = f"[{source_file}] " if source_file else ""
+    from app.loader import validate_metrics_json
 
-    required_top = ["run_id", "model_name", "feature_group", "seed", "sample_size", "metrics"]
-    for req in required_top:
-        if req not in data:
-            raise ValidationError(f"{prefix}Missing required top-level field: '{req}'")
-
-    run_id = str(data["run_id"]).strip()
-    if not run_id:
-        raise ValidationError(f"{prefix}'run_id' cannot be empty")
-
-    model_name = str(data["model_name"]).strip()
-    if not model_name:
-        raise ValidationError(f"{prefix}'model_name' cannot be empty")
-
-    feature_group = str(data["feature_group"]).strip()
-    if feature_group not in VALID_FEATURE_GROUPS:
-        raise ValidationError(
-            f"{prefix}Invalid 'feature_group': '{feature_group}'. Must be one of: {VALID_FEATURE_GROUPS}"
+    error = validate_metrics_json(data)
+    if error:
+        raise ValidationError(f"[{source_file}] {error}")
+    test = data["evaluation"]["test"]
+    op = data["evaluation"].get("operating_point")
+    operating_point = None
+    if op and "test_actual_signal_efficiency" in op:
+        operating_point = OperatingPoint(
+            op["target_signal_efficiency"], op["validation_threshold"],
+            op["test_background_rejection"], op["test_actual_signal_efficiency"],
         )
-
-    try:
-        seed = int(data["seed"])
-    except (ValueError, TypeError) as exc:
-        raise ValidationError(f"{prefix}'seed' must be an integer, got: {data.get('seed')}") from exc
-
-    try:
-        sample_size = int(data["sample_size"])
-        if sample_size <= 0:
-            raise ValueError()
-    except (ValueError, TypeError) as exc:
-        raise ValidationError(f"{prefix}'sample_size' must be a positive integer, got: {data.get('sample_size')}") from exc
-
-    # Metrics validation
-    metrics_dict = data.get("metrics")
-    if not isinstance(metrics_dict, dict):
-        raise ValidationError(f"{prefix}'metrics' must be a dictionary")
-
-    for metric_name in ("roc_auc", "pr_auc"):
-        if metric_name not in metrics_dict:
-            raise ValidationError(f"{prefix}Required metric '{metric_name}' missing from 'metrics'")
-        val = metrics_dict[metric_name]
-        if not isinstance(val, (int, float)) or not (0.0 <= val <= 1.0):
-            raise ValidationError(
-                f"{prefix}Metric '{metric_name}' must be a float between 0.0 and 1.0, got: {val}"
-            )
-
-    brier = metrics_dict.get("brier_score")
-    if brier is not None and (not isinstance(brier, (int, float)) or not (0.0 <= brier <= 1.0)):
-        raise ValidationError(f"{prefix}'brier_score' must be between 0.0 and 1.0, got: {brier}")
-
-    accuracy = metrics_dict.get("accuracy")
-    if accuracy is not None and (not isinstance(accuracy, (int, float)) or not (0.0 <= accuracy <= 1.0)):
-        raise ValidationError(f"{prefix}'accuracy' must be between 0.0 and 1.0, got: {accuracy}")
-
-    train_time = metrics_dict.get("training_time_sec")
-    if train_time is not None and (not isinstance(train_time, (int, float)) or train_time < 0):
-        raise ValidationError(f"{prefix}'training_time_sec' must be non-negative, got: {train_time}")
-
-    inf_lat = metrics_dict.get("inference_latency_ms")
-    if inf_lat is not None and (not isinstance(inf_lat, (int, float)) or inf_lat < 0):
-        raise ValidationError(f"{prefix}'inference_latency_ms' must be non-negative, got: {inf_lat}")
-
-    metrics = ExperimentMetrics(
-        roc_auc=float(metrics_dict["roc_auc"]),
-        pr_auc=float(metrics_dict["pr_auc"]),
-        brier_score=float(brier) if brier is not None else None,
-        accuracy=float(accuracy) if accuracy is not None else None,
-        training_time_sec=float(train_time) if train_time is not None else None,
-        inference_latency_ms=float(inf_lat) if inf_lat is not None else None,
-    )
-
-    # Optional Operating Point
-    op_record = None
-    if "operating_point" in data and data["operating_point"] is not None:
-        op = data["operating_point"]
-        if not isinstance(op, dict):
-            raise ValidationError(f"{prefix}'operating_point' must be a dictionary")
-        for op_key in ("target_signal_efficiency", "selected_threshold", "test_background_rejection", "test_signal_efficiency"):
-            if op_key not in op:
-                raise ValidationError(f"{prefix}'operating_point' missing key '{op_key}'")
-            if not isinstance(op[op_key], (int, float)) or not (0.0 <= op[op_key] <= 1.0):
-                raise ValidationError(f"{prefix}'operating_point.{op_key}' must be between 0.0 and 1.0, got: {op[op_key]}")
-        op_record = OperatingPoint(
-            target_signal_efficiency=float(op["target_signal_efficiency"]),
-            selected_threshold=float(op["selected_threshold"]),
-            test_background_rejection=float(op["test_background_rejection"]),
-            test_signal_efficiency=float(op["test_signal_efficiency"]),
-        )
-
-    provenance = data.get("provenance", {})
-    if not isinstance(provenance, dict):
-        provenance = {}
-
     return ExperimentRecord(
-        run_id=run_id,
-        model_name=model_name,
-        feature_group=feature_group,
-        seed=seed,
-        sample_size=sample_size,
-        metrics=metrics,
-        operating_point=op_record,
-        provenance=provenance,
+        run_id=data["run_id"], model_name=data["model"]["name"],
+        feature_group=data["features"]["group"], seed=data["split"]["seed"],
+        sample_size=data["data"]["row_count"],
+        metrics=ExperimentMetrics(
+            roc_auc=test["roc_auc"], pr_auc=test["pr_auc"], brier_score=test["brier_score"],
+            accuracy=test.get("accuracy"), training_time_sec=data["training"].get("training_seconds"),
+        ),
+        operating_point=operating_point,
+        provenance={
+            "source_file": data["data"]["source"],
+            "split": data["split"],
+            "timestamp_utc": data.get("created_at_utc"),
+        },
         raw_payload=data,
     )
 

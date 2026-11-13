@@ -16,4 +16,4 @@ if ! command -v streamlit >/dev/null 2>&1; then
 fi
 
 echo "Launching dashboard on http://localhost:8501..."
-streamlit run app/main.py --server.port=8501 --server.address=0.0.0.0
+streamlit run streamlit_app.py --server.port=8501 --server.address=0.0.0.0

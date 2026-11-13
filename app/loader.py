@@ -188,53 +188,82 @@ def validate_metrics_json(data: dict[str, Any]) -> str | None:
 
     Returns None if valid, or an error description string if invalid.
     """
+    if not isinstance(data, dict):
+        return "metrics.json must contain a JSON object"
     for key in REQUIRED_TOP_LEVEL_KEYS:
         if key not in data:
             return f"Missing required top-level key: '{key}'"
-
-    schema_version = data.get("schema_version")
-    if schema_version != ARTIFACT_SCHEMA_VERSION:
-        return (
-            f"Unsupported schema_version '{schema_version}'. Expected '{ARTIFACT_SCHEMA_VERSION}'"
-        )
-
-    run_id = data.get("run_id")
-    if not isinstance(run_id, str) or not run_id.strip():
+    if data["schema_version"] != ARTIFACT_SCHEMA_VERSION:
+        return f"Unsupported schema_version '{data['schema_version']}'. Expected '{ARTIFACT_SCHEMA_VERSION}'"
+    if not isinstance(data["run_id"], str) or not data["run_id"].strip():
         return "run_id must be a non-empty string"
-
-    model = data.get("model")
-    if not isinstance(model, dict) or "name" not in model:
-        return "model section must be a dictionary containing 'name'"
-
-    features = data.get("features")
-    if not isinstance(features, dict):
-        return "features section must be a dictionary"
-    if "group" not in features or features["group"] not in {"low_level", "high_level", "all"}:
+    for key in ("model", "features", "data", "split", "training", "evaluation"):
+        if not isinstance(data[key], dict):
+            return f"{key} section must be a dictionary"
+    model, features, source, split = (data[k] for k in ("model", "features", "data", "split"))
+    if not isinstance(model.get("name"), str) or not model["name"].strip():
+        return "model.name must be a non-empty string"
+    if features.get("group") not in ("low_level", "high_level", "all"):
         return "features.group must be 'low_level', 'high_level', or 'all'"
-    if "count" not in features or not isinstance(features["count"], int) or features["count"] <= 0:
+    count, names = features.get("count"), features.get("names")
+    if type(count) is not int or count <= 0:
         return "features.count must be a positive integer"
-    if "names" not in features or not isinstance(features["names"], list):
-        return "features.names must be a list of feature column names"
-
-    split = data.get("split")
-    if not isinstance(split, dict):
-        return "split section must be a dictionary"
-    if "seed" not in split or not isinstance(split["seed"], int):
+    if not isinstance(names, list) or len(names) != count or any(not isinstance(n, str) or not n.strip() for n in names):
+        return "features.names must contain one non-empty name per feature"
+    if len(set(names)) != count:
+        return "features.names must be unique"
+    if not isinstance(source.get("source"), str) or not source["source"].strip():
+        return "data.source must be a non-empty string"
+    if type(source.get("row_count")) is not int or source["row_count"] <= 0:
+        return "data.row_count must be a positive integer"
+    if type(split.get("seed")) is not int:
         return "split.seed must be an integer"
-
-    eval_sec = data.get("evaluation")
-    if not isinstance(eval_sec, dict):
-        return "evaluation section must be a dictionary"
-    if "test" not in eval_sec or not isinstance(eval_sec["test"], dict):
-        return "evaluation must contain a 'test' metrics dictionary"
-
-    test_metrics = eval_sec["test"]
-    for m in ("roc_auc", "pr_auc", "brier_score"):
-        if m in test_metrics:
-            val = test_metrics[m]
-            if not isinstance(val, (int, float)) or not np.isfinite(val):
-                return f"evaluation.test.{m} must be a finite numeric value"
-
+    if split.get("protocol_version") != "higgs-split-v1":
+        return "split.protocol_version must be higgs-split-v1"
+    counts = [split.get(k) for k in ("train_rows", "validation_rows", "test_rows")]
+    if any(type(n) is not int or n <= 0 for n in counts) or sum(counts) != source["row_count"]:
+        return "split row counts must be positive integers summing to data.row_count"
+    fractions = [split.get(k) for k in ("validation_fraction", "test_fraction")]
+    if any(type(n) not in (int, float) or not np.isfinite(n) or not 0 < n < 1 for n in fractions) or sum(fractions) >= 1:
+        return "split fractions must be positive and sum to less than 1"
+    for partition in ("validation", "test"):
+        metrics = data["evaluation"].get(partition)
+        if not isinstance(metrics, dict):
+            return f"evaluation.{partition} must be a metrics dictionary"
+        for name in ("roc_auc", "pr_auc", "brier_score"):
+            value = metrics.get(name)
+            if type(value) not in (int, float) or not np.isfinite(value) or not 0 <= value <= 1:
+                return f"evaluation.{partition}.{name} must be a finite numeric value within [0, 1]"
+        if "accuracy" in metrics:
+            value = metrics["accuracy"]
+            if type(value) not in (int, float) or not np.isfinite(value) or not 0 <= value <= 1:
+                return f"evaluation.{partition}.accuracy must be within [0, 1]"
+    training = data["training"]
+    if "training_seconds" in training:
+        value = training["training_seconds"]
+        if type(value) not in (int, float) or not np.isfinite(value) or value < 0:
+            return "training.training_seconds must be finite and non-negative"
+    if "history" in training:
+        history = training["history"]
+        if not isinstance(history, list):
+            return "training.history must be a list"
+        for item in history:
+            if not isinstance(item, dict):
+                return "training.history entries must be dictionaries"
+            for key in ("epoch", "train_loss", "validation_roc_auc"):
+                value = item.get(key)
+                if type(value) not in (int, float) or not np.isfinite(value) or value < 0:
+                    return f"training.history.{key} must be a finite non-negative number"
+            if item["validation_roc_auc"] > 1:
+                return "training.history.validation_roc_auc must be within [0, 1]"
+    op = data["evaluation"].get("operating_point")
+    if op is not None:
+        if not isinstance(op, dict):
+            return "evaluation.operating_point must be a dictionary"
+        for key in ("target_signal_efficiency", "validation_threshold", "test_background_rejection"):
+            value = op.get(key)
+            if type(value) not in (int, float) or not np.isfinite(value) or not 0 <= value <= 1:
+                return f"evaluation.operating_point.{key} must be within [0, 1]"
     return None
 
 
@@ -255,9 +284,20 @@ def validate_test_predictions_df(df: pd.DataFrame) -> str | None:
     if not pd.api.types.is_numeric_dtype(labels):
         return "class_label column must be numeric"
 
-    unique_labels = set(labels.dropna().unique())
+    if labels.isna().any():
+        return "class_label contains missing values"
+    unique_labels = set(labels.unique())
     if not unique_labels.issubset({0, 1, 0.0, 1.0}):
         return f"class_label must only contain binary values {{0, 1}}, found {unique_labels}"
+
+    if unique_labels != {0, 1}:
+        return "class_label must contain both binary classes for evaluation"
+    indices = df["row_index"]
+    if not pd.api.types.is_numeric_dtype(indices) or indices.isna().any():
+        return "row_index must contain finite non-negative integers"
+    values = indices.to_numpy(dtype=np.float64)
+    if not np.isfinite(values).all() or (values < 0).any() or (values != np.floor(values)).any() or indices.duplicated().any():
+        return "row_index must contain unique finite non-negative integers"
 
     # Verify score values
     scores = df["score"]
@@ -315,6 +355,11 @@ def load_single_run(run_dir: Path) -> tuple[ExperimentArtifact | None, RunStatus
     if csv_err:
         return None, RunStatus.MALFORMED, f"Prediction file validation error: {csv_err}", []
 
+    if len(df_preds) != raw_metrics["split"]["test_rows"]:
+        return None, RunStatus.MALFORMED, "Prediction row count differs from split.test_rows", []
+    if (df_preds["row_index"] >= raw_metrics["data"]["row_count"]).any():
+        return None, RunStatus.MALFORMED, "Prediction row_index exceeds source sample bounds", []
+
     artifact = ExperimentArtifact(
         run_id=str(raw_metrics["run_id"]),
         run_dir=run_dir,
@@ -369,14 +414,24 @@ def discover_and_load_runs(base_dir: str | Path = "outputs") -> RunDiscoveryResu
     if (path / "metrics.json").is_file() or (path / "test_predictions.csv").is_file():
         candidate_dirs.append(path)
 
-    for item in sorted(path.iterdir()):
+    try:
+        entries = sorted(path.iterdir())
+    except OSError as exc:
+        result.malformed_runs.append(MalformedRunInfo(str(path), "root", f"Cannot read artifact directory: {exc}", str(exc)))
+        return result
+    for item in entries:
         if item.is_dir() and not item.name.startswith((".", "__")):
             if item.name in {"curves", "runs", "model_weights", "eda"} and not (item / "metrics.json").is_file():
                 continue
             candidate_dirs.append(item)
 
+    seen_ids: set[str] = set()
     for run_dir in candidate_dirs:
         artifact, status, reason, missing = load_single_run(run_dir)
+        if artifact is not None and artifact.run_id in seen_ids:
+            artifact, status, reason = None, RunStatus.MALFORMED, "Duplicate run_id"
+        if artifact is not None:
+            seen_ids.add(artifact.run_id)
         folder_name = run_dir.name
 
         if status == RunStatus.VALID and artifact is not None:

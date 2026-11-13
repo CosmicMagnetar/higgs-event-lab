@@ -114,8 +114,7 @@ The notebooks now train on the complete approximately 11-million-row file. Rerun
 git clone https://github.com/CosmicMagnetar/higgs-event-lab.git
 cd higgs-event-lab
 python -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
-pip install -e .
+python -m pip install -e ".[dev]"
 ```
 
 ### 2. Download the Dataset (auto-handled by notebooks)
@@ -234,7 +233,7 @@ higgs-event-lab/
 │   ├── 00_physics/             # Physics intro (no execution required)
 │   ├── 01_midsem/              # Mid-semester MVP (EDA + models)
 │   └── 03_full/                # Full-dataset Colab/Kaggle benchmark
-├── outputs/                    # Experiment artifacts (auto-generated or bootstrapped)
+├── outputs/                    # Saved experiment artifacts
 │   ├── logreg_*/               # LogReg runs per feature group
 │   ├── xgboost_*/              # XGBoost runs per feature group
 │   ├── mlp_*/                  # MLP runs per feature group
@@ -243,7 +242,7 @@ higgs-event-lab/
 ├── reports/                    # Written reports and viva preparation
 ├── scripts/
 │   ├── download_data.py        # CLI data downloader
-│   ├── generate_sample_artifacts.py  # Bootstrap demo artifacts for dashboard
+│   ├── generate_sample_artifacts.py  # Synthetic fixtures; never benchmark evidence
 │   └── train_and_export.py     # Full training pipeline script
 ├── src/higgs_event_lab/        # Core library (importable as a package)
 │   ├── data.py                 # Chunked loader, sample extractor, schema validator
@@ -252,7 +251,7 @@ higgs-event-lab/
 │   ├── neural.py               # Compact PyTorch MLP training & artifact export
 │   ├── evaluation.py           # ROC-AUC, PR-AUC, Brier score, operating threshold
 │   └── protocol.py             # higgs-experiment-v1 artifact schema
-├── streamlit_app.py            # Cloud entrypoint (auto-bootstraps demo artifacts)
+├── streamlit_app.py            # Canonical dashboard launcher (reads saved artifacts)
 ├── requirements.txt
 └── tests/                      # 105 automated tests (unit + integration)
 ```
@@ -262,7 +261,7 @@ higgs-event-lab/
 ## Running Tests
 
 ```bash
-# All 105 tests
+# Full test suite
 .venv/bin/python -m pytest tests/ -q
 
 # Fast unit tests only
@@ -280,9 +279,9 @@ higgs-event-lab/
 2. Go to [share.streamlit.io](https://share.streamlit.io) → New App
 3. Set **Repository:** `CosmicMagnetar/higgs-event-lab`
 4. Set **Main file path:** `streamlit_app.py`
-5. Deploy — the app auto-bootstraps 9 demo benchmark artifacts on first load
+5. Deploy with genuine saved experiment packages under `outputs/`.
 
-The cloud entrypoint (`streamlit_app.py`) auto-discovers `outputs/` and bootstraps realistic demo artifacts when it is empty so that visitors always see the full dashboard.
+The canonical launcher (`streamlit_app.py`) reads validated saved run packages. Missing outputs show an empty state; malformed runs show diagnostics. Startup and rescans never generate results. See `app/README.md` for the accepted artifact format.
 
 ---
 

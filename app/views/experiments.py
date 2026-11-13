@@ -30,7 +30,7 @@ def render_experiments(discovery: RunDiscoveryResult) -> None:
     """Render Experiment Comparison view."""
     st.markdown(
         '<div class="section-header">'
-        '<span class="material-icons icon-md" style="color:#00e5ff;">bar_chart</span>'
+        '<span class="material-icons icon-md" style="color:#127c80;">bar_chart</span>'
         '<h2 style="margin:0;">Experiment Comparison</h2>'
         "</div>",
         unsafe_allow_html=True,
@@ -38,7 +38,7 @@ def render_experiments(discovery: RunDiscoveryResult) -> None:
     st.markdown(
         "Evaluate comparative performance across Logistic Regression, XGBoost and compact MLP "
         "and feature configurations (`low_level`, `high_level`, `all`). All evaluations derive "
-        "strictly from held-out test predictions under the `higgs-split-v1` partition."
+        "from saved run metrics and held-out predictions; partition details are shown per run."
     )
 
     if not discovery.has_valid_runs:
@@ -49,6 +49,8 @@ def render_experiments(discovery: RunDiscoveryResult) -> None:
         return
 
     all_runs = discovery.valid_runs
+    chosen_ids = st.multiselect("Runs", [run.run_id for run in all_runs], default=[run.run_id for run in all_runs])
+    all_runs = [run for run in all_runs if run.run_id in chosen_ids]
     model_options = sorted({_model_label(run.model_name) for run in all_runs})
     selected_models = st.multiselect("Models", model_options, default=model_options)
     selected_groups = st.multiselect(
@@ -89,7 +91,11 @@ def render_experiments(discovery: RunDiscoveryResult) -> None:
                 "Family": r.model_family,
                 "Group": r.feature_group,
                 "Features": r.feature_count,
-                "Split Seed": r.split.get("seed", 42),
+                "Source": r.data_source,
+                "Sample size": r.row_count,
+                "Split": r.split["protocol_version"],
+                "Train / validation / test": f"{r.split['train_rows']} / {r.split['validation_rows']} / {r.split['test_rows']}",
+                "Split Seed": r.split["seed"],
                 "Runtime (s)": round(r.training_seconds, 2) if r.training_seconds is not None else None,
                 "Val ROC-AUC": round(r.validation_metrics.get("roc_auc", 0.0), 4) if "roc_auc" in r.validation_metrics else None,
                 "Test ROC-AUC": round(r.test_roc_auc, 4) if r.test_roc_auc is not None else None,
@@ -123,26 +129,13 @@ def render_experiments(discovery: RunDiscoveryResult) -> None:
             "variables alone, or do human-engineered invariant masses remain necessary?"
         )
 
-        fig_groups = plot_feature_group_comparison(runs)
-        st.pyplot(fig_groups)
+        if len({(r.model_name, r.feature_group) for r in runs}) != len(runs):
+            st.info("Select one run per model and feature group to display grouped charts. All selected runs remain in the leaderboard and validation comparison.")
+        else:
+            fig_groups = plot_feature_group_comparison(runs)
+            st.pyplot(fig_groups)
 
-        st.markdown(
-            """
-            <div class="scientific-panel">
-                <h4 style="color:#00e5ff; margin-top:0;">Key Scientific Takeaways</h4>
-                <ul style="font-size:0.9rem; color:#cbd5e1; margin-bottom:0;">
-                    <li><strong>Classical Linear Baseline:</strong> Logistic Regression achieves markedly higher
-                    performance on <code>high_level</code> (7 invariant masses) than on <code>low_level</code> (21 kinematics),
-                    confirming that linear hyperplanes cannot easily model relativistic Lorentz invariants.</li>
-                    <li><strong>Cross-Feature Synergy:</strong> Combining both groups into <code>all</code> (28 features)
-                    yields maximal discrimination for both model families.</li>
-                    <li><strong>Representation Gap:</strong> The MLP narrows the performance deficit on low-level features
-                    due to nonlinear activation and hidden representations, but still benefits from explicit invariant masses.</li>
-                </ul>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
+        st.caption("Compare runs using their recorded source, sample size and split; different experiments may not be directly comparable.")
 
     with tab_compute:
         st.markdown("### Compute Efficiency: Training Wall-Clock Time vs Performance")
@@ -167,8 +160,8 @@ def render_experiments(discovery: RunDiscoveryResult) -> None:
         st.markdown(
             """
             <div class="scientific-panel">
-                <h4 style="color:#00e5ff; margin-top:0;">How to Read the Radar</h4>
-                <ul style="font-size:0.9rem; color:#cbd5e1; margin-bottom:0;">
+                <h4 style="color:#127c80; margin-top:0;">How to Read the Radar</h4>
+                <ul style="font-size:0.9rem; color:#475b70; margin-bottom:0;">
                     <li>Each vertex represents one evaluation metric; larger area indicates stronger overall performance.</li>
                     <li><strong>ROC-AUC</strong> measures ranking discrimination across all thresholds.</li>
                     <li><strong>PR-AUC</strong> measures precision-recall trade-off, sensitive to class imbalance.</li>

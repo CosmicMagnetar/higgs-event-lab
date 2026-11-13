@@ -46,67 +46,9 @@ def test_load_experiments_empty_state_does_not_crash(tmp_path):
     assert len(loaded.curves) == 0
 
 
-def test_validate_experiment_payload_valid():
-    """Verify that a compliant experiment record validates cleanly."""
-    valid_data = {
-        "run_id": "lr_low_level_s42",
-        "model_name": "Logistic Regression",
-        "feature_group": "low_level",
-        "seed": 42,
-        "sample_size": 250000,
-        "metrics": {
-            "roc_auc": 0.68,
-            "pr_auc": 0.65,
-            "brier_score": 0.22,
-            "accuracy": 0.64,
-            "training_time_sec": 12.4,
-            "inference_latency_ms": 0.8,
-        },
-        "operating_point": {
-            "target_signal_efficiency": 0.50,
-            "selected_threshold": 0.52,
-            "test_background_rejection": 0.70,
-            "test_signal_efficiency": 0.498,
-        },
-        "provenance": {
-            "source_file": "data/processed/sample.csv.gz",
-        },
-    }
-    rec = validate_experiment_payload(valid_data)
-    assert rec.run_id == "lr_low_level_s42"
-    assert rec.model_name == "Logistic Regression"
-    assert rec.feature_group == "low_level"
-    assert rec.metrics.roc_auc == 0.68
-    assert rec.operating_point is not None
-    assert rec.operating_point.target_signal_efficiency == 0.50
-
-
-def test_validate_experiment_payload_rejects_missing_required():
-    """Missing top-level fields must raise ValidationError."""
-    bad_data = {
-        "run_id": "bad_run",
-        "model_name": "MLP",
-        # missing feature_group, seed, sample_size, metrics
-    }
-    with pytest.raises(ValidationError, match="Missing required top-level field"):
-        validate_experiment_payload(bad_data)
-
-
-def test_validate_experiment_payload_rejects_out_of_bounds_metrics():
-    """Metric values out of [0, 1] must raise ValidationError."""
-    bad_metric = {
-        "run_id": "test",
-        "model_name": "MLP",
-        "feature_group": "all",
-        "seed": 42,
-        "sample_size": 1000,
-        "metrics": {
-            "roc_auc": 1.5,  # Invalid
-            "pr_auc": 0.7,
-        },
-    }
-    with pytest.raises(ValidationError, match="must be a float between 0.0 and 1.0"):
-        validate_experiment_payload(bad_metric)
+def test_legacy_flat_records_are_rejected():
+    with pytest.raises(ValidationError, match="schema_version"):
+        validate_experiment_payload({"run_id": "legacy", "metrics": {"roc_auc": 0.9}})
 
 
 def test_validate_curve_payload():
@@ -162,19 +104,11 @@ def test_validate_curve_payload_rejects_out_of_bounds_coordinates():
         validate_curve_payload(bad_coords)
 
 
-def test_load_experiments_supports_csv(tmp_path: Path):
-    """Verify that experiments can be parsed from a CSV summary file."""
-    outputs_dir = tmp_path / "outputs"
-    outputs_dir.mkdir()
-    csv_file = outputs_dir / "experiments_summary.csv"
-    csv_file.write_text(
-        "run_id,model_name,feature_group,seed,sample_size,roc_auc,pr_auc,training_time_sec\n"
-        "xgb_all_s42,XGBoost,all,42,250000,0.80,0.78,45.2\n",
-        encoding="utf-8",
+def test_flat_csv_is_not_experiment_evidence(tmp_path):
+    outputs = tmp_path / "outputs"
+    outputs.mkdir()
+    (outputs / "experiments_summary.csv").write_text(
+        "run_id,model_name,feature_group,seed,sample_size,roc_auc,pr_auc\n"
+        "legacy,LR,all,42,1000,0.8,0.7\n"
     )
-    loaded = load_experiments(root=tmp_path)
-    assert len(loaded.experiments) == 1
-    assert loaded.experiments[0].run_id == "xgb_all_s42"
-    assert loaded.experiments[0].metrics.roc_auc == 0.80
-    assert loaded.experiments[0].metrics.training_time_sec == 45.2
-
+    assert load_experiments(tmp_path).is_empty

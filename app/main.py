@@ -51,30 +51,26 @@ def main() -> None:
     # Sidebar Header & Branding
     st.sidebar.markdown(
         """
-        <div style="padding-bottom: 0.5rem; margin-bottom: 0.8rem; border-bottom: 1px solid #1f293d;">
-            <div style="display: flex; align-items: center; gap: 0.5rem;">
-                <span class="material-icons icon-md" style="color:#00e5ff;">science</span>
-                <h2 style="margin: 0; font-size: 1.4rem; color: #f8fafc !important; font-weight: 800; letter-spacing: -0.02em;">
-                    HiggsLens
-                </h2>
-            </div>
-            <p style="margin: 0.2rem 0 0 0; font-size: 0.78rem; color: #94a3b8; font-family: monospace;">
-                 Evidence-first scientific ML workbench &bull; v0.2
-            </p>
+        <div class="sidebar-brand">
+            <h2>HiggsLens</h2>
+            <p>Experiment dashboard · v0.2</p>
         </div>
         """,
         unsafe_allow_html=True,
     )
 
-    # Output directory selection & Artifact Discovery
-    outputs_path = st.sidebar.text_input(
-        "Artifacts Directory:",
-        value="outputs",
-        help="Path where experiment run folders are located (metrics.json + test_predictions.csv)",
-    )
+    status_slot = st.sidebar.container()
+    navigation_slot = st.sidebar.container()
 
-    if st.sidebar.button("Rescan Artifacts", width="stretch"):
-        st.cache_data.clear()
+    # Keep setup controls available without placing them before navigation.
+    with st.sidebar.expander("Artifact settings", icon=":material/folder_open:"):
+        outputs_path = st.text_input(
+            "Artifacts directory",
+            value="outputs",
+            help="Folder containing saved metrics.json and test_predictions.csv run packages.",
+        )
+        if st.button("Rescan artifacts", icon=":material/refresh:", width="stretch"):
+            st.cache_data.clear()
 
     # Discover and validate experiment runs
     discovery = discover_and_load_runs(outputs_path)
@@ -85,14 +81,14 @@ def main() -> None:
         badge_html = f"""
         <div class="scientific-badge scientific-badge-green" style="width: 100%; text-align: center; margin-bottom: 1rem;">
             <span class="material-icons icon-sm" style="vertical-align: middle; margin-right: 0.3rem;">check_circle</span>
-            {valid_count} Valid Run(s) Loaded
+            {valid_count} saved runs loaded
         </div>
         """
     elif discovery.dir_exists and discovery.total_scanned > 0:
         badge_html = f"""
         <div class="scientific-badge scientific-badge-amber" style="width: 100%; text-align: center; margin-bottom: 1rem;">
             <span class="material-icons icon-sm" style="vertical-align: middle; margin-right: 0.3rem;">error</span>
-            0 Valid ({discovery.total_scanned} Incomplete)
+            0 Valid ({len(discovery.incomplete_runs)} incomplete, {len(discovery.malformed_runs)} invalid)
         </div>
         """
     else:
@@ -102,33 +98,34 @@ def main() -> None:
             Awaiting Experiment Runs
         </div>
         """
-    st.sidebar.markdown(badge_html, unsafe_allow_html=True)
+    status_slot.markdown(badge_html, unsafe_allow_html=True)
 
-    if valid_count == 0:
-        if st.sidebar.button("Bootstrap Demo Runs", width="stretch", help="Generate genuine mid-semester benchmark artifacts in outputs/ for instant evaluation."):
-            from scripts.generate_sample_artifacts import main as generate_artifacts
-
-            generate_artifacts()
-            st.cache_data.clear()
-            st.rerun()
+    if discovery.incomplete_runs or discovery.malformed_runs:
+        with st.expander("Artifact loading diagnostics", expanded=not discovery.has_valid_runs):
+            for run in discovery.incomplete_runs:
+                st.warning(f"{run.run_id}: {run.reason}")
+            for run in discovery.malformed_runs:
+                st.error(f"{run.run_id}: {run.reason}")
 
     # Primary Navigation
     NAV_SECTIONS = [
-        ("Overview", "overview"),
-        ("Physics Explorer", "physics"),
-        ("Dataset Observatory", "datasets"),
+        ("Overview", "home"),
+        ("Physics Explorer", "science"),
+        ("Dataset Observatory", "database"),
         ("Experiment Comparison", "bar_chart"),
         ("Validation", "insights"),
         ("Methods and Research", "article"),
         ("Model Simulation", "psychology"),
     ]
 
-    selected_index = st.sidebar.radio(
+    navigation_slot.markdown('<div class="sidebar-nav-label">WORKSPACE</div>', unsafe_allow_html=True)
+    selected_index = navigation_slot.radio(
         "Navigation",
         options=list(range(len(NAV_SECTIONS))),
         format_func=lambda i: NAV_SECTIONS[i][0],
         index=0,
         label_visibility="collapsed",
+        key="dashboard_navigation",
     )
 
     selected_section = NAV_SECTIONS[selected_index][0]
@@ -136,13 +133,13 @@ def main() -> None:
     st.sidebar.markdown("---")
     st.sidebar.markdown(
         """
-        <div style="font-size: 0.76rem; color: #64748b; line-height: 1.4;">
+        <div class="sidebar-details">
             <span class="material-icons icon-sm" style="vertical-align: middle; margin-right: 0.3rem;">person</span>
             <strong>Lead UI / Product:</strong> Ronit Singh<br/>
             <span class="material-icons icon-sm" style="vertical-align: middle; margin-right: 0.3rem;">database</span>
             <strong>Dataset Benchmark:</strong> UCI HIGGS #280<br/>
             <span class="material-icons icon-sm" style="vertical-align: middle; margin-right: 0.3rem;">tune</span>
-            <strong>Split:</strong> higgs-split-v1 (seed 42)
+            <strong>Split:</strong> See saved metadata for each run
         </div>
         """,
         unsafe_allow_html=True,
@@ -154,7 +151,7 @@ def main() -> None:
     elif selected_section == "Physics Explorer":
         render_physics()
     elif selected_section == "Dataset Observatory":
-        render_dataset()
+        render_dataset(discovery.base_dir)
     elif selected_section == "Experiment Comparison":
         render_experiments(discovery)
     elif selected_section == "Validation":

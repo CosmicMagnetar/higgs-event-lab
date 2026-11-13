@@ -13,7 +13,7 @@ def render_methods() -> None:
     """Render Methods and Research view."""
     st.markdown(
         '<div class="section-header">'
-        '<span class="material-icons icon-md" style="color:#00e5ff;">article</span>'
+        '<span class="material-icons icon-md" style="color:#127c80;">article</span>'
         '<h2 style="margin:0;">Methods, Experiment Protocol &amp; Research Citations</h2>'
         "</div>",
         unsafe_allow_html=True,
@@ -37,7 +37,7 @@ def render_methods() -> None:
         st.markdown(
             """
             <div class="scientific-panel">
-                <ol style="font-size:0.92rem; color:#cbd5e1; margin-bottom:0; padding-left:1.2rem;">
+                <ol style="font-size:0.92rem; color:#475b70; margin-bottom:0; padding-left:1.2rem;">
                     <li><strong>Stratified Partition:</strong> The dataset is partitioned into <strong>70% training,
                     15% validation, and 15% held-out test</strong> partitions using a deterministic stratified split with seed <code>42</code>.</li>
                     <li><strong>Leakage-Free Preprocessing:</strong> All feature standardisation (<code>StandardScaler</code>)
@@ -61,8 +61,8 @@ def render_methods() -> None:
             st.markdown(
                 r"""
                 <div class="scientific-panel">
-                    <h4 style="color:#00e5ff;">Compact MLP Architecture</h4>
-                    <ul style="font-size:0.88rem; color:#94a3b8;">
+                    <h4 style="color:#127c80;">Compact MLP Architecture</h4>
+                    <ul style="font-size:0.88rem; color:#5f7082;">
                         <li><strong>Input Dimension:</strong> $D \in \{21, 7, 28\}$</li>
                         <li><strong>Hidden Layers:</strong> Linear(64) &rarr; BatchNorm1d &rarr; ReLU &rarr; Dropout(0.20) &rarr; Linear(32) &rarr; BatchNorm1d &rarr; ReLU &rarr; Dropout(0.20)</li>
                         <li><strong>Output:</strong> Linear(1) unconstrained logit</li>
@@ -79,8 +79,8 @@ def render_methods() -> None:
             st.markdown(
                 r"""
                 <div class="scientific-panel">
-                    <h4 style="color:#38bdf8;">Logistic Regression Baseline</h4>
-                    <ul style="font-size:0.88rem; color:#94a3b8;">
+                    <h4 style="color:#4c79a4;">Logistic Regression Baseline</h4>
+                    <ul style="font-size:0.88rem; color:#5f7082;">
                         <li><strong>Input Dimension:</strong> $D \in \{21, 7, 28\}$</li>
                         <li><strong>Pipeline:</strong> <code>sklearn.pipeline.Pipeline</code> embedding <code>StandardScaler</code> + <code>LogisticRegression</code></li>
                         <li><strong>Solver:</strong> L-BFGS with max iterations $= 1000$</li>
