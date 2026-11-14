@@ -56,27 +56,26 @@
 
 # Current leaderboard
 
-| Model | Feature group | ROC-AUC | PR-AUC | Brier |
-|---|---|---:|---:|---:|
-| XGBoost | `all` | 0.8123 | 0.8266 | 0.1765 |
-| Compact MLP | `all` | 0.8121 | 0.8270 | 0.1767 |
-| XGBoost | `high_level` | 0.7848 | 0.8026 | 0.1882 |
-| Compact MLP | `high_level` | 0.7832 | 0.8020 | 0.1892 |
-| Compact MLP | `low_level` | 0.7257 | 0.7366 | 0.2113 |
-| XGBoost | `low_level` | 0.7092 | 0.7233 | 0.2165 |
-| Logistic Regression | `all` | 0.6854 | 0.6817 | 0.2231 |
-| Logistic Regression | `high_level` | 0.6518 | 0.6217 | 0.2315 |
-| Logistic Regression | `low_level` | 0.5960 | 0.6222 | 0.2418 |
+| Model | Feature group | ROC-AUC | PR-AUC | Brier | Evidence |
+|---|---|---:|---:|---:|---|
+| XGBoost | `all` | 0.8123 | 0.8266 | 0.1765  Saved artifact |
+| Compact MLP | `all` | 0.8121 | 0.8270 | 0.1767  Provisional; release gate open |
+| XGBoost | `high_level` | 0.7848 | 0.8026 | 0.1882  Saved artifact |
+| Compact MLP | `high_level` | 0.7832 | 0.8020 | 0.1892  Provisional; release gate open |
+| Compact MLP | `low_level` | 0.7257 | 0.7366 | 0.2113  Provisional; release gate open |
+| XGBoost | `low_level` | 0.7092 | 0.7233 | 0.2165  Saved artifact |
+| Logistic Regression | `all` | 0.6854 | 0.6817 | 0.2231  Saved artifact |
+| Logistic Regression | `high_level` | 0.6518 | 0.6217 | 0.2315  Saved artifact |
+| Logistic Regression | `low_level` | 0.5960 | 0.6222 | 0.2418  Saved artifact |
 
-**Current headline:** XGBoost on `all` features, ROC-AUC **0.8123**.
+**Highest recorded non-neural run:** XGBoost on `all` features, ROC-AUC **0.8123**. Neural rows are provisional and excluded from a final model ranking.
 
 # Feature-group finding
 
 ![Classical feature-group comparison](../outputs/roc_classical_comparison.png)
 
-- Low-level-only models are weakest in the current registry.
-- High-level invariant masses provide a stronger compact representation.
-- Combining all 28 features gives the strongest result for each model family.
+- The current saved runs can be compared by feature group, with the neural results marked provisional.
+- No final feature-group superiority claim is made until the neural release gate is closed.
 
 # Neural training evidence
 
@@ -90,7 +89,7 @@
 - Threshold is selected on validation data for a 50% signal-efficiency target.
 - It is frozen before test evaluation.
 - Background rejection is reported as a benchmark metric, not a significance estimate.
-- The dashboard exposes an interactive threshold workbench over saved test predictions.
+- The dashboard threshold workbench is an exploratory view of held-out test predictions only; changing the slider must not be used to select or tune a final threshold.
 
 # HiggsLens Streamlit dashboard
 
@@ -98,7 +97,7 @@
 streamlit run app/main.py
 ```
 
-- Overview: artifact registry and current best run.
+- Overview: artifact registry and highest observed test run (descriptive only).
 - Dataset Observatory: saved EDA tables and figures.
 - Experiment Comparison: leaderboard, feature groups and runtime.
 - Validation: ROC, PR, calibration, learning history and thresholds.
@@ -110,14 +109,14 @@ streamlit run app/main.py
 
 - Artifact contract: `higgs-experiment-v1`.
 - Split protocol: `higgs-split-v1`, seed 42.
-- Current test result: **105 passed**.
+- Current test result: **143 passed** in the 2026-11-14 fresh-clone run.
 - Raw data is downloaded from UCI at runtime and is not committed.
 
 # Limitations and conclusion
 
 - HIGGS events are simulated Monte Carlo events.
-- The class balance is not representative of real rare-event searches.
+- The class balance is not representative of real rare-event searches; this project does not estimate real collider signal-to-background rates.
 - Current saved metrics cover the 250,000-row benchmark; the historical 1M summary is kept separate because it used a different pipeline and copied timing values.
 - HiggsLens is an engineering and benchmark study, not a physics-discovery analysis.
 
-**Takeaway:** the artifact-backed system works end to end, and the dashboard, report and slides now use the same saved evidence.
+**Takeaway:** the artifact-backed system and automated test suite are verified; the neural results remain provisional and the release decision is still open.

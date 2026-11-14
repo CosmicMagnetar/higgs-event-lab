@@ -76,25 +76,6 @@ The historical values below are not reproduced. Use the reconciliation record an
 3. **Compute Efficiency Trade-Off:**
    * The 1M reconciliation records a Logistic Regression training time of 2.6 seconds. Do not transfer historical 250k timing values to the clean rerun.
 
-## 3. Key Observations and Discussion
-
-1. **Feature Group Discrimination:**
-   * High-level invariant mass features ($D=7$) achieve test ROC-AUC = 0.7661 <!-- allow-metric -->, outperforming raw low-level kinematic variables ($D=21$, ROC-AUC = 0.7476 <!-- allow-metric -->) despite using only one-third as many inputs. This directly confirms that physicist-derived invariant mass reconstructions ($m_{bb}$, $m_{wwbb}$) condense non-linear resonance constraints into variables accessible to linear decision boundaries.
-   * The clean rerun gives the all-features Logistic Regression test ROC-AUC of 0.6854 <!-- allow-metric -->. This is close to the reconciled 1M result of 0.6834 <!-- allow-metric -->. The earlier 0.8369 figure was fabricated placeholder data and is excluded.
-
-2. **Feature Importance (Learned Normalized Coefficients):**
-   * Analysis of the weights assigned to the standardized features in the all-features model reveals that $m_{bb}$ (invariant mass of the two b-jets) and $m_{wwbb}$ receive the largest positive discrimination coefficients for the exotic Higgs signal.
-   * Conversely, missing energy magnitude and lepton transverse momentum provide baseline kinematic scale anchors.
-
-3. **Leakage Protection and Pipeline Encapsulation:**
-   * Embedding feature standardisation within an `sklearn.pipeline.Pipeline` guarantees that mean and standard deviation estimates derive exclusively from the 70% training partition.
-   * Validation-only threshold selection ensures unbiased estimation of background rejection on the held-out test partition.
-
-4. **Compute Efficiency Trade-Off:**
-   * The 1M reconciliation records a Logistic Regression training time of 2.6 seconds. Do not use the earlier 250k per-group timing figures as timings for the clean rerun.
-
----
-
 ## 4. Reproduction Commands
 
 To reproduce these classical baseline benchmark artifacts from the command line:

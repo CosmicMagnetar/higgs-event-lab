@@ -134,8 +134,9 @@ def render_methods() -> None:
             3. **Decision Thresholds vs Discovery Significance:** The threshold-based operating point analysis evaluates
                trade-offs between signal efficiency and background rejection. It must **never** be equated with physical
                discovery significance (such as 5-standard-deviation Gaussian significance $\sigma = 5$).
-            4. **Probabilistic Real-World Meaning:** Classifier scores output probabilities relative to the pre-balanced
-               training sample. They do not represent physical posterior probabilities of a collision producing a Higgs boson
-               in an actual collider run without Bayes-factor weighting against real-world cross-sections.
+            4. **Probabilistic Real-World Meaning:** Classifier outputs are scores produced under the benchmark's
+               approximately balanced class mixture. They are not physical posterior probabilities for real collider events.
+               Applying a classifier to experimental data would require experiment-specific prevalence, selection-efficiency,
+               detector-response and systematic-uncertainty modelling; this project does not provide that treatment.
             """
         )

@@ -1,7 +1,7 @@
 """Model Simulation section for HiggsLens Streamlit application.
 
 Lets users run the trained benchmark models on their own data:
-- Upload a CSV of events and get per-model prediction probabilities.
+- Upload a CSV of events and get per-model classifier scores.
 - Inspect a single held-out event and compare model scores side by side.
 - View prediction distributions as interactive histograms.
 
@@ -121,7 +121,7 @@ def load_models() -> tuple[dict[str, Any], Any]:
 
 
 def predict_scores(models: dict[str, Any], scaler: Any, X: pd.DataFrame) -> dict[str, np.ndarray]:
-    """Return predicted probability scores per model for a feature DataFrame."""
+    """Return class-1 classifier scores per model for a feature DataFrame."""
     from higgs_event_lab.features import ALL_FEATURES
 
     feat_cols = list(ALL_FEATURES)
@@ -160,9 +160,8 @@ def render_simulation(discovery: RunDiscoveryResult) -> None:
         unsafe_allow_html=True,
     )
     st.markdown(
-        "Upload a CSV of collision events (28 feature columns) to get prediction "
-        "probabilities from the saved logistic regression, XGBoost, and wide MLP models. "
-        "You can also inspect a single event and compare all models side by side."
+        "Upload a CSV of collision events (28 feature columns) to get class-1 classifier scores from the saved logistic regression, XGBoost, and wide MLP models. "
+        "These scores are not physical probabilities and are not guaranteed to be calibrated for arbitrary uploaded events. You can also inspect a single event and compare models side by side."
     )
 
     models, scaler = load_models()
@@ -187,6 +186,7 @@ def render_simulation(discovery: RunDiscoveryResult) -> None:
         return
 
     st.success(f"{len(models)} saved model(s) loaded and ready: {', '.join(sorted(models))}")
+    st.caption("Classifier scores are model outputs on a 0–1 scale; they are not physical probabilities of Higgs production or discovery.")
 
     tab_upload, tab_single, tab_dist = st.tabs(
         ["Batch CSV Upload", "Single-Event Prediction", "Score Distributions"]
@@ -253,7 +253,7 @@ def _render_batch_upload(models: dict[str, Any], scaler: Any, feature_cols: list
 
 def _render_single_event(models: dict[str, Any], scaler: Any, feature_cols: list[str]) -> None:
     st.markdown("### Single-Event Prediction")
-    st.markdown("Adjust feature values and compare every model's signal probability.")
+    st.markdown("Adjust feature values and compare every model's class-1 classifier score.")
 
     inputs: dict[str, float] = {}
     cols = st.columns(4)
@@ -276,21 +276,21 @@ def _render_single_event(models: dict[str, Any], scaler: Any, feature_cols: list
             st.error(f"Prediction failed: {exc}")
             return
 
-        st.markdown("#### Signal probability by model")
+        st.markdown("#### Classifier score for class 1 by model")
         score_rows = []
         for name in sorted(scores):
-            score_rows.append({"Model": name.replace("_", " ").title(), "Signal Probability": float(scores[name][0])})
+            score_rows.append({"Model": name.replace("_", " ").title(), "Classifier Score": float(scores[name][0])})
         score_df = pd.DataFrame(score_rows)
         st.dataframe(score_df, width="stretch", hide_index=True)
 
-        best = max(score_rows, key=lambda r: r["Signal Probability"])
+        best = max(score_rows, key=lambda r: r["Classifier Score"])
         st.markdown(
-            f"> Highest signal probability: **{best['Model']}** at **{best['Signal Probability']:.3f}**"
+            f"> Highest classifier score: **{best['Model']}** at **{best['Classifier Score']:.3f}**"
         )
 
         # Simple horizontal bar of scores
-        chart_df = score_df.sort_values("Signal Probability")
-        st.bar_chart(chart_df, x="Model", y="Signal Probability", width="stretch")
+        chart_df = score_df.sort_values("Classifier Score")
+        st.bar_chart(chart_df, x="Model", y="Classifier Score", width="stretch")
 
 
 def _render_demo_distributions(discovery: RunDiscoveryResult) -> None:
@@ -302,7 +302,7 @@ def _render_demo_distributions(discovery: RunDiscoveryResult) -> None:
     fig_hist, ax_hist = plt.subplots(figsize=(7, 3.6))
     ax_hist.hist(scores[run.test_labels == 1], bins=30, alpha=0.7, label="Signal", color="#127c80")
     ax_hist.hist(scores[run.test_labels == 0], bins=30, alpha=0.7, label="Background", color="#628bb5")
-    ax_hist.set_xlabel("Predicted signal probability")
+    ax_hist.set_xlabel("Classifier score for class 1")
     ax_hist.set_ylabel("Event count")
     ax_hist.set_title(f"Demo score distribution — {run.run_id}")
     ax_hist.legend()
@@ -314,7 +314,7 @@ def _render_score_distributions(
 ) -> None:
     st.markdown("### Score Distributions")
     st.markdown(
-        "Compare how each model spreads predicted probabilities across the held-out test set."
+        "Compare classifier scores across the held-out test set. Scores in [0, 1] are not physical probabilities and calibration is not established for arbitrary uploaded events."
     )
     if not discovery.has_valid_runs:
         st.info("Load valid experiment artifacts to view distributions.")
@@ -324,7 +324,7 @@ def _render_score_distributions(
     for idx, run in enumerate(discovery.valid_runs[:4]):
         color = MPL_COLORS[idx % len(MPL_COLORS)]
         ax.hist(run.test_scores, bins=30, alpha=0.5, label=run.run_id, color=color)
-    ax.set_xlabel("Predicted signal probability")
+    ax.set_xlabel("Classifier score for class 1")
     ax.set_ylabel("Event count")
     ax.set_title("Held-out test score distribution per run")
     ax.legend(fontsize=8)

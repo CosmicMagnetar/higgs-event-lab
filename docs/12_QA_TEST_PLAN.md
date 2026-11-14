@@ -2,7 +2,7 @@
 
 > **Owner:** Saumya Mishra (END-04, MID-07). **Companion files:** `team/BUG_TRACKER.md`, `team/CHANGELOG.md`, `tests/`.
 > **Principle:** Saumya coordinates and verifies; module owners write and fix the tests and code for their own modules (`team/TEAM_CHARTER.md`).
-> **Verification status:** the repository records a full test run of 143 passed on 2026-11-13. Editable packaging and dashboard AppTest were also verified as documented below. Fresh network installation, Docker build, hosted CI, independent retraining and clean-clone reproduction remain unverified.
+> **Verification status (2026-11-14):** fresh-clone installation and the full suite passed locally on Python 3.15.1 (143 passed); GitHub Actions also passed on Python 3.11. Docker build, real-data smoke test, independent retraining and the neural release decision remain outstanding.
 
 ---
 
@@ -65,6 +65,7 @@ python tests/integration/smoke_check_raw_file.py data/raw/HIGGS.csv.gz --rows 10
 | 2026-10-25 | Negative controls: copy of the repo with injected faults (a fake ROC-AUC claim in a report, an empty `HIGGS.csv.gz`, a fake API key in `app/config.py`, a `#` comment in a notebook code cell) | 4 tests failed as intended, 22 passed | Shows the guards detect what they are meant to detect |
 | 2026-10-26 | Final-push review: `pytest` on 14 non-PyTorch test files (hygiene, notebook style, feature dictionary, protocol, features, data loader, evaluation, download, classical, dashboard loader/metrics/views, data pipeline integration) | **98 passed, 1 failed.** The failure is `test_app_views.py::test_bootstrap_cloud_artifacts_if_needed`, caused by `ModuleNotFoundError: streamlit` in the review environment (dependency missing, not a code fault). | BUG-022. Install `requirements.txt` and rerun. **NOT RUN here:** `test_neural.py` (3 tests) and `test_end_to_end_pipeline.py` (2 tests) need PyTorch; `smoke_check_raw_file.py` on the real HIGGS file. Run them on the team machine and paste output here. |
 | 2026-10-26 | Results consistency check (not a test): compared `outputs/*/metrics.json`, `outputs/experiments.json` and `outputs/full_colab_results.json` | **Inconsistent.** 250k MLP all-features ROC-AUC 0.9406 vs 1M wide MLP 0.8399; every model family is lower at 1M | BUG-015, BUG-016, BUG-017, BUG-018. See `docs/14_RESULTS_RECONCILIATION.md` | <!-- allow-metric -->
+| 2026-11-14 | Fresh-clone QA on macOS arm64: `MPLBACKEND=Agg python -m pytest -q` after `python -m pip install -e ".[dev]"` in a new `.venv` | **143 passed, 0 failed** in 80.52s | Fresh clone succeeded; dependency installation completed after transient package-index timeouts and automatic retries. Python 3.15.1. No dataset download or model retraining was performed. |
 
 ---
 
@@ -233,8 +234,19 @@ Saumya signs off only when every box is ticked. Any unticked box blocks document
 
 ## Issue #20 documentation integration — 2026-11-14
 
-- Reviewed the merged technical methodology contribution and integrated its scientific scope, feature-group rationale, model-family rationale, MLP regularization descriptions, split protocol and metric definitions into the report draft.
-- Corrected the 250k Logistic Regression placeholder values using the T4 clean-rerun ROC-AUC evidence in `docs/14_RESULTS_RECONCILIATION.md`.
-- Kept the 250k and 1M experiments separate and labelled neural benchmark values provisional pending the remaining neural release evidence and decision.
-- Updated the setup guide, report index, changelog, bug register, citation version and task backlog.
-- No tests were executed as part of this documentation-only branch update. The latest recorded full-suite result remains 143 passed on 2026-11-13. Clean-clone verification, fresh network installation, Docker build, hosted CI and independent neural retraining remain outstanding.
+- Reviewed the merged technical methodology contribution and integrated its scientific scope, feature-group rationale, model-family rationale, split protocol and metric definitions into the report draft.
+- Corrected the 250k Logistic Regression placeholder values using the T4 clean-rerun evidence in `docs/14_RESULTS_RECONCILIATION.md`; kept the 250k and 1M experiments separate.
+- Neural benchmark values remain provisional pending the neural reproducibility and cross-pipeline release decision.
+- Updated setup, report, changelog, bug register, citation metadata and task backlog.
+
+## Clean-clone and hosted CI verification — 2026-11-14
+
+- **Local fresh clone:** `git clone https://github.com/Saumya-Mishra-536/Higgs_Boson_Capstone.git Higgs_Boson_QA` succeeded on macOS arm64.
+- **Environment:** new Python 3.15.1 virtual environment; `python -m pip install --upgrade pip` succeeded.
+- **Fresh dependency installation:** `python -m pip install -e ".[dev]"` succeeded. Several package downloads required automatic retries after transient network timeouts; installation completed successfully.
+- **Full suite:** `MPLBACKEND=Agg python -m pytest -q` — **143 passed** in 80.52s.
+- **Hosted CI:** GitHub Actions run [#26](https://github.com/Saumya-Mishra-536/Higgs_Boson_Capstone/actions/runs/43561124032) on commit `85456546e67e5ccbcb5243f7d3ca40719d5e102e` passed checkout, Python 3.11 setup, `python -m pip install -e ".[dev]"` and `python -m pytest -q`.
+- The 2026-11-13 Streamlit AppTest and artifact-consistency checks remain recorded above. No browser screenshots were taken.
+- **Not run:** Docker build, real HIGGS raw-file smoke test, independent model retraining, and a full interactive browser review. The clean-clone test verifies installation and automated tests; it does not independently reproduce benchmark metrics.
+- **Scientific wording sweep:** reviewed the README, core scientific/setup/protocol docs, report sources, notebooks and key dashboard views for discovery, probability, significance, detector and class-rate wording. Corrected stale classical metrics, unsupported collider-rate estimates, the simulated-process label, score terminology and provisional neural interpretations. This was a broad targeted review, not an exhaustive line-by-line scan of every repository file; W-12 remains open.
+- **Generated binaries:** the report Markdown and presentation Markdown sources were updated, but the tracked HTML/PDF report and PPTX deck were not regenerated in this environment. Rebuild and review those rendered deliverables before final submission.

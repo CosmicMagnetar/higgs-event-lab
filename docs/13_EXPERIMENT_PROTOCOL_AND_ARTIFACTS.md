@@ -38,7 +38,7 @@ flowchart TD
     subgraph PredictionsSchema ["test_predictions.csv Schema"]
         C1[row_index: int]
         C2[class_label: binary 0 or 1]
-        C3[score: predicted probability in 0.0, 1.0]
+        C3[score: classifier output in 0.0, 1.0]
     end
 
     METRICS_FILE --- MetricsEnvelope

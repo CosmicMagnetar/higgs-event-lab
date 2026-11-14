@@ -72,15 +72,14 @@ All runs use the shared `higgs-split-v1` stratified partition with seed 42 (70% 
 
 ## 3. Results Comparison and Scientific Interpretation
 
-1. **Representation Learning & Feature Discrimination:**
-   * **Low-Level Kinematics (21 features):** The MLP achieves test ROC-AUC = 0.8000 <!-- allow-metric -->. While significantly stronger than the linear baseline (0.7476 <!-- allow-metric -->), learning directly from four-momenta requires substantial nonlinear capacity and all 30 epochs without early stopping.
-   * **High-Level Invariant Masses (7 features):** The MLP achieves test ROC-AUC = 0.9043 <!-- allow-metric --> and converges rapidly in only 10 epochs. This demonstrates that physicist-derived kinematic invariants (such as $m_{bb}$ and $m_{wwbb}$) concentrate decisive resonance information that drastically accelerates convergence.
-   * **All Features Combined (28 features):** Combining raw kinematics with invariant masses yields the highest discrimination (test ROC-AUC = 0.9406 <!-- allow-metric -->, test PR-AUC = 0.9372 <!-- allow-metric -->, Brier score = 0.0945 <!-- allow-metric -->). The network benefits from both direct energy measurements and composite decay constraints.
+1. **Observed feature-group results (provisional):**
+   * The saved low-level run records test ROC-AUC = 0.8000 <!-- allow-metric -->; the high-level run records 0.9043 <!-- allow-metric -->; and the all-feature run records 0.9406 <!-- allow-metric -->.
+   * These are descriptive values from the current 250k artifacts only. They are not an approved comparison with the reconciled classical results or the separate 1M experiments. The neural release gate remains open, so no feature-group or model-superiority conclusion is made.
+   * The recorded Brier scores range from 0.1824 <!-- allow-metric --> to 0.0945 <!-- allow-metric --> across these runs. A lower Brier score is an observed result, but it does not by itself establish calibration quality or explain which model component caused the difference.
 
 2. **Regularization & Generalization Dynamics:**
-   * BatchNorm1d effectively stabilized internal activations across batches of 1024 events.
-   * Dropout (0.20) prevented over-adaptation of hidden units to training noise, resulting in test ROC-AUC scores that closely track or slightly exceed validation performance across all configurations without test leakage.
-   * Brier score drops from 0.1824 <!-- allow-metric --> on low-level to 0.0945 <!-- allow-metric --> on all features, reflecting substantial improvement in probabilistic confidence.
+   * BatchNorm1d and Dropout (0.20) are part of the implemented architecture. The current result table alone does not isolate their causal effect on performance.
+   * Validation and test ROC-AUC values are close in the recorded artifacts, but this observation does not resolve the open reproducibility and cross-pipeline checks.
 
 ---
 

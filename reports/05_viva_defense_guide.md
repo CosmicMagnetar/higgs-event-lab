@@ -65,17 +65,17 @@ We enforce four strict mathematical boundaries:
 
 ### Q10: Why is Accuracy insufficient as a primary evaluation metric for this benchmark?
 **Authoritative Answer:**
-Although our benchmark sample has an empirical class mix of $52.8\%$ signal, accuracy is threshold-dependent and masks trade-offs between false positives and false negatives. In particle physics, background events (Standard Model top quarks or QCD multijets) outnumber signal events in real collisions by orders of magnitude ($10^6$ to $10^9$ to 1). A trivial majority-class classifier could achieve deceptive accuracy while detecting zero true signals. Therefore, threshold-independent metrics (ROC-AUC, PR-AUC) and probabilistic calibration metrics (Brier score, reliability curves) are essential.
+Although our benchmark sample has an empirical class mix of $52.8\%$ signal, accuracy is threshold-dependent and masks trade-offs between false positives and false negatives. Real collider signal-to-background ratios depend on production processes, collision conditions and event selections; this project does not calculate those rates. An accuracy figure alone does not show whether a classifier retains signal events or rejects background at a chosen operating point. Therefore, threshold-independent metrics (ROC-AUC, PR-AUC) and probabilistic calibration metrics (Brier score, reliability curves) are essential.
 
 ### Q11: How is the operating-point analysis performed?
 **Authoritative Answer:**
-In collider searches, physicists select an operating point that delivers a specific target signal efficiency ($\epsilon_{\text{sig}} = \text{TPR}$). Under protocol `higgs-split-v1`, we specify a target efficiency of $50.0\%$ in advance. We scan the validation ROC curve to identify the score threshold closest to $50\%$ TPR. We then freeze this threshold and evaluate it on the held-out test partition, measuring the achieved test signal efficiency and test background rejection ($1 - \text{FPR}$). At 50% signal efficiency, the compact MLP achieves $96.2\%$ background rejection compared to $86.5\%$ for Logistic Regression.
+In collider searches, physicists select an operating point that delivers a specific target signal efficiency ($\epsilon_{\text{sig}} = \text{TPR}$). Under protocol `higgs-split-v1`, we specify a target efficiency of $50.0\%$ in advance. We scan the validation ROC curve to identify the score threshold closest to $50\%$ TPR. We then freeze this threshold and evaluate it on the held-out test partition, measuring the achieved test signal efficiency and test background rejection ($1 - \text{FPR}$). The threshold is frozen before test evaluation. The current neural operating-point claims remain provisional, and the reconciled 250k classical record does not supply a verified background-rejection value for this comparison.
 
 ### Q12: Why is the Brier score important alongside ROC-AUC?
 **Authoritative Answer:**
 ROC-AUC evaluates ranking order: whether a random signal event scores higher than a random background event. However, it is invariant to monotonic transformations and insensitive to probability calibration. The Brier score measures the mean squared error between predicted probabilities and true binary labels:
 $$\text{Brier} = \frac{1}{N} \sum_{i=1}^N (p_i - y_i)^2$$
-A lower Brier score confirms that predicted probabilities are well-calibrated and reliably reflect relative confidence. In our benchmark, the MLP Brier score drops from $0.1824$ <!-- allow-metric --> on low-level features down to $0.0945$ <!-- allow-metric --> on all features.
+A lower Brier score indicates lower mean squared probability error on the evaluated sample, but does not by itself confirm calibration. The current MLP Brier values remain provisional pending the neural release gate; inspect reliability diagrams and calibration evidence before making a calibration claim.
 
 ---
 
