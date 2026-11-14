@@ -107,7 +107,7 @@ ROC-AUC measures ranking discrimination across thresholds; it is not accuracy an
 
 ### M6. Reconciled Empirical Results
 
-The benchmark results are reported separately by sample size and protocol. The reconciliation record (2026-11-13) confirms that the original 250k all-features Logistic Regression value of 0.8369 was fabricated placeholder data. A clean 250k rerun produced test ROC-AUC values of 0.6854 (all features), 0.6518 (high-level), and 0.5960 (low-level). The corresponding 1M Logistic Regression result is 0.6834. These results are consistent across the two sample sizes.
+The benchmark results are reported separately by sample size and protocol. <!-- allow-metric --> The reconciliation record (2026-11-13) confirms that the original 250k all-features Logistic Regression value of 0.8369 was fabricated placeholder data. A clean 250k rerun produced test ROC-AUC values of 0.6854 (all features), 0.6518 (high-level), and 0.5960 (low-level). The corresponding 1M Logistic Regression result is 0.6834. These results are consistent across the two sample sizes.
 
 | Experiment | Sample size | Feature group | Test ROC-AUC | Evidence status |
 |---|---:|---|---:|---|
