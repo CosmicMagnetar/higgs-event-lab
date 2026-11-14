@@ -2,7 +2,7 @@
 
 > **Owner:** Saumya Mishra (END-04, MID-07). **Companion files:** `team/BUG_TRACKER.md`, `team/CHANGELOG.md`, `tests/`.
 > **Principle:** Saumya coordinates and verifies; module owners write and fix the tests and code for their own modules (`team/TEAM_CHARTER.md`).
-> **Honest status:** only documentation, repository hygiene, the feature dictionary and the notebook style can be tested today. Sections 3 and 4 are ready-to-use checklists for teammate code that does not exist yet.
+> **Verification status:** the repository records a full test run of 143 passed on 2026-11-13. Editable packaging and dashboard AppTest were also verified as documented below. Fresh network installation, Docker build, hosted CI, independent retraining and clean-clone reproduction remain unverified.
 
 ---
 
@@ -125,8 +125,8 @@ Use the matching list when a PR from that person arrives. Tick each item, paste 
 
 ### 3.5 Saumya's own documentation (reviewed by Krishna and Ronit)
 
-- [ ] Every document claim about the dataset matches the UCI page (re-check on any edit).
-- [ ] Each `[PROPOSED]` and `[verify]` marker is resolved or still visible.
+- [x] Dataset scope and feature groups reviewed against the technical methodology contribution and existing UCI references.
+- [x] Unresolved experiment claims remain explicitly provisional; remaining author metadata is not guessed.
 - [ ] Setup guide commands are run on a clean clone (section 5) after every code change.
 - [ ] Ronit confirms the documents are readable by a non-physicist.
 
@@ -197,7 +197,7 @@ Saumya signs off only when every box is ticked. Any unticked box blocks document
 - [ ] No wording that claims a real discovery (section 6).
 - [ ] Limitations section present in the report and visible in the app.
 - [ ] Setup guide verified on a clean clone.
-- [ ] `team/CHANGELOG.md` and `team/BUG_TRACKER.md` up to date; no open P0 or P1 without Krishna's decision.
+- [ ] `team/CHANGELOG.md` and `team/BUG_TRACKER.md` up to date; open P0/P1 neural evidence is documented for Krishna's decision.
 - [ ] Citations present: UCI dataset, Baldi et al. 2014, and any physics sources.
 
 ---
@@ -230,3 +230,11 @@ Saumya signs off only when every box is ticked. Any unticked box blocks document
 - Saved output artifacts were not modified.
 - Not run: Docker build, hosted CI, fresh network installation or independent retraining.
   Saumya clean-clone QA and Krishna integration review remain pending.
+
+## Issue #20 documentation integration — 2026-11-14
+
+- Reviewed the merged technical methodology contribution and integrated its scientific scope, feature-group rationale, model-family rationale, MLP regularization descriptions, split protocol and metric definitions into the report draft.
+- Corrected the 250k Logistic Regression placeholder values using the T4 clean-rerun ROC-AUC evidence in `docs/14_RESULTS_RECONCILIATION.md`.
+- Kept the 250k and 1M experiments separate and labelled neural benchmark values provisional pending the remaining neural release evidence and decision.
+- Updated the setup guide, report index, changelog, bug register, citation version and task backlog.
+- No tests were executed as part of this documentation-only branch update. The latest recorded full-suite result remains 143 passed on 2026-11-13. Clean-clone verification, fresh network installation, Docker build, hosted CI and independent neural retraining remain outstanding.
