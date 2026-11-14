@@ -4,7 +4,7 @@
 
 *Saumya Mishra maintains this file for user-visible changes, documentation updates, known issues, and release notes. Module owners provide concise change details in their PRs.*
 
- > **Note:** This file tracks project history and is not a place to claim model results before a run exists.
+> **Note:** This file tracks project history and is not a place to claim model results before a run exists.
 
 ---
 
