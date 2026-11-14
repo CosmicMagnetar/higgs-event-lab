@@ -37,18 +37,18 @@ All values are test-partition metrics copied from the saved files. Feature group
 
 | Model | Test ROC-AUC | Test PR-AUC | Brier | Test accuracy | Training time (s) |
 |---|---|---|---|---|---|
-| Logistic Regression (tuned) | 0.6834 | 0.6832 | 0.2233 | 0.6406 | 412.03 (see BUG-018) |
-| XGBoost (tuned) | 0.8271 | 0.8415 | 0.1693 | 0.7451 | 412.03 (see BUG-018) |
-| Wide MLP, 256-128-64 (tuned) | **0.8399** | 0.8539 | 0.1630 | 0.7565 | 412.03 (see BUG-018) |
+| Logistic Regression (tuned) | 0.6834 | 0.6832 | 0.2233 | 0.6406 | 2.6 |
+| XGBoost (tuned) | 0.8271 | 0.8415 | 0.1693 | 0.7451 | 35.1 |
+| Wide MLP, 256-128-64 (tuned) | **0.8399** | 0.8539 | 0.1630 | 0.7565 | 395.1 |
 
-The 1M file does not record the feature group, so it is not known whether these runs used all 28 features. This must be confirmed (section 4, test T6).
+T6 confirms that all three 1M runs used the 28-feature all-features group, with 700k/150k/150k train/validation/test partitions. Per-model training times are restored above.
 
 ## 3. What stands out
 
 1. **The clean Logistic Regression rerun is consistent across sample sizes.** The 250k all-features test ROC-AUC is 0.6854 and the 1M value is 0.6834. The original 250k value of 0.8369 was fabricated placeholder data and is excluded. XGBoost and MLP comparisons remain separate by sample size and run configuration.
 2. **The original Logistic Regression discrepancy is resolved.** The corrected 250k clean rerun and 1M result are close. The previous apparent gap was caused by the invalid 250k placeholder.
 3. **The neural result remains under review.** The 250k MLP score of 0.9406 is retained only as a provisional artifact value until T4 and T5 neural evidence is accepted. T1 records disjoint train, validation and test partitions; this alone does not establish independent MLP reproducibility. <!-- allow-metric -->
-4. **Training time is copied.** All three 1M models report 412.03 seconds (BUG-018), so no per-model timing can be taken from that file.
+4. **Training time was corrected.** T6 restored per-model timings: Logistic Regression 2.6 seconds, XGBoost 35.1 seconds and MLP 395.1 seconds.
 5. **Feature names are generic** in the 250k metrics files (`feat_0` to `feat_27`, BUG-019).
 6. **The inputs are not in the repository.** Neither sample file nor the model weights can be regenerated from the repo (BUG-020).
 
