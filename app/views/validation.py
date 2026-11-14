@@ -32,7 +32,7 @@ def render_validation(discovery: RunDiscoveryResult) -> None:
     )
     st.markdown(
         "Inspect test discrimination curves, probability calibration reliability, "
-        "and explore operating cutoffs interactively on genuine held-out test predictions."
+        "and inspect the effect of hypothetical cutoffs on held-out test predictions. The test-set workbench is exploratory only."
     )
 
     if not discovery.has_valid_runs:
@@ -138,7 +138,7 @@ def render_validation(discovery: RunDiscoveryResult) -> None:
     with t5:
         st.markdown("### Interactive Threshold Operating-Point Workbench")
         st.markdown(
-            "Adjust the decision cutoff threshold $\\tau \\in [0.00, 1.00]$ to inspect signal selection, "
+            "EXPLORATORY ONLY — this slider applies hypothetical cutoffs to held-out test predictions. Do not use test-set results to choose or tune the final operating threshold; select it on validation data, freeze it, then evaluate the test set once.\n\nAdjust the decision cutoff threshold $\\tau \\in [0.00, 1.00]$ to inspect signal selection, "
             "background rejection, precision, and the resulting confusion matrix on actual test events."
         )
 
@@ -219,7 +219,7 @@ def render_validation(discovery: RunDiscoveryResult) -> None:
     with t6:
         st.markdown("### Score Distributions")
         st.markdown(
-            "Compare how each model spreads predicted probabilities across the held-out test set, "
+            "Compare how each model spreads classifier scores across the held-out test set, "
             "separated by true class."
         )
         if selected_runs:

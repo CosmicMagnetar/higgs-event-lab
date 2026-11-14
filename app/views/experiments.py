@@ -68,9 +68,10 @@ def render_experiments(discovery: RunDiscoveryResult) -> None:
     winner = max(runs, key=lambda run: run.test_roc_auc or float("-inf"))
     metric_cols = st.columns(4)
     metric_cols[0].metric("Selected runs", len(runs))
-    metric_cols[1].metric("Best model", _model_label(winner.model_name))
-    metric_cols[2].metric("Best ROC-AUC", f"{winner.test_roc_auc:.4f}")
-    metric_cols[3].metric("Best group", winner.feature_group)
+    metric_cols[1].metric("Highest test ROC-AUC run", _model_label(winner.model_name))
+    metric_cols[2].metric("Highest test ROC-AUC", f"{winner.test_roc_auc:.4f}")
+    metric_cols[3].metric("Group of top observed run", winner.feature_group)
+    st.warning("The summary ranking uses held-out test ROC-AUC and is descriptive only. Do not use this ranking to choose models, tune settings, or make final model-selection decisions; those decisions must use training/validation evidence.")
 
     # Tabbed views for Leaderboard and Visual Comparative Analytics
     tab_table, tab_groups, tab_compute, tab_radar = st.tabs([

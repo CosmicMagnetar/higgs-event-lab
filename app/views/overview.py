@@ -35,7 +35,7 @@ def _hero(best_run, valid_count: int, rows: int) -> None:
         detail = "Run the notebook workflow to populate the evidence registry."
     else:
         headline = f"{_model_name(best_run.model_name)} · {best_run.test_roc_auc:.4f} ROC-AUC"
-        detail = f"Best saved run: {best_run.run_id} · {best_run.feature_group} features · {rows:,} recorded rows"
+        detail = f"Highest observed test ROC-AUC run (descriptive only): {best_run.run_id} · {best_run.feature_group} features · {rows:,} recorded rows"
     st.markdown(
         f"""
         <div class="hero-shell">
@@ -68,7 +68,7 @@ def render_overview(discovery: RunDiscoveryResult) -> None:
     c1, c2, c3, c4, c5 = st.columns(5)
     c1.metric("Sample size", f"{rows:,}" if rows else "N/A")
     c2.metric("Valid runs", str(len(valid_runs)))
-    c3.metric("Best ROC-AUC", f"{best_run.test_roc_auc:.4f}" if best_run else "N/A")
+    c3.metric("Highest test ROC-AUC", f"{best_run.test_roc_auc:.4f}" if best_run else "N/A")
     c4.metric("Input features", "28")
     c5.metric("Missing values", str(eda.get("missing_values", "N/A")) if eda else "N/A")
 
@@ -77,7 +77,7 @@ def render_overview(discovery: RunDiscoveryResult) -> None:
     proof_cols = st.columns(3)
     proof_data = [
         ("DATA PROOF", f"{eda['signal_fraction']:.2%} signal" if eda and isinstance(eda.get("signal_fraction"), (int, float)) else "EDA not loaded", "Saved EDA summary; inspect recorded quality checks."),
-        ("MODEL PROOF", f"{_model_name(best_all.model_name)}" if best_all else "No best run", f"All-feature leader: {best_all.test_roc_auc:.4f} ROC-AUC" if best_all else "Run models to populate this card."),
+        ("TOP OBSERVED RUN", f"{_model_name(best_all.model_name)}" if best_all else "No run available", f"Highest observed all-feature test ROC-AUC: {best_all.test_roc_auc:.4f}. Descriptive only; not a model-selection rule." if best_all else "Run models to populate this card."),
         ("APP PROOF", "Artifact-backed", "Metrics, predictions, curves and EDA are read from outputs/; no training at startup."),
     ]
     for col, (eyebrow, value, detail) in zip(proof_cols, proof_data):
@@ -89,6 +89,7 @@ def render_overview(discovery: RunDiscoveryResult) -> None:
 
     if best_all:
         st.markdown("### All-feature results")
+        st.caption("Rows are ordered by held-out test ROC-AUC for descriptive comparison only. Do not use this test-set ranking to select models or tune hyperparameters.")
         leader_rows = []
         for run in sorted(all_runs, key=lambda item: item.test_roc_auc or 0, reverse=True):
             leader_rows.append({

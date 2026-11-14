@@ -521,7 +521,7 @@ folders such as <code>outputs/eda/</code> and
 <h2 id="testing-and-reproducibility">10. Testing and
 reproducibility</h2>
 <p>The repository test suite was run after the integration changes:</p>
-<pre class="text"><code>105 passed</code></pre>
+<p>The latest QA-branch GitHub Actions workflow passed editable installation and the full <code>python -m pytest -q</code> suite on Python 3.11; the Docker image build also passed. See <code>docs/12_QA_TEST_PLAN.md</code> for exact run links. The hosted log confirms 144 tests passed in 14.59s. Full manual notebook execution has not been completed.</p>
 <p>Notebook JSON parsing, code-cell compilation and
 <code>git diff --check</code> also passed. The raw dataset is downloaded
 at runtime from UCI, and generated data/model binaries remain outside

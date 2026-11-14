@@ -50,23 +50,37 @@ flowchart TD
 
 ---
 
-## 2. Experimental Results Summary
+## 2. Reconciled Logistic Regression Results
 
-All runs use the shared `higgs-split-v1` stratified partition with seed 42.
+The original 250k all-features Logistic Regression value of 0.8369 was fabricated placeholder data. The clean rerun records the following test ROC-AUC values. Other metrics for the clean rerun are not stated here because the closure record does not provide them.
 
-| Feature Group | Features | Training Time (s) | Validation ROC-AUC | Test ROC-AUC | Test PR-AUC | Brier Score |
-|---|---|---|---|---|---|---|
-| Low-level | 21 | 0.07 | 0.7479 <!-- allow-metric --> | 0.7476 <!-- allow-metric --> | 0.7622 <!-- allow-metric --> | 0.2035 <!-- allow-metric --> |
-| High-level | 7 | 0.05 | 0.7702 <!-- allow-metric --> | 0.7661 <!-- allow-metric --> | 0.7427 <!-- allow-metric --> | 0.1945 <!-- allow-metric --> |
-| All features | 28 | 0.10 | 0.8385 <!-- allow-metric --> | 0.8369 <!-- allow-metric --> | 0.8377 <!-- allow-metric --> | 0.1639 <!-- allow-metric --> |
+| Sample | Feature group | Features | Test ROC-AUC | Evidence |
+|---|---|---:|---:|---|
+| 250k | Low-level | 21 | 0.5960 <!-- allow-metric --> | Reconciliation T4 |
+| 250k | High-level | 7 | 0.6518 <!-- allow-metric --> | Reconciliation T4 |
+| 250k | All features | 28 | 0.6854 <!-- allow-metric --> | Reconciliation T4 |
+| 1M | All features | 28 | 0.6834 <!-- allow-metric --> | Reconciled 1M artifact |
 
----
+The historical values below are not reproduced. Use the reconciliation record and serialized run artifacts for any additional metric or configuration detail.
+
+### Additional feature-group and coefficient observations
+
+1. **Feature Group Discrimination:**
+   * In the clean 250k rerun, the all-features model has test ROC-AUC 0.6854, compared with 0.6518 for high-level and 0.5960 for low-level features. <!-- allow-metric -->
+   * The 1M all-features result is 0.6834, close to the clean 250k result. These values support a consistent linear baseline across the two sample sizes.
+
+2. **Leakage Protection and Pipeline Encapsulation:**
+   * Embedding feature standardisation within an `sklearn.pipeline.Pipeline` ensures that scaling parameters are fitted on training data only.
+   * Validation-only threshold selection keeps operating-point selection separate from held-out test evaluation.
+
+3. **Compute Efficiency Trade-Off:**
+   * The 1M reconciliation records a Logistic Regression training time of 2.6 seconds. Do not transfer historical 250k timing values to the clean rerun.
 
 ## 3. Key Observations and Discussion
 
 1. **Feature Group Discrimination:**
-   * High-level invariant mass features ($D=7$) achieve test ROC-AUC = 0.7661 <!-- allow-metric -->, outperforming raw low-level kinematic variables ($D=21$, ROC-AUC = 0.7476 <!-- allow-metric -->) despite using only one-third as many inputs. This directly confirms that physicist-derived invariant mass reconstructions ($m_{bb}$, $m_{wwbb}$) condense non-linear resonance constraints into variables accessible to linear decision boundaries.
-   * Combining all 28 features yields the best classical linear benchmark performance (ROC-AUC = 0.8369 <!-- allow-metric -->, PR-AUC = 0.8377 <!-- allow-metric -->), proving that linear models benefit from the joint presence of composite invariant masses and directional angular momenta.
+   * In the clean 250k rerun, test ROC-AUC is 0.5960 for low-level features, 0.6518 for high-level features, and 0.6854 for all features. <!-- allow-metric --> The 1M all-feature result is 0.6834. <!-- allow-metric --> These are the reconciled values; the earlier 0.7661 and 0.7476 discussion figures are not supported by the current clean rerun and are removed.
+   * The corrected results show higher discrimination when the feature groups are combined in this benchmark. They do not by themselves establish a causal explanation for the performance difference.
 
 2. **Feature Importance (Learned Normalized Coefficients):**
    * Analysis of the weights assigned to the standardized features in the all-features model reveals that $m_{bb}$ (invariant mass of the two b-jets) and $m_{wwbb}$ receive the largest positive discrimination coefficients for the exotic Higgs signal.
@@ -77,7 +91,7 @@ All runs use the shared `higgs-split-v1` stratified partition with seed 42.
    * Validation-only threshold selection ensures unbiased estimation of background rejection on the held-out test partition.
 
 4. **Compute Efficiency Trade-Off:**
-   * Total CPU training time across all 3 feature groups combined is less than 0.25 seconds on commodity hardware, making Logistic Regression an exceptionally fast, deterministic baseline against which more complex deep neural networks can be evaluated.
+   * The 1M reconciliation records a Logistic Regression training time of 2.6 seconds. Do not use the earlier 250k per-group timing figures as timings for the clean rerun.
 
 ---
 

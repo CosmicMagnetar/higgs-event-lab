@@ -101,7 +101,7 @@ HiggsLens is a reproducible machine-learning workbench for separating simulated 
 
 The current validated artifact registry contains **{len(runs)} runs** over **{total_rows:,} recorded benchmark rows**, using the `higgs-split-v1` protocol with seed 42. The strongest currently loaded artifact is **{model_label(str(best['model']))} on `{best['group']}` features**, with test ROC-AUC **{float(best['roc']):.4f}**, PR-AUC **{float(best['pr']):.4f}**, Brier score **{float(best['brier']):.4f}**, and accuracy **{float(best['accuracy']):.4f}**. <!-- allow-metric -->
 
-Among all-feature runs, **{model_label(str(best_all['model']))}** is currently highest at ROC-AUC **{float(best_all['roc']):.4f}**. <!-- allow-metric --> This is the report headline for the current saved registry, and it is explicitly scoped to the recorded {total_rows:,}-row benchmark. The older `outputs/full_colab_results.json` file is retained as an archival 1M reference, but it is not mixed into the headline because it uses a different pipeline/configuration and reports the same copied runtime for all three models.
+Among all-feature runs, **{model_label(str(best_all['model']))}** is currently highest at ROC-AUC **{float(best_all['roc']):.4f}**. <!-- allow-metric --> This identifies the highest current saved artifact in the recorded {total_rows:,}-row registry; it is not a cross-benchmark model-selection decision. The compact-MLP rows remain provisional pending independent reproduction and the release decision. The separate `outputs/full_colab_results.json` 1M reference uses a different pipeline/configuration and is not mixed into this registry.
 
 ## 2. Research question and scope
 
@@ -221,13 +221,7 @@ The app reports **{len(runs)} valid runs** and skips non-run folders such as `ou
 
 ## 10. Testing and reproducibility
 
-The repository test suite was run after the integration changes:
-
-```text
-105 passed
-```
-
-Notebook JSON parsing, code-cell compilation and `git diff --check` also passed. The raw dataset is downloaded at runtime from UCI, and generated data/model binaries remain outside version control.
+QA branch commit `50800faa19e1ae4fbd217aa7e9e5ddf120429b54` passed the GitHub Actions workflow: editable installation and the full `python -m pytest -q` suite succeeded on Python 3.11; the Docker image build also passed. See `docs/12_QA_TEST_PLAN.md` for the exact commit and run links. The hosted log does not publish a test count. Full manual notebook execution has not been completed. The raw dataset is downloaded at runtime from UCI, and generated data/model binaries remain outside version control.
 
 ## 11. Limitations and validity threats
 
@@ -335,7 +329,7 @@ def write_presentation(runs: list[dict[str, object]]) -> Path:
 |---|---|---:|---:|---:|
 {rows}
 
-**Current headline:** {model_label(str(best['model']))} on `{best['group']}` features, ROC-AUC **{float(best['roc']):.4f}**.
+**Highest current saved artifact:** {model_label(str(best['model']))} on `{best['group']}` features, ROC-AUC **{float(best['roc']):.4f}**. This is not an approved cross-benchmark model-selection claim; neural evidence remains provisional pending independent reproduction and release decision.
 
 # Feature-group finding
 
@@ -377,7 +371,7 @@ streamlit run app/main.py
 
 - Artifact contract: `higgs-experiment-v1`.
 - Split protocol: `higgs-split-v1`, seed 42.
-- Current test result: **105 passed**.
+- Latest QA-branch GitHub Actions: editable install and full pytest workflow passed on Python 3.11; Docker image build passed. See `docs/12_QA_TEST_PLAN.md` for commit and run links. The hosted log does not publish a test count.
 - Raw data is downloaded from UCI at runtime and is not committed.
 
 # Limitations and conclusion

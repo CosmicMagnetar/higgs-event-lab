@@ -105,7 +105,7 @@ All values in the table below are computed from the current `outputs/*/metrics.j
 
 ![MLP learning curves](../outputs/mlp_learning_curves.png)
 
-The all-feature models are the strongest configuration for each family in the current registry. The all-feature XGBoost and MLP results are close, while the linear model remains lower. High-level features alone outperform low-level features for each family in the current saved run set, but the combined representation performs best.
+The all-feature models are the strongest configuration for each family in the current registry. The all-feature XGBoost and compact-MLP artifacts are close; the MLP values remain provisional pending independent reproduction and the neural release decision, so this table is a descriptive artifact summary rather than an approved cross-model selection. High-level features alone outperform low-level features for each family in the current saved run set, but the combined representation performs best.
 
 ## 8. Operating-point analysis
 
@@ -141,13 +141,7 @@ The app reports **9 valid runs** and skips non-run folders such as `outputs/eda/
 
 ## 10. Testing and reproducibility
 
-The repository test suite was run after the integration changes:
-
-```text
-105 passed
-```
-
-Notebook JSON parsing, code-cell compilation and `git diff --check` also passed. The raw dataset is downloaded at runtime from UCI, and generated data/model binaries remain outside version control.
+QA branch commit `00de4267632e0302f587c46187e03a5f56b52874` passed GitHub Actions: editable installation, **144 pytest tests passed in 14.59s** on Python 3.11, and the Docker image build succeeded ([run #43574590439](https://github.com/Saumya-Mishra-536/Higgs_Boson_Capstone/actions/runs/43574590439)). Exact run links and commit SHA are recorded in `docs/12_QA_TEST_PLAN.md`. The hosted log confirms 144 tests passed in 14.59s. Notebook JSON parsing and code-cell compilation were inspected statically; full manual notebook execution has not been completed. The raw dataset is downloaded at runtime from UCI, and generated data/model binaries remain outside version control.
 
 ## 11. Limitations and validity threats
 

@@ -13,7 +13,7 @@ The repository holds two sets of results that disagree on the headline number:
 - **250k subset** (`outputs/*/metrics.json`, `outputs/experiments.json`): models with default or lightly set configurations, trained on the 250,000-row subset, seed 42, split 70/15/15.
 - **1M benchmark** (`outputs/full_colab_results.json`): models with tuned or wider configurations, trained on a 1,000,000-row sample, seed 42, split 70/15/15.
 
-`reports/01` quotes the 1M numbers. `reports/02` quotes the 250k MLP number. The final report must use one headline result, and it must say which protocol produced it.
+Earlier drafts mixed the 1M and 250k neural results. The current `reports/01` and final report now separate both sample sizes and protocols; `reports/02` details the current saved 250k compact-MLP artifacts. The neural rows remain provisional until independent reproduction and the decision owner’s release decision.
 
 ## 2. What the saved files say
 
@@ -23,34 +23,34 @@ All values are test-partition metrics copied from the saved files. Feature group
 
 | Model | Feature group | Test ROC-AUC | Test PR-AUC | Brier | Test accuracy | Training time (s) |
 |---|---|---|---|---|---|---|
-| Logistic Regression | low_level | 0.7476 | 0.7622 | 0.2035 | 0.681 | see run metadata |
-| Logistic Regression | high_level | 0.7661 | 0.7427 | 0.1945 | 0.698 | see run metadata |
-| Logistic Regression | all | 0.8369 | 0.8377 | 0.1639 | 0.755 | see run metadata |
-| XGBoost | low_level | 0.8152 | 0.8229 | 0.1714 | 0.749 | see run metadata |
-| XGBoost | high_level | 0.8379 | 0.8243 | 0.1588 | 0.776 | see run metadata |
-| XGBoost | all | 0.8924 | 0.8897 | 0.1252 | 0.818 | see run metadata |
-| MLP (compact) | low_level | 0.8000 | 0.8097 | 0.1824 | 0.728 | 10.52 (all group only; see run metadata for others) |
-| MLP (compact) | high_level | 0.9043 | 0.8888 | 0.1184 | 0.824 | see run metadata |
-| MLP (compact) | all | **0.9406** | 0.9372 | 0.0945 | **0.865** | 10.52 |
+| Logistic Regression | low_level | 0.5960 | 0.6222 | 0.2418 | 0.5680 | 0.39 |
+| Logistic Regression | high_level | 0.6518 | 0.6217 | 0.2315 | 0.6295 | 0.32 |
+| Logistic Regression | all | 0.6854 | 0.6817 | 0.2231 | 0.6439 | 0.68 |
+| XGBoost | low_level | 0.7093 | 0.7233 | 0.2165 | 0.6512 | 4.17 |
+| XGBoost | high_level | 0.7848 | 0.8026 | 0.1882 | 0.7046 | 2.44 |
+| XGBoost | all | 0.8123 | 0.8266 | 0.1765 | 0.7334 | 4.72 |
+| Compact MLP | low_level | 0.7257 | 0.7366 | 0.2113 | 0.6650 | 47.89 |
+| Compact MLP | high_level | 0.7832 | 0.8020 | 0.1892 | 0.7044 | 47.00 |
+| Compact MLP | all | 0.8121 | 0.8270 | 0.1767 | 0.7322 | 50.22 |
 
 ### 2.2 1M benchmark (`outputs/full_colab_results.json`)
 
 | Model | Test ROC-AUC | Test PR-AUC | Brier | Test accuracy | Training time (s) |
 |---|---|---|---|---|---|
-| Logistic Regression (tuned) | 0.6834 | 0.6832 | 0.2233 | 0.6406 | 412.03 (see BUG-018) |
-| XGBoost (tuned) | 0.8271 | 0.8415 | 0.1693 | 0.7451 | 412.03 (see BUG-018) |
-| Wide MLP, 256-128-64 (tuned) | **0.8399** | 0.8539 | 0.1630 | 0.7565 | 412.03 (see BUG-018) |
+| Logistic Regression (tuned) | 0.6834 | 0.6832 | 0.2233 | 0.6406 | 2.6 |
+| XGBoost (tuned) | 0.8271 | 0.8415 | 0.1693 | 0.7451 | 35.1 |
+| Wide MLP, 256-128-64 (tuned) | **0.8399** | 0.8539 | 0.1630 | 0.7565 | 395.1 |
 
-The 1M file does not record the feature group, so it is not known whether these runs used all 28 features. This must be confirmed (section 4, test T6).
+T6 confirms that all three 1M runs used the 28-feature all-features group, with 700k/150k/150k train/validation/test partitions. Per-model training times are restored above.
 
 ## 3. What stands out
 
-1. **Every model family is lower at 1M.** Logistic Regression falls from 0.8369 to 0.6834 (-0.15). XGBoost falls from 0.8924 to 0.8271 (-0.07). The MLP falls from 0.9406 to 0.8399 (-0.10). A consistent drop across three different families points to something that differs between the two pipelines (data, sampling, column mapping or preprocessing), not to the choice of model.
-2. **Tuning should not lower Logistic Regression.** The 1M logistic model is described as "tuned", yet it scores 0.15 lower than the untuned 250k model on the same feature set. Either the tuned configuration is weaker, or the 1M data are different.
-3. **The 250k numbers are high for this benchmark.** The MLP's 0.9406 ROC-AUC and 0.865 accuracy are above what we recall from the original study (R3) for this benchmark. This is not proof of a fault, but it is the pattern that leakage would produce. If leakage is present in the 250k pipeline, it would also inflate XGBoost and Logistic Regression, which fits observation 1. <!-- allow-metric -->
-4. **Training time is copied.** All three 1M models report 412.03 seconds (BUG-018), so no per-model timing can be taken from that file.
-5. **Feature names are generic** in the 250k metrics files (`feat_0` to `feat_27`, BUG-019).
-6. **The inputs are not in the repository.** Neither sample file nor the model weights can be regenerated from the repo (BUG-020).
+1. **The clean Logistic Regression rerun is consistent across sample sizes.** The 250k all-features test ROC-AUC is 0.6854 and the 1M value is 0.6834. The original 250k value of 0.8369 was fabricated placeholder data and is excluded. XGBoost and MLP comparisons remain separate by sample size and run configuration. <!-- allow-metric -->
+2. **The original Logistic Regression discrepancy is resolved.** The corrected 250k clean rerun and 1M result are close. The previous apparent gap was caused by the invalid 250k placeholder.
+3. **The neural result remains under review.** The current 250k compact-MLP all-feature artifact reports test ROC-AUC 0.8121, while the separate 1M wide-MLP record reports 0.8399. These are different configurations and are not a direct comparison. The 250k MLP artifact remains provisional until independent reproduction and the release decision are recorded. T1 split disjointness alone does not establish independent MLP reproducibility. <!-- allow-metric -->
+4. **Training time was corrected.** T6 restored per-model timings: Logistic Regression 2.6 seconds, XGBoost 35.1 seconds and MLP 395.1 seconds.
+5. **Feature names are corrected.** The current 250k metrics files use the canonical HIGGS feature names; BUG-019 was verified fixed on 2026-11-13.
+6. **Generated inputs and model weights are not committed.** The raw HIGGS source can be downloaded and the 250k/1M samples regenerated using the documented scripts and manifests. Saved model weights are excluded; model artifacts must be regenerated by running the training workflows.
 
 ## 4. Hypotheses and the tests that would decide them
 
@@ -61,10 +61,10 @@ Each hypothesis is open. A test either supports it, rules it out, or shows it ca
 | T1 | Leakage in the 250k pipeline (for example duplicate rows across train, validation and test) | Count exact duplicate rows across the three partitions of the 250k split; check that the test row indices are disjoint from train and validation | Aditya | If duplicates exist, the 250k results are invalid until fixed |
 | T2 | Different sampling: the 250k sample is seeded random, the 1M sample may be first-N rows | Compare class fraction and feature means of first-N and seeded-random samples at both sizes; the manifest records the 250k method | Aditya | If the 1M sample is ordered, its results are not representative |
 | T3 | Different column mapping or feature order between pipelines | Compare column names, order and per-column means for the same rows from both loaders | Aditya | A mapping error would change every model |
-| T4 | The 250k result does not reproduce from a clean run | Clean clone; run the MLP command in `docs/11_SETUP_GUIDE.md` section 7 for the all-features group with seed 42; compare to `outputs/mlp_all/metrics.json` | Rachit | Confirms or refutes the 0.9406 result |
-| T5 | The discrepancy is the data, not the code | Run the 1M pipeline's code on the 250k subset. If it gives about 0.94, the difference is the data. If it gives about 0.84, the difference is the code | Rachit with Krishna | Separates data from code |
+| T4 | The 250k result does not reproduce from a clean run | Clean clone; run the MLP command in `docs/11_SETUP_GUIDE.md` section 7 for the all-features group with seed 42; compare to `outputs/mlp_all/metrics.json` | Rachit | Confirms or refutes the current 0.8121 result |
+| T5 | The discrepancy is the data, not the code | Run the 1M pipeline's code on the 250k subset. Compare the reproduced compact-MLP result against the current 0.8121 250k artifact; interpret the result only after confirming identical split, preprocessing and architecture | Rachit with Krishna | Separates data from code |
 | T6 | The 1M runs used different features or tuning budgets | Record, for each 1M run, the feature group, hyperparameter search budget, seed and training split sizes | Aditya, Rachit | Makes the 1M results comparable |
-| T7 | Accuracy 0.865 is consistent with ROC-AUC 0.9406 for this data | Compare the accuracy-threshold relationship on the saved predictions in `outputs/mlp_all/test_predictions.csv` | Rachit | Supporting check for T1 and T4 | <!-- allow-metric -->
+| T7 | Confirm reported MLP accuracy from the current saved predictions | Recompute accuracy at the documented 0.5 score cutoff from `outputs/mlp_all/test_predictions.csv` and compare with `outputs/mlp_all/metrics.json` | Rachit | Supporting check for T1 and T4 | <!-- allow-metric -->
 
 **Acceptance for the decision:** T1, T4 and T5 must be run and their output pasted into this note. T2 and T3 must be run if T5 points at the data.
 
@@ -95,9 +95,9 @@ Each hypothesis is open. A test either supports it, rules it out, or shows it ca
 | T1 | **PASS** | 2026-11-13 | Aditya | Verified disjoint splits (train/val/test zero overlap), zero label leakage into features. Regression tests in `tests/unit/test_reconciliation_w01_w02_w03_w06.py`. |
 | T2 | **PASS** | 2026-11-13 | Aditya | Both 250k and 1M use `sequential_head` extraction. 250k is exact prefix of 1M (`np.allclose` confirms). Class balance ~52.8% vs 53.0%. Feature mean delta <= 0.0036. | <!-- allow-metric -->
 | T3 | **PASS** | 2026-11-13 | Aditya | Canonical 28-feature order matching `feature_dictionary.csv` verified across both loaders. Label column strictly at index 0 and dropped from X. |
-| T4 | **PASS** | 2026-11-13 | Aditya | 250k LogReg clean rerun gives test ROC-AUC = 0.6854 (all), 0.6518 (high), 0.5960 (low). Confirms original 0.8369 in draft table was fabricated placeholder data. | <!-- allow-metric -->
-| T5 | **PASS** | 2026-11-13 | Aditya | Classical pipeline reproduced consistently: 250k LogReg (0.6854) matches 1M LogReg (0.6834) closely; differences explained by sample size and max_iter. | <!-- allow-metric -->
+| T4 | **PENDING** | — | Rachit | Independent clean-clone reproduction of the 250k all-feature MLP and comparison with `outputs/mlp_all/metrics.json` have not been supplied. The Logistic Regression rerun is recorded separately and does not satisfy T4. | <!-- allow-metric -->
+| T5 | **PENDING** | — | Rachit / Krishna | Run the 1M pipeline implementation on the same 250k sample and compare its MLP result with the current 250k compact-MLP artifact. The existing Logistic Regression comparison does not satisfy this neural cross-pipeline test. | <!-- allow-metric -->
 | T6 | **PASS** | 2026-11-13 | Aditya | 1M configuration confirmed: all 3 models evaluated on `all` 28 features (700k/150k/150k splits). Per-model training times restored: LogReg=2.6s, XGBoost=35.1s, MLP=395.1s. |
-| T7 | **PASS** | 2026-11-13 | Aditya / Rachit | Classical predictions verified. Artifact feature names updated to standard names (`lepton_pt` ... `m_wwbb`). |
+| T7 | **PENDING** | — | Rachit | Recompute the accuracy-threshold relationship for the current 250k MLP artifact from `outputs/mlp_all/test_predictions.csv`; the earlier 0.865 / 0.9406 pair is superseded; use the current saved artifact and do not infer a new threshold from the test set. |
 | Decision on headline (section 5.1) | **CLOSED** | 2026-11-13 | Krishna / Aditya | Classical baselines reconciled: 250k and 1M results are aligned and reproducible. Recommend reporting both side-by-side with exact protocol specifications. |
 

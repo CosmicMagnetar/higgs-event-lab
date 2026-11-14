@@ -136,6 +136,6 @@ def render_methods() -> None:
                discovery significance (such as 5-standard-deviation Gaussian significance $\sigma = 5$).
             4. **Probabilistic Real-World Meaning:** Classifier scores output probabilities relative to the pre-balanced
                training sample. They do not represent physical posterior probabilities of a collision producing a Higgs boson
-               in an actual collider run without Bayes-factor weighting against real-world cross-sections.
+               in an actual collider run. A real-world interpretation would require externally justified event prevalence, cross-sections, selection efficiencies, detector effects and calibration studies that are outside this project.
             """
         )

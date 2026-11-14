@@ -8,6 +8,15 @@
 
 ---
 
+### Changed
+
+* **2026-11-14:** PR #2 follow-up QA — reject hard-label outputs in interactive simulation, add regression coverage, clarify that baseline QA evidence predates this branch, neutralize viva prompts, correct stale neural benchmark reconciliation rows, and add a Docker image build to CI. Current-branch CI test suite and Docker image build passed on commit `50800faa19e1ae4fbd217aa7e9e5ddf120429b54` (runs #43573525224 and #43573521445). *(Saumya)*
+* **2026-11-14:** `reports/01_report_draft_methodology_limitations.md`, `reports/03_classical_baseline_benchmarks.md` and `reports/README.md` — integrated methodology, corrected the invalid 250k Logistic Regression placeholder, separated 250k and 1M results, and marked neural results provisional pending release evidence. *(Saumya)*
+* **2026-11-14:** `docs/11_SETUP_GUIDE.md` and `CITATION.cff` — aligned repository instructions and version metadata with the current repository and documented QA status. Current-branch test and Docker CI runs passed on `50800faa19e1ae4fbd217aa7e9e5ddf120429b54` (runs #43573525224 and #43573521445). *(Saumya)*
+* **2026-11-14:** `team/TASK_BACKLOG.csv` — added explicit final-report integration and release-QA work packages. *(Saumya)*
+
+
+
 ### Conventions & Guidelines
 
 * **Format:** Follows [Keep a Changelog](https://keepachangelog.com/) conventions (`Added` / `Changed` / `Fixed` / `Removed` / `Known issues`).
@@ -19,6 +28,12 @@
 ---
 
 ## [Unreleased]
+
+### Changed
+
+* **2026-11-14:** Dashboard ranking labels now identify highest observed held-out test ROC-AUC as descriptive only; threshold workbench warns that operating-point selection must remain validation-only; simulation outputs are labelled class-1 classifier scores rather than physical probabilities. *(Saumya)*
+* **2026-11-14:** QA plan and setup guide record the macOS Python 3.15 clean-clone result (143 passed), the earlier Python 3.11 hosted CI baseline, and successful current-branch Python 3.11 test and Docker CI runs; BUG-022 verified fixed. *(Saumya)*
+* **2026-11-14:** Corrected stale classical baseline comparisons, softened provisional MLP interpretations, removed unsupported prevalence figures, and fixed duplicate report section numbering. *(Saumya)*
 
 ### Fixed
 
@@ -92,3 +107,7 @@
 * Folder contracts, team ownership, GitHub workflow, and initial task backlog.
 * Data-safety rules.
 * *Note: No model benchmark or deployed app is claimed at this stage.*
+
+* **2026-11-14:** Extended repository QA corrected superseded MLP values in README and reports, aligned the final report/presentation sources and generator with current artifacts and CI, corrected the HTML preview's stale QA statement, and documented that PDF/PPTX exports still require regeneration. *(Saumya)*
+* **2026-11-14:** Removed a trailing empty code cell from `notebooks/01_midsem/03_classical_baseline.ipynb`; all five notebooks now pass JSON/static cell-structure inspection with no empty code cells. Full execution remains unverified. *(Saumya)*
+* **2026-11-14:** Final consolidated QA commit `00de426` passed current-branch CI: editable install, **144 pytest tests passed in 14.59s** on Python 3.11, and Docker image build succeeded (run #43574590439). *(Saumya)*

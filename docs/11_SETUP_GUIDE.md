@@ -1,7 +1,7 @@
 # Setup and Installation Guide
 
 > **Maintainer:** Saumya Mishra (MID-07). **Goal:** a new teammate can get from zero to "tests pass and data checked" without asking anyone.
-> **Honest status:** all pipeline, baseline models, test suites, and Streamlit dashboard modules are fully implemented and verified on clean environments. Each step is tagged **[works now]**. If any step stops matching the code, open a bug in `team/BUG_TRACKER.md`.
+> **Verification:** QA branch commit `00de4267632e0302f587c46187e03a5f56b52874` passed the Python 3.11 editable install and full pytest workflow (**144 passed in 14.59s**) and the Docker image build in [CI run #43574590439](https://github.com/Saumya-Mishra-536/Higgs_Boson_Capstone/actions/runs/43574590439). The separate clean macOS Apple Silicon clone (Python 3.15, **143 passed**) and CI run #26 are earlier baseline evidence. Independent model retraining, full manual notebook execution and module-owner integration review remain unverified. See `docs/12_QA_TEST_PLAN.md`.
 
 ---
 
@@ -21,12 +21,14 @@
 ## 2. Get the code **[works now]**
 
 ```bash
-git clone https://github.com/CosmicMagnetar/higgs-event-lab.git
-cd higgs-event-lab
-git checkout -b docs/<yourname>-<topic>
+git clone https://github.com/Saumya-Mishra-536/Higgs_Boson_Capstone.git
+cd Higgs_Boson_Capstone
+git switch main
+git pull --ff-only
+git switch -c docs/<yourname>-<topic>
 ```
 
-The canonical repository owner is `CosmicMagnetar`. Never work directly on `main`.
+The canonical repository for this course project is `Saumya-Mishra-536/Higgs_Boson_Capstone`. Never commit directly to `main`.
 
 ---
 
@@ -52,17 +54,17 @@ If PowerShell blocks activation, run `Set-ExecutionPolicy -Scope CurrentUser Rem
 
 ---
 
-## 4. Install dependencies **[works now, with a caveat]**
+## 4. Install dependencies **[verified on a clean clone]**
+
+Use the project metadata as the canonical install path. It installs the runtime, dashboard, training and development/test dependencies declared by `pyproject.toml`:
 
 ```bash
-pip install -r requirements.txt
+python -m pip install -e ".[dev]"
 ```
 
-Caveats (see BUG-005):
+The clean-clone check on macOS Apple Silicon with Python 3.15 completed this command successfully. GitHub Actions also completed it on Python 3.11. Package downloads experienced transient network timeouts but resumed successfully.
 
-- `requirements.txt` is a **proposed** list with lower bounds only. It has not yet been installed as a whole on a clean machine. The first person to do so should record the working versions in the PR.
-- `torch` is large (hundreds of MB to a few GB, depending on platform). If you only need the docs and tests, install the light subset instead: `pip install pytest nbformat`.
-- If `pip` picks a CUDA build you do not need, follow the selector on pytorch.org for a CPU-only wheel.
+`requirements.txt` remains a proposed lower-bound list and is not the canonical tested install path. PyTorch is a large dependency; dashboard-only use can install `.[dashboard]`, while the full test suite should use `.[dev]`.
 
 Verify the environment:
 
@@ -128,7 +130,7 @@ Expect all tests to pass on a clean checkout. If one fails, read the assertion m
 
 ## 7. Run the pipeline **[works now]**
 
-All baseline models and data loaders are fully implemented and verified.
+The baseline models and data loaders are implemented. Reproduction should be recorded against the exact commit, data manifest and environment used.
 
 | Step | Command | Status & Owner | Expected output |
 |---|---|---|---|
@@ -176,7 +178,7 @@ Follow the notebook policy in `notebooks/README.md`: explanations go in Markdown
 
 | Symptom | Likely cause | Fix |
 |---|---|---|
-| `ModuleNotFoundError: pytest` | Environment not activated or deps not installed | Activate `.venv`, run `pip install -r requirements.txt` |
+| `ModuleNotFoundError: pytest` | Environment not activated or development dependencies not installed | Activate `.venv`, run `python -m pip install -e ".[dev]"` |
 | `test_no_data_model_or_system_junk_files_are_present` fails | A `.DS_Store`, `.gz`, `.pt` or similar file sits inside the repository folder | Delete it or move it under an ignored path; confirm `.gitignore` is present |
 | Smoke test: `File not found` | Wrong path or file name | Check `ls data/raw/` |
 | Smoke test: `rows do not have 29 columns` | Truncated download or wrong file | Re-download; compare the checksum |

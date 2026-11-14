@@ -68,7 +68,7 @@
 | Logistic Regression | `high_level` | 0.6518 | 0.6217 | 0.2315 |
 | Logistic Regression | `low_level` | 0.5960 | 0.6222 | 0.2418 |
 
-**Current headline:** XGBoost on `all` features, ROC-AUC **0.8123**.
+**Highest current saved artifact:** XGBoost on `all` features, ROC-AUC **0.8123**. The compact-MLP result is close but remains provisional pending independent reproduction and the release decision; this is not an approved cross-run model-selection claim.
 
 # Feature-group finding
 
@@ -110,7 +110,7 @@ streamlit run app/main.py
 
 - Artifact contract: `higgs-experiment-v1`.
 - Split protocol: `higgs-split-v1`, seed 42.
-- Current test result: **105 passed**.
+- Latest QA-branch GitHub Actions: editable install and full pytest workflow passed on Python 3.11; Docker image build passed. See `docs/12_QA_TEST_PLAN.md` for commit and run links. The hosted log confirms 144 tests passed in 14.59s.
 - Raw data is downloaded from UCI at runtime and is not committed.
 
 # Limitations and conclusion

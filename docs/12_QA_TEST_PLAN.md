@@ -2,7 +2,7 @@
 
 > **Owner:** Saumya Mishra (END-04, MID-07). **Companion files:** `team/BUG_TRACKER.md`, `team/CHANGELOG.md`, `tests/`.
 > **Principle:** Saumya coordinates and verifies; module owners write and fix the tests and code for their own modules (`team/TEAM_CHARTER.md`).
-> **Honest status:** only documentation, repository hygiene, the feature dictionary and the notebook style can be tested today. Sections 3 and 4 are ready-to-use checklists for teammate code that does not exist yet.
+> **Current QA branch verification:** on commit `00de4267632e0302f587c46187e03a5f56b52874`, GitHub Actions run [#43574590439](https://github.com/Saumya-Mishra-536/Higgs_Boson_Capstone/actions/runs/43574590439) passed editable installation, the full pytest suite (**144 passed in 14.59s**) on Python 3.11, and the Docker image build. The earlier 2026-11-14 clean macOS Apple Silicon clone (Python 3.15, 143 passed) and CI run #26 are baseline evidence from before this branch. Independent model retraining, full manual notebook execution and module-owner integration review remain unverified.
 
 ---
 
@@ -64,7 +64,7 @@ python tests/integration/smoke_check_raw_file.py data/raw/HIGGS.csv.gz --rows 10
 | 2026-10-25 | `pytest` full test suite after classical, neural, dashboard, protocol modules | **103 passed, 0 failed** in ~6.4s | All unit and integration tests passing cleanly |
 | 2026-10-25 | Negative controls: copy of the repo with injected faults (a fake ROC-AUC claim in a report, an empty `HIGGS.csv.gz`, a fake API key in `app/config.py`, a `#` comment in a notebook code cell) | 4 tests failed as intended, 22 passed | Shows the guards detect what they are meant to detect |
 | 2026-10-26 | Final-push review: `pytest` on 14 non-PyTorch test files (hygiene, notebook style, feature dictionary, protocol, features, data loader, evaluation, download, classical, dashboard loader/metrics/views, data pipeline integration) | **98 passed, 1 failed.** The failure is `test_app_views.py::test_bootstrap_cloud_artifacts_if_needed`, caused by `ModuleNotFoundError: streamlit` in the review environment (dependency missing, not a code fault). | BUG-022. Install `requirements.txt` and rerun. **NOT RUN here:** `test_neural.py` (3 tests) and `test_end_to_end_pipeline.py` (2 tests) need PyTorch; `smoke_check_raw_file.py` on the real HIGGS file. Run them on the team machine and paste output here. |
-| 2026-10-26 | Results consistency check (not a test): compared `outputs/*/metrics.json`, `outputs/experiments.json` and `outputs/full_colab_results.json` | **Inconsistent.** 250k MLP all-features ROC-AUC 0.9406 vs 1M wide MLP 0.8399; every model family is lower at 1M | BUG-015, BUG-016, BUG-017, BUG-018. See `docs/14_RESULTS_RECONCILIATION.md` | <!-- allow-metric -->
+| 2026-10-26 | Historical results consistency check (not a test) | **Inconsistent at that time.** The 250k MLP value 0.9406 was a superseded result and is not the current per-run artifact value; see the corrected 0.8121 current 250k artifact and separate 0.8399 1M reference in `docs/14_RESULTS_RECONCILIATION.md`. | BUG-015, BUG-016, BUG-017, BUG-018. Historical row retained for audit trail. | <!-- allow-metric -->
 
 ---
 
@@ -125,8 +125,8 @@ Use the matching list when a PR from that person arrives. Tick each item, paste 
 
 ### 3.5 Saumya's own documentation (reviewed by Krishna and Ronit)
 
-- [ ] Every document claim about the dataset matches the UCI page (re-check on any edit).
-- [ ] Each `[PROPOSED]` and `[verify]` marker is resolved or still visible.
+- [x] Dataset scope and feature groups reviewed against the technical methodology contribution and existing UCI references.
+- [x] Unresolved experiment claims remain explicitly provisional; remaining author metadata is not guessed.
 - [ ] Setup guide commands are run on a clean clone (section 5) after every code change.
 - [ ] Ronit confirms the documents are readable by a non-physicist.
 
@@ -197,7 +197,7 @@ Saumya signs off only when every box is ticked. Any unticked box blocks document
 - [ ] No wording that claims a real discovery (section 6).
 - [ ] Limitations section present in the report and visible in the app.
 - [ ] Setup guide verified on a clean clone.
-- [ ] `team/CHANGELOG.md` and `team/BUG_TRACKER.md` up to date; no open P0 or P1 without Krishna's decision.
+- [ ] `team/CHANGELOG.md` and `team/BUG_TRACKER.md` up to date; open P0/P1 neural evidence is documented for Krishna's decision.
 - [ ] Citations present: UCI dataset, Baldi et al. 2014, and any physics sources.
 
 ---
@@ -228,5 +228,54 @@ Saumya signs off only when every box is ticked. Any unticked box blocks document
   prediction counts and invalid values; malformed EDA; multiple-run comparison;
   legacy loader delegation; and startup without generated results.
 - Saved output artifacts were not modified.
-- Not run: Docker build, hosted CI, fresh network installation or independent retraining.
-  Saumya clean-clone QA and Krishna integration review remain pending.
+- Not run at that time: Docker build, hosted CI, fresh network installation or independent retraining. The later clean-clone and hosted CI results are recorded below.
+
+## Issue #20 documentation integration — 2026-11-14
+
+- Reviewed the merged technical methodology contribution and integrated its scientific scope, feature-group rationale, model-family rationale, MLP regularization descriptions, split protocol and metric definitions into the report draft.
+- Corrected the 250k Logistic Regression placeholder values using the T4 clean-rerun ROC-AUC evidence in `docs/14_RESULTS_RECONCILIATION.md`.
+- Kept the 250k and 1M experiments separate and labelled neural benchmark values provisional pending the remaining neural release evidence and decision.
+- Updated the setup guide, report index, changelog, bug register, citation version and task backlog.
+- The clean-clone and hosted CI evidence is now recorded below. Dashboard wording, threshold-workbench caveats and report-claim corrections are included in the follow-up QA branch.
+
+
+## Independent clean-clone and hosted CI verification — 2026-11-14
+
+**Local macOS Apple Silicon clone (Python 3.15):**
+
+```bash
+git clone https://github.com/Saumya-Mishra-536/Higgs_Boson_Capstone.git Higgs_Boson_QA
+cd Higgs_Boson_QA
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -e ".[dev]"
+MPLBACKEND=Agg python -m pytest -q
+```
+
+Result: editable package and all declared development dependencies installed successfully; **143 passed in 80.52s (0:01:20)**. Package downloads had transient network interruptions/timeouts, but pip resumed and completed them. This is the independent clean-clone result supplied from the user's Mac terminal log.
+
+**GitHub Actions run #26 (Python 3.11):** fresh checkout, Python setup, `python -m pip install -e ".[dev]"`, and `python -m pytest -q` all succeeded. Run: https://github.com/Saumya-Mishra-536/Higgs_Boson_Capstone/actions/runs/43561124032. The hosted log did not establish the test count; the 143 count above is from the local run.
+
+**Still not verified:** independent model retraining from source data, full manual notebook execution, and module-owner integration review. Neural evidence release decision remains open. The Docker image build is verified by current-branch CI run #108.
+
+
+## Issue #20 follow-up QA — 2026-11-14
+
+- Re-audited current README, report drafts, neural/classical benchmark reports, methodology, final report source, presentation source, app views, model/evaluation code and all five notebooks for stale neural metrics, test-set threshold wording, discovery/significance language and unsupported model-selection claims.
+- Replaced superseded compact-MLP draft values (0.8000 / 0.9043 / 0.9406) with current saved 250k artifact values (0.7257 / 0.7832 / 0.8121); updated validation ROC-AUC, PR-AUC, Brier score, runtime and CUDA device provenance in the neural report. Values remain provisional pending independent reproduction and the neural release decision.
+- Reconciled README benchmark tables to the current nine-run 250k artifact registry and the separate 1M reference. Removed stale 250k placeholder rows and old model rankings.
+- Corrected stale T4/T5/T7 descriptions and the reconciliation status in `docs/14_RESULTS_RECONCILIATION.md` and technical methodology.
+- Fixed duplicate section numbering in the classical benchmark report. Refreshed final report and presentation Markdown sources, updated the report generator to avoid reintroducing stale test counts, and corrected the HTML preview's outdated test statement.
+- Notebook static inspection: all five notebooks parse as JSON, have no empty code cells after removing the trailing empty cell in `03_classical_baseline.ipynb`, and have no stored execution outputs. Full manual execution remains unverified because it requires the dataset download and model-training runtime.
+- Latest successful branch CI on `50800faa19e1ae4fbd217aa7e9e5ddf120429b54`: Python 3.11 editable install + full pytest passed; Docker image build passed. Hosted logs do not expose the test count.
+- Binary PDF and PPTX exports have not been regenerated. `reports/README.md` now marks them as stale and blocks treating them as final-release artifacts until rebuilt from corrected Markdown sources.
+
+
+## Final consolidated-branch CI — 2026-11-14
+
+- Commit: `00de4267632e0302f587c46187e03a5f56b52874`.
+- GitHub Actions run: [#43574590439](https://github.com/Saumya-Mishra-536/Higgs_Boson_Capstone/actions/runs/43574590439).
+- Editable install: passed.
+- Full suite: `python -m pytest -q` — **144 passed in 14.59s** (Python 3.11).
+- Docker image build: passed.

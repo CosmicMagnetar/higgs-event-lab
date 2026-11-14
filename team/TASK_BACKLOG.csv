@@ -11,3 +11,8 @@ MID-04,midsem,Implement compact MLP baseline,Rachit Gupta,Aditya review,P0,Compa
 MID-05,midsem,Define and test shared experiment artifact schema,Krishna,Aditya; Rachit; Ronit,P0,One documented schema accepted before dashboard implementation,Done
 MID-06,midsem,Build minimal results dashboard shell,Ronit Singh,Krishna,P1,Loads real saved artifact; empty/error states work; no hard-coded scores,Done
 MID-07,midsem,Create/review methodology and setup documentation,Saumya Mishra,All owners,P1,Reproducibility steps match actual current code,Done
+END-08,final-report,Integrate technical methodology and produce evidence-led report,Saumya Mishra,Krishna; Aditya; Rachit,P0,Scientific scope and methods integrated; all reported metrics trace to reconciled artifacts; 250k and 1M remain separate,In Progress
+END-09,final-report,Reconcile model benchmark tables and remove invalid historical claims,Saumya Mishra,Aditya; Rachit,P0,Invalid placeholder values removed; unresolved MLP metrics labelled provisional; module owners review their tables,In Progress
+END-10,release-qa,Update QA register changelog citation metadata and clean-clone setup evidence,Saumya Mishra,Krishna; Ronit,P1,Documentation matches merged PRs and actual executed checks; unrun checks explicitly listed; fresh-clone and CI evidence recorded,Done
+END-11,release-qa,Complete clean-clone and release-gate verification,Saumya Mishra,Krishna,P0,Fresh environment tests and documented setup pass; all release blockers have an owner decision,In Progress
+END-12,final-report,Regenerate binary report and presentation exports from corrected Markdown sources,Saumya Mishra,Krishna,P1,PDF and PPTX regenerated from approved Markdown sources and inspected for metric and wording parity,In Progress

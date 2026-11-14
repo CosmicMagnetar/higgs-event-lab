@@ -16,3 +16,21 @@ def test_xgboost_weight_is_disabled_by_default(tmp_path: Path, monkeypatch):
     assert models == {}
     assert scaler is None
     assert any("XGBoost interactive weights are disabled" in note for note in simulation.MODEL_LOAD_NOTICES)
+
+
+
+def test_predict_scores_rejects_models_without_score_api(monkeypatch):
+    """Hard class labels must not be presented as continuous classifier scores."""
+    import numpy as np
+    import pandas as pd
+    import pytest
+    from higgs_event_lab.features import ALL_FEATURES
+
+    class LabelOnlyModel:
+        def predict(self, values):
+            return np.zeros(len(values), dtype=int)
+
+    frame = pd.DataFrame([[0.0] * len(ALL_FEATURES)], columns=ALL_FEATURES)
+
+    with pytest.raises(TypeError, match="hard class predictions are not valid classifier scores"):
+        simulation.predict_scores({"label_only": LabelOnlyModel()}, None, frame)

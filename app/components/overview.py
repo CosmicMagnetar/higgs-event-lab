@@ -174,7 +174,7 @@ def render_project_overview() -> None:
                 // KNOWN LIMITATIONS
             </div>
             <div style="color: #c9d1d9; font-size: 0.78rem; line-height: 1.9;">
-                <span style="color: #ffb300;">▸</span> <b>Simulation Gap</b> — benchmark uses simulated H→WW* events, not real detector data<br>
+                <span style="color: #ffb300;">▸</span> <b>Simulation Gap</b> — benchmark uses simulated events for a hypothetical exotic-Higgs cascade, not real detector data<br>
                 <span style="color: #ffb300;">▸</span> <b>Class Balance</b> — benchmark mixture ≠ physical beam rates; calibration doesn't transfer<br>
                 <span style="color: #ffb300;">▸</span> <b>Sample Scale</b> — initial experiments target 250k–1M events, not the full 11M dataset<br>
                 <span style="color: #ffb300;">▸</span> <b>No Systematics</b> — real analyses are dominated by detector/theoretical uncertainties

@@ -75,36 +75,33 @@ The HIGGS dataset has **28 features** split into two groups:
 
 ## Benchmark Results
 
-### Previously recorded 1M reference run — `notebooks/03_full/`
+### 1M reference benchmark — separate pipeline
 
-Trained on a Colab/Kaggle runtime. One frozen stratified split seed=42. Held-out test N=150,000.
-Source: `outputs/full_colab_results.json`
+The saved 1M benchmark uses a 1,000,000-row sequential-head sample and a stratified 70/15/15 split (700,000 train, 150,000 validation, 150,000 test). These results are retained separately from the current 250k registry because the model configurations and pipeline differ. The wide-MLP result remains provisional pending independent neural reproduction and the release decision. Source: `outputs/full_colab_results.json` and `docs/14_RESULTS_RECONCILIATION.md`.
 
-| Model | Feature Group | Test ROC-AUC | Test PR-AUC | Brier Score | Accuracy | Train Time |
-|---|---|---|---|---|---|---|
-| **Wide MLP** | all (28) | **0.8399** | **0.8539** | **0.1630** | **75.6%** | ~8 min GPU |
-| XGBoost | all (28) | 0.8271 | 0.8415 | 0.1693 | 74.5% | ~12 min GPU |
-| Logistic Regression | all (28) | 0.6834 | 0.6832 | 0.2233 | 64.1% | <1 min CPU |
+| Model | Feature Group | Test ROC-AUC | Test PR-AUC | Brier Score | Accuracy | Training time (s) |
+|---|---|---:|---:|---:|---:|---:|
+| Wide MLP (256-128-64) | all (28) | 0.8399 | 0.8539 | 0.1630 | 0.7565 | 395.1 |
+| XGBoost | all (28) | 0.8271 | 0.8415 | 0.1693 | 0.7451 | 35.1 |
+| Logistic Regression | all (28) | 0.6834 | 0.6832 | 0.2233 | 0.6406 | 2.6 |
 
-### Previously recorded 250k reference run — `notebooks/01_midsem/`
+### Current 250k saved-artifact registry
 
-| Model | Feature Group | Test ROC-AUC | Test PR-AUC | Brier Score |
-|---|---|---|---|---|
-| MLP (compact) | all (28) | 0.9406 | 0.9372 | 0.0945 |
-| MLP (compact) | high_level (7) | 0.9043 | 0.8888 | 0.1184 |
-| MLP (compact) | low_level (21) | 0.8000 | 0.8097 | 0.1824 |
-| XGBoost | all (28) | 0.8924 | 0.8897 | 0.1252 |
-| XGBoost | high_level (7) | 0.8379 | 0.8243 | 0.1588 |
-| XGBoost | low_level (21) | 0.8152 | 0.8229 | 0.1714 |
-| Logistic Regression | all (28) | 0.8369 | 0.8377 | 0.1639 |
-| Logistic Regression | high_level (7) | 0.7661 | 0.7427 | 0.1945 |
-| Logistic Regression | low_level (21) | 0.7476 | 0.7622 | 0.2035 |
+The current 250,000-row registry contains nine runs with seed 42 and the `higgs-split-v1` 70/15/15 split. Metrics below are copied from the per-run `metrics.json` artifacts. The compact-MLP rows describe the saved artifacts but remain provisional until neural reproduction and the release decision are complete.
 
-> **Key finding:** High-level invariant mass features dominate for linear models. The MLP narrows the gap on raw kinematics via nonlinear representations — but adding all 28 features always helps.
+| Model | Feature Group | Test ROC-AUC | Test PR-AUC | Brier Score | Accuracy |
+|---|---|---:|---:|---:|---:|
+| XGBoost | all (28) | 0.8123 | 0.8266 | 0.1765 | 0.7334 |
+| Compact MLP | all (28) | 0.8121 | 0.8270 | 0.1767 | 0.7322 |
+| XGBoost | high_level (7) | 0.7848 | 0.8026 | 0.1882 | 0.7046 |
+| Compact MLP | high_level (7) | 0.7832 | 0.8020 | 0.1892 | 0.7044 |
+| Compact MLP | low_level (21) | 0.7257 | 0.7366 | 0.2113 | 0.6650 |
+| XGBoost | low_level (21) | 0.7092 | 0.7233 | 0.2165 | 0.6512 |
+| Logistic Regression | all (28) | 0.6854 | 0.6817 | 0.2231 | 0.6439 |
+| Logistic Regression | high_level (7) | 0.6518 | 0.6217 | 0.2315 | 0.6295 |
+| Logistic Regression | low_level (21) | 0.5960 | 0.6222 | 0.2418 | 0.5680 |
 
-The notebooks now train on the complete approximately 11-million-row file. Rerun them to replace these historical subset references with full-data measurements; do not use the table above as the full-data result.
-
----
+> **Interpretation:** In the current 250k registry, all-feature XGBoost and compact MLP artifacts are close in test ROC-AUC. The MLP evidence is provisional; do not treat this table as an approved cross-model release ranking. The historical 1M benchmark is a different configuration and is not ranked directly against these 250k runs.
 
 ## Quick Start
 
