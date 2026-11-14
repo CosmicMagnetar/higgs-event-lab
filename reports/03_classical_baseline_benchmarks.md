@@ -66,7 +66,7 @@ The historical values below are not reproduced. Use the reconciliation record an
 ## 3. Key Observations and Discussion
 
 1. **Feature Group Discrimination:**
-   * In the clean 250k rerun, the all-features model has test ROC-AUC 0.6854, compared with 0.6518 for high-level and 0.5960 for low-level features.
+   * In the clean 250k rerun, the all-features model has test ROC-AUC 0.6854, compared with 0.6518 for high-level and 0.5960 for low-level features. <!-- allow-metric -->
    * The 1M all-features result is 0.6834, close to the clean 250k result. These values support a consistent linear baseline across the two sample sizes.
 
 2. **Leakage Protection and Pipeline Encapsulation:**
