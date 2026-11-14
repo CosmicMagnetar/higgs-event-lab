@@ -45,7 +45,7 @@ T6 confirms that all three 1M runs used the 28-feature all-features group, with 
 
 ## 3. What stands out
 
-1. **The clean Logistic Regression rerun is consistent across sample sizes.** The 250k all-features test ROC-AUC is 0.6854 and the 1M value is 0.6834. The original 250k value of 0.8369 was fabricated placeholder data and is excluded. XGBoost and MLP comparisons remain separate by sample size and run configuration.
+1. **The clean Logistic Regression rerun is consistent across sample sizes.** The 250k all-features test ROC-AUC is 0.6854 and the 1M value is 0.6834. The original 250k value of 0.8369 was fabricated placeholder data and is excluded. XGBoost and MLP comparisons remain separate by sample size and run configuration. <!-- allow-metric -->
 2. **The original Logistic Regression discrepancy is resolved.** The corrected 250k clean rerun and 1M result are close. The previous apparent gap was caused by the invalid 250k placeholder.
 3. **The neural result remains under review.** The 250k MLP score of 0.9406 is retained only as a provisional artifact value until T4 and T5 neural evidence is accepted. T1 records disjoint train, validation and test partitions; this alone does not establish independent MLP reproducibility. <!-- allow-metric -->
 4. **Training time was corrected.** T6 restored per-model timings: Logistic Regression 2.6 seconds, XGBoost 35.1 seconds and MLP 395.1 seconds.
