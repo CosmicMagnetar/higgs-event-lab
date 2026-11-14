@@ -2,7 +2,7 @@ cff-version: 1.2.0
 message: "If you use the Higgs Event Lab software, cite the repository release and the HIGGS dataset/original paper listed in docs/07_REFERENCES.md."
 title: "Higgs Event Lab"
 type: software
-version: 0.1.0
+version: 0.1.0-dev
 abstract: "A reproducible course project scaffold for comparing machine-learning classifiers on the simulated UCI HIGGS event dataset."
 authors:
   - name: "Krishna"
