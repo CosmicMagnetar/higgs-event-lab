@@ -35,12 +35,12 @@ Store report source files and selected small figures in this folder. Place large
 
 | File | Author | Status | Contents |
 |---|---|---|---|
-| `01_report_draft_methodology_limitations.md` | Saumya Mishra | Final mid-semester | Methodology, full-dataset benchmark results (1M events), validity threats and mitigations. |
+| `01_report_draft_methodology_limitations.md` | Saumya Mishra | Revised draft; neural gate pending | Integrated scientific methodology and separately labelled 250k/1M evidence; no project-wide headline result. |
 | `02_neural_network_benchmarks.md` | Rachit Gupta | Draft | Compact MLP architecture, regularization, cross-feature benchmark protocol, artifact export. |
-| `03_classical_baseline_benchmarks.md` | Aditya Rana | Draft | Logistic Regression pipeline, leakage-free scaling, cross-group benchmarks, artifact export. |
+| `03_classical_baseline_benchmarks.md` | Aditya Rana | Reconciliation correction added; module-owner review pending | Corrected 250k Logistic Regression ROC-AUC values and removed the invalid placeholder score. |
 | `04_midsem_presentation_and_demo.md` | Ronit Singh | Draft | 12-slide presentation structure and live demo script. |
 | `05_viva_defense_guide.md` | Krishna | Draft | Viva examination Q&A preparation pack (20 questions). |
-| `06_technical_methodology_and_reproducibility.md` | Krishna | **Added on `docs/krishna-technical-methodology`; awaiting Saumya's integration review** | Technical rationale for physics scope, feature groups, model choices, leakage-safe protocol, metrics, reproducibility, and scientific limitations. |
+| `06_technical_methodology_and_reproducibility.md` | Krishna | Integrated into report 01; source retained | Technical rationale for physics scope, feature groups, model choices, leakage-safe protocol, metrics, reproducibility, and scientific limitations. |
 
 ## Final generated deliverables
 

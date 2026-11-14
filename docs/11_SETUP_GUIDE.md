@@ -1,7 +1,7 @@
 # Setup and Installation Guide
 
 > **Maintainer:** Saumya Mishra (MID-07). **Goal:** a new teammate can get from zero to "tests pass and data checked" without asking anyone.
-> **Honest status:** all pipeline, baseline models, test suites, and Streamlit dashboard modules are fully implemented and verified on clean environments. Each step is tagged **[works now]**. If any step stops matching the code, open a bug in `team/BUG_TRACKER.md`.
+> **Verification status:** the repository records 143 passing tests on 2026-11-13 using Python 3.13. Editable installation was verified with existing system packages; a fresh network installation, Docker build, hosted CI run and clean-clone reproduction have not yet been verified. See `docs/12_QA_TEST_PLAN.md`.
 
 ---
 
@@ -21,12 +21,14 @@
 ## 2. Get the code **[works now]**
 
 ```bash
-git clone https://github.com/CosmicMagnetar/higgs-event-lab.git
-cd higgs-event-lab
-git checkout -b docs/<yourname>-<topic>
+git clone https://github.com/Saumya-Mishra-536/Higgs_Boson_Capstone.git
+cd Higgs_Boson_Capstone
+git switch main
+git pull --ff-only
+git switch -c docs/<yourname>-<topic>
 ```
 
-The canonical repository owner is `CosmicMagnetar`. Never work directly on `main`.
+The canonical repository for this course project is `Saumya-Mishra-536/Higgs_Boson_Capstone`. Never commit directly to `main`.
 
 ---
 
@@ -128,7 +130,7 @@ Expect all tests to pass on a clean checkout. If one fails, read the assertion m
 
 ## 7. Run the pipeline **[works now]**
 
-All baseline models and data loaders are fully implemented and verified.
+The baseline models and data loaders are implemented. Reproduction should be recorded against the exact commit, data manifest and environment used.
 
 | Step | Command | Status & Owner | Expected output |
 |---|---|---|---|

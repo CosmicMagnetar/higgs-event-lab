@@ -13,7 +13,7 @@ The repository holds two sets of results that disagree on the headline number:
 - **250k subset** (`outputs/*/metrics.json`, `outputs/experiments.json`): models with default or lightly set configurations, trained on the 250,000-row subset, seed 42, split 70/15/15.
 - **1M benchmark** (`outputs/full_colab_results.json`): models with tuned or wider configurations, trained on a 1,000,000-row sample, seed 42, split 70/15/15.
 
-`reports/01` quotes the 1M numbers. `reports/02` quotes the 250k MLP number. The final report must use one headline result, and it must say which protocol produced it.
+`reports/01` quotes the 1M numbers. `reports/02` quotes the 250k MLP number. The final report must keep results separated by sample size and protocol until the decision owner approves a comparable release result.
 
 ## 2. What the saved files say
 
@@ -23,9 +23,9 @@ All values are test-partition metrics copied from the saved files. Feature group
 
 | Model | Feature group | Test ROC-AUC | Test PR-AUC | Brier | Test accuracy | Training time (s) |
 |---|---|---|---|---|---|---|
-| Logistic Regression | low_level | 0.7476 | 0.7622 | 0.2035 | 0.681 | see run metadata |
-| Logistic Regression | high_level | 0.7661 | 0.7427 | 0.1945 | 0.698 | see run metadata |
-| Logistic Regression | all | 0.8369 | 0.8377 | 0.1639 | 0.755 | see run metadata |
+| Logistic Regression (clean rerun) | low_level | 0.5960 | Not reported | Not reported | Not reported | Not reported |
+| Logistic Regression (clean rerun) | high_level | 0.6518 | Not reported | Not reported | Not reported | Not reported |
+| Logistic Regression (clean rerun) | all | 0.6854 | Not reported | Not reported | Not reported | Not reported |
 | XGBoost | low_level | 0.8152 | 0.8229 | 0.1714 | 0.749 | see run metadata |
 | XGBoost | high_level | 0.8379 | 0.8243 | 0.1588 | 0.776 | see run metadata |
 | XGBoost | all | 0.8924 | 0.8897 | 0.1252 | 0.818 | see run metadata |
@@ -37,18 +37,18 @@ All values are test-partition metrics copied from the saved files. Feature group
 
 | Model | Test ROC-AUC | Test PR-AUC | Brier | Test accuracy | Training time (s) |
 |---|---|---|---|---|---|
-| Logistic Regression (tuned) | 0.6834 | 0.6832 | 0.2233 | 0.6406 | 412.03 (see BUG-018) |
-| XGBoost (tuned) | 0.8271 | 0.8415 | 0.1693 | 0.7451 | 412.03 (see BUG-018) |
-| Wide MLP, 256-128-64 (tuned) | **0.8399** | 0.8539 | 0.1630 | 0.7565 | 412.03 (see BUG-018) |
+| Logistic Regression (tuned) | 0.6834 | 0.6832 | 0.2233 | 0.6406 | 2.6 |
+| XGBoost (tuned) | 0.8271 | 0.8415 | 0.1693 | 0.7451 | 35.1 |
+| Wide MLP, 256-128-64 (tuned) | **0.8399** | 0.8539 | 0.1630 | 0.7565 | 395.1 |
 
-The 1M file does not record the feature group, so it is not known whether these runs used all 28 features. This must be confirmed (section 4, test T6).
+T6 confirms that all three 1M runs used the 28-feature all-features group, with 700k/150k/150k train/validation/test partitions. Per-model training times are restored above.
 
 ## 3. What stands out
 
-1. **Every model family is lower at 1M.** Logistic Regression falls from 0.8369 to 0.6834 (-0.15). XGBoost falls from 0.8924 to 0.8271 (-0.07). The MLP falls from 0.9406 to 0.8399 (-0.10). A consistent drop across three different families points to something that differs between the two pipelines (data, sampling, column mapping or preprocessing), not to the choice of model.
-2. **Tuning should not lower Logistic Regression.** The 1M logistic model is described as "tuned", yet it scores 0.15 lower than the untuned 250k model on the same feature set. Either the tuned configuration is weaker, or the 1M data are different.
-3. **The 250k numbers are high for this benchmark.** The MLP's 0.9406 ROC-AUC and 0.865 accuracy are above what we recall from the original study (R3) for this benchmark. This is not proof of a fault, but it is the pattern that leakage would produce. If leakage is present in the 250k pipeline, it would also inflate XGBoost and Logistic Regression, which fits observation 1. <!-- allow-metric -->
-4. **Training time is copied.** All three 1M models report 412.03 seconds (BUG-018), so no per-model timing can be taken from that file.
+1. **The clean Logistic Regression rerun is consistent across sample sizes.** The 250k all-features test ROC-AUC is 0.6854 and the 1M value is 0.6834. The original 250k value of 0.8369 was fabricated placeholder data and is excluded. XGBoost and MLP comparisons remain separate by sample size and run configuration. <!-- allow-metric -->
+2. **The original Logistic Regression discrepancy is resolved.** The corrected 250k clean rerun and 1M result are close. The previous apparent gap was caused by the invalid 250k placeholder.
+3. **The neural result remains under review.** The 250k MLP score of 0.9406 is retained only as a provisional artifact value until T4 and T5 neural evidence is accepted. T1 records disjoint train, validation and test partitions; this alone does not establish independent MLP reproducibility. <!-- allow-metric -->
+4. **Training time was corrected.** T6 restored per-model timings: Logistic Regression 2.6 seconds, XGBoost 35.1 seconds and MLP 395.1 seconds.
 5. **Feature names are generic** in the 250k metrics files (`feat_0` to `feat_27`, BUG-019).
 6. **The inputs are not in the repository.** Neither sample file nor the model weights can be regenerated from the repo (BUG-020).
 
