@@ -91,8 +91,8 @@ These are not bugs yet. Each becomes a bug the moment the code fails the check. 
 | W-08 | Metric edge cases (one class only, ties) | Unit tests with tiny arrays | Krishna | Open |
 | W-09 | Dashboard shows numbers without artifacts | Start the app with an empty `outputs/` and assert an empty-state message | Ronit | Open |
 | W-10 | Dashboard accepts malformed or incompatible artifacts | Feed a bad schema and assert a clear error | Ronit | Open |
-| W-11 | Accuracy reported alone, or mock data shown unlabelled | Review of the report and dashboard | Saumya | Open |
-| W-12 | Text claims discovery or real-world probability | Grep wording in the report and app (see QA plan section 6) | Saumya | Open |
+| W-11 | Accuracy reported alone, or mock data shown unlabelled | Review of the report and dashboard | Saumya | In progress; report reviewed, dashboard review pending |
+| W-12 | Text claims discovery or real-world probability | Grep wording in the report and app (see QA plan section 6) | Saumya | In progress; report wording reviewed, repository-wide scan pending |
 
 ---
 
