@@ -50,26 +50,31 @@ flowchart TD
 
 ---
 
-## 2. Historical Artifact Values (Superseded for All-Features Logistic Regression)
+## 2. Reconciled Logistic Regression Results
 
-The original 250k all-features Logistic Regression value of 0.8369 was fabricated placeholder data and must not be used. The clean rerun recorded in `docs/14_RESULTS_RECONCILIATION.md` produced test ROC-AUC values of 0.5960 (low-level), 0.6518 (high-level), and 0.6854 (all features). The validated 1M Logistic Regression test ROC-AUC is 0.6834. Full PR-AUC, Brier, accuracy and validation metrics for the clean 250k rerun are not reproduced here because the reconciliation closure record does not provide those values.
+The original 250k all-features Logistic Regression value of 0.8369 was fabricated placeholder data. The clean rerun records the following test ROC-AUC values. Other metrics for the clean rerun are not stated here because the closure record does not provide them.
 
-| Sample | Feature group | Test ROC-AUC | Evidence |
-|---|---|---:|---|
-| 250k | Low-level (21) | 0.5960 <!-- allow-metric --> | Clean rerun, reconciliation T4 |
-| 250k | High-level (7) | 0.6518 <!-- allow-metric --> | Clean rerun, reconciliation T4 |
-| 250k | All (28) | 0.6854 <!-- allow-metric --> | Clean rerun, reconciliation T4 |
-| 1M | All (28) | 0.6834 <!-- allow-metric --> | Reconciled 1M artifact |
+| Sample | Feature group | Features | Test ROC-AUC | Evidence |
+|---|---|---:|---:|---|
+| 250k | Low-level | 21 | 0.5960 <!-- allow-metric --> | Reconciliation T4 |
+| 250k | High-level | 7 | 0.6518 <!-- allow-metric --> | Reconciliation T4 |
+| 250k | All features | 28 | 0.6854 <!-- allow-metric --> | Reconciliation T4 |
+| 1M | All features | 28 | 0.6834 <!-- allow-metric --> | Reconciled 1M artifact |
 
-The historical table below is retained for traceability and must not be interpreted as the clean-rerun results.
+The historical values below are not reproduced. Use the reconciliation record and serialized run artifacts for any additional metric or configuration detail.
 
-| Feature Group | Features | Training Time (s) | Validation ROC-AUC | Test ROC-AUC | Test PR-AUC | Brier Score |
-|---|---|---|---|---|---|---|
-| Low-level | 21 | 0.07 | 0.7479 <!-- allow-metric --> | 0.7476 <!-- allow-metric --> | 0.7622 <!-- allow-metric --> | 0.2035 <!-- allow-metric --> |
-| High-level | 7 | 0.05 | 0.7702 <!-- allow-metric --> | 0.7661 <!-- allow-metric --> | 0.7427 <!-- allow-metric --> | 0.1945 <!-- allow-metric --> |
-| All features | 28 | Not reported | Not reported | Not reported | Not reported | Not reported |
+## 3. Key Observations and Discussion
 
----
+1. **Feature Group Discrimination:**
+   * In the clean 250k rerun, the all-features model has test ROC-AUC 0.6854, compared with 0.6518 for high-level and 0.5960 for low-level features.
+   * The 1M all-features result is 0.6834, close to the clean 250k result. These values support a consistent linear baseline across the two sample sizes.
+
+2. **Leakage Protection and Pipeline Encapsulation:**
+   * Embedding feature standardisation within an `sklearn.pipeline.Pipeline` ensures that scaling parameters are fitted on training data only.
+   * Validation-only threshold selection keeps operating-point selection separate from held-out test evaluation.
+
+3. **Compute Efficiency Trade-Off:**
+   * The 1M reconciliation records a Logistic Regression training time of 2.6 seconds. Do not transfer historical 250k timing values to the clean rerun.
 
 ## 3. Key Observations and Discussion
 
