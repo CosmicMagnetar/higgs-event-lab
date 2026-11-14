@@ -1,5 +1,7 @@
 # Higgs Event Lab — Mid-Semester Presentation & Demo Walkthrough
 
+> **Historical draft notice (2026-11-14):** This walkthrough contains superseded mid-semester benchmark figures and UI instructions. Do not present its old metric values or threshold claims as current results. Use `reports/HiggsLens_Final_Report.md` and `docs/14_RESULTS_RECONCILIATION.md` for the current evidence record; neural results remain subject to the open release decision.
+
 > **Author:** Krishna (team lead & integration). **Support:** All team members.
 > **Audience:** Course assessors, viva examination panel, and peer reviewers.
 > **Target Duration:** 12–15 minutes presentation + 5 minutes live demonstration.
@@ -45,7 +47,7 @@
 - **Model:** `scikit-learn` Logistic Regression with L-BFGS solver ($C = 1.0$).
 - **Pipeline:** Preprocessing encapsulated in an `sklearn.pipeline.Pipeline`.
 - **Validation Operating Point:** Threshold chosen on validation targeting $50\%$ signal efficiency, frozen, then evaluated on test.
-- **Key Observation:** Logistic Regression is the linear reference model; timing comparisons are omitted here because the clean 250k reconciliation record does not include per-group runtimes.
+- **Key Observation:** Logistic Regression is the linear reference model; use the current run metadata for measured runtime rather than carrying forward the original mid-semester timing.
 
 ### Slide 6: Compact PyTorch MLP Architecture
 - **Architecture:** Compact feedforward neural network:
@@ -57,46 +59,32 @@
 - **Regularization:** Checkpointing with early stopping on validation ROC-AUC (patience 5).
 
 ### Slide 7: Benchmark Leaderboard & Empirical Results
-- The following table separates reconciled classical ROC-AUC values from provisional MLP artifacts. The clean 250k Logistic Regression rerun did not provide the other metrics below; they are intentionally not inferred.
 
-| Model | Feature Set | Test ROC-AUC | Test PR-AUC | Brier Score | Runtime (s) | Evidence |
-|---|---|---|---|---|---|---|
-| Logistic Regression | Low-level (21) | 0.5960 <!-- allow-metric --> | Not in reconciliation record | Not in reconciliation record | Not in reconciliation record | Reconciled clean rerun |
-| Logistic Regression | High-level (7) | 0.6518 <!-- allow-metric --> | Not in reconciliation record | Not in reconciliation record | Not in reconciliation record | Reconciled clean rerun |
-| Logistic Regression | All features (28) | 0.6854 <!-- allow-metric --> | Not in reconciliation record | Not in reconciliation record | Not in reconciliation record | Reconciled clean rerun |
-| Compact MLP | Low-level (21) | 0.8000 <!-- allow-metric --> | 0.8097 <!-- allow-metric --> | 0.1824 <!-- allow-metric --> | 15.02 | Provisional; release gate open |
-| Compact MLP | High-level (7) | 0.9043 <!-- allow-metric --> | 0.8888 <!-- allow-metric --> | 0.1184 <!-- allow-metric --> | 5.13 | Provisional; release gate open |
-| Compact MLP | All features (28) | 0.9406 <!-- allow-metric --> | 0.9372 <!-- allow-metric --> | 0.0945 <!-- allow-metric --> | 10.52 | Provisional; release gate open |
+The original mid-semester table has been superseded. The 250k Logistic Regression values were reconciled in `docs/14_RESULTS_RECONCILIATION.md`; the earlier 0.8369 all-feature value was identified as a fabricated placeholder. The earlier MLP table is provisional and is not approved for a final comparison. Use the current artifact-backed tables in `reports/HiggsLens_Final_Report.md` and retain the 250k and 1M protocols as separate experiments.
 
 ### Slide 8: Scientific Findings on Representation Learning
-- **Finding 1:** In the reconciled 250k Logistic Regression rerun, the high-level feature run records test ROC-AUC 0.6518 <!-- allow-metric --> versus 0.5960 <!-- allow-metric --> for low-level features. The corresponding MLP artifacts record 0.9043 <!-- allow-metric --> versus 0.8000 <!-- allow-metric -->, but those neural results remain provisional and are not approved for a final comparative conclusion.
-- **Finding 2:** The saved all-feature MLP artifact records test ROC-AUC = 0.9406 <!-- allow-metric -->. This value remains provisional pending the neural release gate; no causal claim about feature complementarity is made.
-- **Finding 3:** The current evidence does not yet support a final claim of MLP superiority over the reconciled classical baseline.
+- The reconciled 250k Logistic Regression results are 0.5960 (low-level), 0.6518 (high-level), and 0.6854 (all features). <!-- allow-metric -->
+- The earlier MLP values in this mid-semester draft remain provisional under BUG-015 and BUG-017; do not use them to assert a final neural advantage or a causal explanation for feature-group performance.
+- Interpret feature-group differences as observations on this benchmark sample, not as evidence of a universal physical rule.
 
 ### Slide 9: Calibration & Decision Threshold Analysis
-- **Operating-Point Analysis:**
-  - Target Signal Efficiency: $50\%$ on validation.
-  - Frozen evaluation on test:
-    - The reconciled classical record does not include a verified 250k background-rejection value for this slide.
-    - Neural operating-point values remain provisional pending the release gate.
-- **Probabilistic Calibration:** The MLP artifacts report Brier scores, but these results remain provisional. A Brier score alone does not establish calibration, and no physical posterior probability is claimed.
+- Select the operating threshold on validation data, freeze it, and evaluate the test partition once.
+- Do not reuse the old 86.5% and 96.2% background-rejection figures in this draft; verify the run-specific operating-point artifacts before presenting any values.
+- Brier score is a probability-error metric on this benchmark. It does not, by itself, establish calibration under real-world event prevalence.
 
 ### Slide 10: Compute & Engineering Trade-Offs
-- **Training Budget:** The current neural artifact runtimes are provisional; do not quote a combined training-time claim until the benchmark release evidence is reconciled.
-- **Software Quality:** 143 automated tests passed in the 2026-11-14 clean-clone QA run.
+- **Training Budget:** The current 250k artifact registry records nine runs with a combined training time of approximately 156.8 seconds. The compact-MLP run artifacts record CUDA as the execution device; the exact GPU model is not recorded. Do not reuse the earlier under-32-second CPU estimate.
+- **Software Quality:** The user-supplied fresh macOS clone baseline reported 143 passed. The current QA branch passed editable installation and the full pytest workflow (**144 passed in 14.59s**) on Python 3.11, and the Docker image build passed in [run #43574590439](https://github.com/Saumya-Mishra-536/Higgs_Boson_Capstone/actions/runs/43574590439).
 - **Artifact Contract:** Versioned JSON envelope (`higgs-experiment-v1`) decoupling model training from dashboard presentation.
 
 ### Slide 11: Threats to Validity & Honest Limitations
 - **Simulation-to-Reality Gap:** Monte Carlo simulations omit real-world sensor drift, trigger latencies, and LHC pile-up.
-- **Class Balance Difference:** The benchmark mixture ($52.8\%$ signal) is approximately balanced and must not be interpreted as a realistic collider event rate; this project does not calculate real-world signal-to-background ratios.
+- **Class Balance Difference:** The benchmark mixture (about $52.8\%$ signal) is not a model of the prevalence in a real collider analysis. This project does not estimate real-world event rates.
 - **Subsample Scaling:** Benchmark conducted on $250,000$ events; full 11M training reserved for end-semester scale-up.
 
-### Slide 12: Live Demonstration & End-Semester Roadmap
+### Slide 12: Live Demonstration & Remaining Release Work
 - **Live Demo:** HiggsLens Streamlit interactive dashboard (`app/main.py`).
-- **End-Semester Roadmap:**
-  - Review and finalize the existing XGBoost feature-group benchmark evidence (`END-01`).
-  - Extended MLP hyperparameter optimization and diagnostic learning rates (`END-02`).
-  - Docker containerization and cloud deployment verification (`END-06`).
+- **Remaining gates:** independent MLP reproduction and release decision (Rachit/Krishna), full manual notebook execution, module-owner integration review, and regeneration/inspection of the PDF and PPTX exports from the corrected Markdown sources. A successful Docker image build does not establish a live cloud deployment.
 
 ---
 
@@ -107,7 +95,7 @@
 streamlit run app/main.py
 ```
 - **What to show:**
-  - Point to the sidebar status badge showing all 9 schema-valid experiment runs loaded from `outputs/`.
+  - Point to the sidebar status badge showing all 6 valid experiment runs loaded from `outputs/`.
   - Explain that the dashboard operates strictly read-only on serialized `higgs-experiment-v1` artifacts without retraining models.
 
 ### Step 2: Navigate to "Physics Explorer"
@@ -123,14 +111,14 @@ streamlit run app/main.py
 ### Step 4: Navigate to "Experiment Comparison"
 - **What to show:**
   - The model comparison leaderboard table.
-  - Point out the progression: Low-Level ($0.8000$ <!-- allow-metric -->) $\to$ High-Level ($0.9043$ <!-- allow-metric -->) $\to$ All Features ($0.9406$ <!-- allow-metric -->).
+  - Explain how to read the run metadata and compare models only within a compatible sample, split and protocol; neural results remain provisional.
   - The runtime vs performance scatter plot demonstrating compute efficiency.
 
 ### Step 5: Navigate to "Validation"
 - **What to show:**
-  - Interactive ROC curves showing the MLP curve dominating the Logistic Regression curve.
+  - Compare the saved ROC curves and explain that neural release status is still provisional.
   - Interactive PR curves and calibration reliability curves.
-  - The Interactive Operating-Point Workbench slider: adjust the target signal efficiency to $50\%$ and point out the resulting $96.2\%$ background rejection.
+  - Show the validation-selected frozen threshold and its test evaluation. Do not tune the threshold with the test-set slider.
 
 ### Step 6: (Alternative UI Demo) Terminal HUD
 ```bash

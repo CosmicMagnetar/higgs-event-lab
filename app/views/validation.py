@@ -31,7 +31,8 @@ def render_validation(discovery: RunDiscoveryResult) -> None:
         unsafe_allow_html=True,
     )
     st.markdown(
-        "Inspect held-out test discrimination curves and calibration diagnostics. The threshold workbench is an exploratory view of test predictions, not a model-selection or threshold-tuning tool."
+        "Inspect test discrimination curves, probability calibration reliability, "
+        "and inspect the effect of hypothetical cutoffs on held-out test predictions. The test-set workbench is exploratory only."
     )
 
     if not discovery.has_valid_runs:
@@ -137,7 +138,7 @@ def render_validation(discovery: RunDiscoveryResult) -> None:
     with t5:
         st.markdown("### Interactive Threshold Operating-Point Workbench")
         st.markdown(
-            "Adjust the decision cutoff threshold $\\tau \\in [0.00, 1.00]$ to inspect signal selection, "
+            "EXPLORATORY ONLY — this slider applies hypothetical cutoffs to held-out test predictions. Do not use test-set results to choose or tune the final operating threshold; select it on validation data, freeze it, then evaluate the test set once.\n\nAdjust the decision cutoff threshold $\\tau \\in [0.00, 1.00]$ to inspect signal selection, "
             "background rejection, precision, and the resulting confusion matrix on actual test events."
         )
 
@@ -158,12 +159,6 @@ def render_validation(discovery: RunDiscoveryResult) -> None:
         st.markdown(
             f"**Active Model:** `{wb_run.model_name}` ({wb_run.feature_group}) | "
             f"**Held-out Test Events:** `{len(wb_run.test_predictions):,}`"
-        )
-        st.warning(
-            "This slider recomputes metrics on the held-out test set for visual inspection only. "
-            "Changing the cutoff here is test-set exploration and must not be used to choose, tune, "
-            "or report a final operating threshold. The reported operating point must remain the "
-            "threshold selected on validation data and frozen before test evaluation."
         )
 
         if op_info and "validation_threshold" in op_info:
@@ -224,8 +219,8 @@ def render_validation(discovery: RunDiscoveryResult) -> None:
     with t6:
         st.markdown("### Score Distributions")
         st.markdown(
-            "Compare classifier-score distributions across the held-out test set, separated by true class. "
-            "Scores in [0, 1] are not physical probabilities."
+            "Compare how each model spreads classifier scores across the held-out test set, "
+            "separated by true class."
         )
         if selected_runs:
             fig_scores = plot_score_distributions(selected_runs)

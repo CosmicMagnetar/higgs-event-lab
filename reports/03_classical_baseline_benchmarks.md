@@ -63,7 +63,7 @@ The original 250k all-features Logistic Regression value of 0.8369 was fabricate
 
 The historical values below are not reproduced. Use the reconciliation record and serialized run artifacts for any additional metric or configuration detail.
 
-## 3. Key Observations and Discussion
+### Additional feature-group and coefficient observations
 
 1. **Feature Group Discrimination:**
    * In the clean 250k rerun, the all-features model has test ROC-AUC 0.6854, compared with 0.6518 for high-level and 0.5960 for low-level features. <!-- allow-metric -->
@@ -75,6 +75,25 @@ The historical values below are not reproduced. Use the reconciliation record an
 
 3. **Compute Efficiency Trade-Off:**
    * The 1M reconciliation records a Logistic Regression training time of 2.6 seconds. Do not transfer historical 250k timing values to the clean rerun.
+
+## 3. Key Observations and Discussion
+
+1. **Feature Group Discrimination:**
+   * In the clean 250k rerun, test ROC-AUC is 0.5960 for low-level features, 0.6518 for high-level features, and 0.6854 for all features. <!-- allow-metric --> The 1M all-feature result is 0.6834. <!-- allow-metric --> These are the reconciled values; the earlier 0.7661 and 0.7476 discussion figures are not supported by the current clean rerun and are removed.
+   * The corrected results show higher discrimination when the feature groups are combined in this benchmark. They do not by themselves establish a causal explanation for the performance difference.
+
+2. **Feature Importance (Learned Normalized Coefficients):**
+   * Analysis of the weights assigned to the standardized features in the all-features model reveals that $m_{bb}$ (invariant mass of the two b-jets) and $m_{wwbb}$ receive the largest positive discrimination coefficients for the exotic Higgs signal.
+   * Conversely, missing energy magnitude and lepton transverse momentum provide baseline kinematic scale anchors.
+
+3. **Leakage Protection and Pipeline Encapsulation:**
+   * Embedding feature standardisation within an `sklearn.pipeline.Pipeline` guarantees that mean and standard deviation estimates derive exclusively from the 70% training partition.
+   * Validation-only threshold selection ensures unbiased estimation of background rejection on the held-out test partition.
+
+4. **Compute Efficiency Trade-Off:**
+   * The 1M reconciliation records a Logistic Regression training time of 2.6 seconds. Do not use the earlier 250k per-group timing figures as timings for the clean rerun.
+
+---
 
 ## 4. Reproduction Commands
 

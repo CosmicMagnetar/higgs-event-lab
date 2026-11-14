@@ -35,7 +35,7 @@ def _hero(best_run, valid_count: int, rows: int) -> None:
         detail = "Run the notebook workflow to populate the evidence registry."
     else:
         headline = f"{_model_name(best_run.model_name)} · {best_run.test_roc_auc:.4f} ROC-AUC"
-        detail = f"Highest observed test ROC-AUC run: {best_run.run_id} · {best_run.feature_group} features · {rows:,} recorded rows"
+        detail = f"Highest observed test ROC-AUC run (descriptive only): {best_run.run_id} · {best_run.feature_group} features · {rows:,} recorded rows"
     st.markdown(
         f"""
         <div class="hero-shell">
@@ -77,7 +77,7 @@ def render_overview(discovery: RunDiscoveryResult) -> None:
     proof_cols = st.columns(3)
     proof_data = [
         ("DATA PROOF", f"{eda['signal_fraction']:.2%} signal" if eda and isinstance(eda.get("signal_fraction"), (int, float)) else "EDA not loaded", "Saved EDA summary; inspect recorded quality checks."),
-        ("TOP OBSERVED RUN", f"{_model_name(best_all.model_name)}" if best_all else "No run available", f"Highest observed all-feature test ROC-AUC: {best_all.test_roc_auc:.4f}" if best_all else "Run models to populate this card."),
+        ("TOP OBSERVED RUN", f"{_model_name(best_all.model_name)}" if best_all else "No run available", f"Highest observed all-feature test ROC-AUC: {best_all.test_roc_auc:.4f}. Descriptive only; not a model-selection rule." if best_all else "Run models to populate this card."),
         ("APP PROOF", "Artifact-backed", "Metrics, predictions, curves and EDA are read from outputs/; no training at startup."),
     ]
     for col, (eyebrow, value, detail) in zip(proof_cols, proof_data):
@@ -87,10 +87,9 @@ def render_overview(discovery: RunDiscoveryResult) -> None:
                 unsafe_allow_html=True,
             )
 
-    st.caption("Test-set leaderboard values are descriptive summaries only; do not use held-out test performance to select or tune a model. Neural MLP results remain provisional pending the release review.")
-
     if best_all:
         st.markdown("### All-feature results")
+        st.caption("Rows are ordered by held-out test ROC-AUC for descriptive comparison only. Do not use this test-set ranking to select models or tune hyperparameters.")
         leader_rows = []
         for run in sorted(all_runs, key=lambda item: item.test_roc_auc or 0, reverse=True):
             leader_rows.append({

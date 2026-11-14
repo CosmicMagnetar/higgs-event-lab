@@ -1,7 +1,7 @@
 # Setup and Installation Guide
 
 > **Maintainer:** Saumya Mishra (MID-07). **Goal:** a new teammate can get from zero to "tests pass and data checked" without asking anyone.
-> **Verification status (2026-11-14):** a fresh macOS clone using Python 3.15.1 completed `python -m pip install -e ".[dev]"` and the full suite (`143 passed`); GitHub Actions also passed on Python 3.11. See `docs/12_QA_TEST_PLAN.md` for exact evidence. Docker build, real-data smoke test and independent model retraining remain unverified.
+> **Verification:** QA branch commit `00de4267632e0302f587c46187e03a5f56b52874` passed the Python 3.11 editable install and full pytest workflow (**144 passed in 14.59s**) and the Docker image build in [CI run #43574590439](https://github.com/Saumya-Mishra-536/Higgs_Boson_Capstone/actions/runs/43574590439). The separate clean macOS Apple Silicon clone (Python 3.15, **143 passed**) and CI run #26 are earlier baseline evidence. Independent model retraining, full manual notebook execution and module-owner integration review remain unverified. See `docs/12_QA_TEST_PLAN.md`.
 
 ---
 
@@ -10,7 +10,7 @@
 | Requirement | Why | Check |
 |---|---|---|
 | Git | Clone and make pull requests | `git --version` |
-| Python 3.10 or newer (Python 3.11 in CI and Python 3.15.1 on the QA Mac verified) | Everything is Python | `python --version` |
+| Python 3.10 or newer (3.12 and 3.14 verified) | Everything is Python | `python --version` |
 | About 4 GB free disk for the compressed dataset, more if you decompress or cache subsets | The HIGGS file is about 2.6 GB compressed | `df -h` |
 | 8 GB RAM minimum recommended for 250k-row experiments (measured peak memory < 1.5 GB in streaming mode) | Subset-first workflow | n/a |
 | A GitHub account that Krishna has invited | Repository access | n/a |
@@ -56,18 +56,20 @@ If PowerShell blocks activation, run `Set-ExecutionPolicy -Scope CurrentUser Rem
 
 ## 4. Install dependencies **[verified on a clean clone]**
 
-Use the project extras declared in `pyproject.toml`; this is the same installation command used by CI and the 2026-11-14 clean-clone QA run.
+Use the project metadata as the canonical install path. It installs the runtime, dashboard, training and development/test dependencies declared by `pyproject.toml`:
 
 ```bash
 python -m pip install -e ".[dev]"
 ```
 
-The `dev` extra installs the package, dashboard dependencies and test dependencies. The separate `requirements.txt` remains a proposed lower-bound list and is not the canonical clean-install command. PyTorch and PyArrow downloads can be large; allow time for network retries on slower connections.
+The clean-clone check on macOS Apple Silicon with Python 3.15 completed this command successfully. GitHub Actions also completed it on Python 3.11. Package downloads experienced transient network timeouts but resumed successfully.
+
+`requirements.txt` remains a proposed lower-bound list and is not the canonical tested install path. PyTorch is a large dependency; dashboard-only use can install `.[dashboard]`, while the full test suite should use `.[dev]`.
 
 Verify the environment:
 
 ```bash
-python -c "import numpy, pandas, sklearn, xgboost, torch, streamlit; print('imports ok')"
+python -c "import numpy, pandas, sklearn, xgboost, torch; print('imports ok')"
 ```
 
 ---
@@ -111,7 +113,7 @@ This fetches the archive into `data/raw/HIGGS.csv.gz`, checks the SHA-256 hash, 
 ## 6. Run the automated checks **[works now]**
 
 ```bash
-python -m pytest -q
+python -m pytest tests/unit -q
 ```
 
 What this covers today:
@@ -176,7 +178,7 @@ Follow the notebook policy in `notebooks/README.md`: explanations go in Markdown
 
 | Symptom | Likely cause | Fix |
 |---|---|---|
-| `ModuleNotFoundError: pytest` | Environment not activated or deps not installed | Activate `.venv`, run `python -m pip install -e ".[dev]"` |
+| `ModuleNotFoundError: pytest` | Environment not activated or development dependencies not installed | Activate `.venv`, run `python -m pip install -e ".[dev]"` |
 | `test_no_data_model_or_system_junk_files_are_present` fails | A `.DS_Store`, `.gz`, `.pt` or similar file sits inside the repository folder | Delete it or move it under an ignored path; confirm `.gitignore` is present |
 | Smoke test: `File not found` | Wrong path or file name | Check `ls data/raw/` |
 | Smoke test: `rows do not have 29 columns` | Truncated download or wrong file | Re-download; compare the checksum |

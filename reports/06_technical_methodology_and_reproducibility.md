@@ -120,9 +120,9 @@ The project must label validation and test metrics separately and must state the
 
 ## 6. Reconciliation gate: why we cannot select a headline score yet
 
-The repository currently contains materially different saved MLP test ROC-AUC values for different benchmark pipelines: 0.9406 in the 250k reference run and 0.8399 in the 1M reference run. The reconciliation document is still marked OPEN. A value being present in a JSON file or an old report does not explain why the runs differ.
+The repository contains different saved MLP test ROC-AUC values for different benchmark pipelines: 0.8121 for the current 250k compact-MLP artifact and 0.8399 for the separate 1M wide-MLP artifact. These use different configurations and are not a direct comparison. The reconciliation document is partially closed: classical/data checks T1–T3 and T6 are recorded as passed, while neural reproduction and cross-pipeline checks T4, T5 and T7 remain pending. A value being present in a JSON file does not independently reproduce the training run.
 
-The closure table lists test IDs and dates, but the required command outputs and evidence are not present in the closure record. In particular, the release gate asks for actual T1 (partition overlap / duplicate check), T4 (clean MLP reproduction) and T5 (250k comparison under the 1M pipeline) outputs. Until those outputs are inspected and the decision owner records a decision:
+The closure record includes the T1 partition-overlap evidence and the T2/T3/T6 classical/data checks. The neural release gate still requires T4 (clean MLP reproduction) and T5 (250k comparison under the 1M pipeline); T7 is a saved-prediction accuracy consistency check. Until the remaining neural outputs are supplied and the decision owner records a decision:
 
 - keep results labelled by sample size and protocol;
 - do not choose a single headline metric;

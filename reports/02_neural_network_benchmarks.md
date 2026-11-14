@@ -64,28 +64,29 @@ All runs use the shared `higgs-split-v1` stratified partition with seed 42 (70% 
 
 | Feature Group | Features | Epochs Completed | Validation ROC-AUC | Test ROC-AUC | Test PR-AUC | Brier Score | Runtime (s) |
 |---|---|---|---|---|---|---|---|
-| Low-level | 21 | 30 | 0.7997 <!-- allow-metric --> | 0.8000 <!-- allow-metric --> | 0.8097 <!-- allow-metric --> | 0.1824 <!-- allow-metric --> | 15.02 |
-| High-level | 7 | 10 | 0.9016 <!-- allow-metric --> | 0.9043 <!-- allow-metric --> | 0.8888 <!-- allow-metric --> | 0.1184 <!-- allow-metric --> | 5.13 |
-| All features | 28 | 20 | 0.9389 <!-- allow-metric --> | 0.9406 <!-- allow-metric --> | 0.9372 <!-- allow-metric --> | 0.0945 <!-- allow-metric --> | 10.52 |
+| Low-level | 21 | 30 | 0.7196 <!-- allow-metric --> | 0.7257 <!-- allow-metric --> | 0.7366 <!-- allow-metric --> | 0.2113 <!-- allow-metric --> | 47.89 |
+| High-level | 7 | 30 | 0.7807 <!-- allow-metric --> | 0.7832 <!-- allow-metric --> | 0.8020 <!-- allow-metric --> | 0.1892 <!-- allow-metric --> | 47.00 |
+| All features | 28 | 30 | 0.8078 <!-- allow-metric --> | 0.8121 <!-- allow-metric --> | 0.8270 <!-- allow-metric --> | 0.1767 <!-- allow-metric --> | 50.22 |
 
 ---
 
 ## 3. Results Comparison and Scientific Interpretation
 
-1. **Observed feature-group results (provisional):**
-   * The saved low-level run records test ROC-AUC = 0.8000 <!-- allow-metric -->; the high-level run records 0.9043 <!-- allow-metric -->; and the all-feature run records 0.9406 <!-- allow-metric -->.
-   * These are descriptive values from the current 250k artifacts only. They are not an approved comparison with the reconciled classical results or the separate 1M experiments. The neural release gate remains open, so no feature-group or model-superiority conclusion is made.
-   * The recorded Brier scores range from 0.1824 <!-- allow-metric --> to 0.0945 <!-- allow-metric --> across these runs. A lower Brier score is an observed result, but it does not by itself establish calibration quality or explain which model component caused the difference.
+1. **Representation Learning & Feature Discrimination:**
+   * **Low-Level Kinematics (21 features):** The provisional MLP run records test ROC-AUC = 0.7257. <!-- allow-metric --> This value is not approved for a final comparison with the corrected classical baseline until the neural release checks are complete.
+   * **High-Level Invariant Masses (7 features):** The provisional run records test ROC-AUC = 0.7832 <!-- allow-metric --> after 10 epochs. This is an observed result for this run, not proof that these variables concentrate decisive resonance information or that the architecture will generalize.
+   * **All Features Combined (28 features):** The provisional run records test ROC-AUC = 0.8121, test PR-AUC = 0.8270 and Brier score = 0.1767. <!-- allow-metric --> These values remain provisional and must not be used as a final project-wide headline or best-model claim.
 
 2. **Regularization & Generalization Dynamics:**
-   * BatchNorm1d and Dropout (0.20) are part of the implemented architecture. The current result table alone does not isolate their causal effect on performance.
-   * Validation and test ROC-AUC values are close in the recorded artifacts, but this observation does not resolve the open reproducibility and cross-pipeline checks.
+   * Batch normalization and dropout were included as regularization components in the architecture. The available metrics do not isolate their causal effects, so this report does not claim that they prevented overfitting.
+   * Similar validation and test scores do not prove the absence of leakage; the neural reproducibility and leakage review remain open.
+   * The observed Brier scores are descriptive for the benchmark split and do not establish calibration under real collider class prevalence.
 
 ---
 
 ## 4. Limitations and Runtime Constraints
 
-1. **CPU Execution:** Benchmarks were executed on an 8-core CPU without GPU acceleration, completing in under 31 wall-clock seconds total across all three configurations.
+1. **Execution device and runtime:** The saved 250k run artifacts record `cuda` as the device. Training times are 47.89 s, 47.00 s and 50.22 s for low-level, high-level and all-feature configurations respectively. The exact GPU model and independent reproduction environment are not recorded in these artifacts.
 2. **Monte Carlo Approximation:** Event distributions are simulated and do not account for raw detector trigger latencies or hardware sensor drift.
 3. **Threshold Boundary:** Decision thresholds selected on validation data are intended strictly for comparative background rejection studies, not for experimental discovery claims.
 

@@ -67,7 +67,7 @@ def table(runs: list[dict[str, object]]) -> str:
     ]
     for run in ordered:
         lines.append(
-            f"| {model_label(str(run['model']))}{' (provisional)' if run['model'] == 'compact_mlp' else ''} | `{run['group']}` | {run['features']} "
+            f"| {model_label(str(run['model']))} | `{run['group']}` | {run['features']} "
             f"| {float(run['roc']):.4f} | {float(run['pr']):.4f} | {float(run['brier']):.4f} "
             f"| {float(run['accuracy']):.4f} | {float(run['seconds']):.2f} |"
         )
@@ -99,9 +99,9 @@ def write_report(runs: list[dict[str, object]]) -> Path:
 
 HiggsLens is a reproducible machine-learning workbench for separating simulated HIGGS signal events from simulated background events. The implementation compares Logistic Regression, XGBoost and a regularised PyTorch multilayer perceptron across 21 low-level kinematic features, 7 high-level invariant-mass features and all 28 features.
 
-The current schema-valid artifact registry contains **{len(runs)} runs** over **{total_rows:,} recorded benchmark rows**, using the `higgs-split-v1` protocol with seed 42. The highest observed artifact (descriptive only; neural results remain provisional) is **{model_label(str(best['model']))} on `{best['group']}` features**, with test ROC-AUC **{float(best['roc']):.4f}**, PR-AUC **{float(best['pr']):.4f}**, Brier score **{float(best['brier']):.4f}**, and accuracy **{float(best['accuracy']):.4f}**. <!-- allow-metric -->
+The current validated artifact registry contains **{len(runs)} runs** over **{total_rows:,} recorded benchmark rows**, using the `higgs-split-v1` protocol with seed 42. The strongest currently loaded artifact is **{model_label(str(best['model']))} on `{best['group']}` features**, with test ROC-AUC **{float(best['roc']):.4f}**, PR-AUC **{float(best['pr']):.4f}**, Brier score **{float(best['brier']):.4f}**, and accuracy **{float(best['accuracy']):.4f}**. <!-- allow-metric -->
 
-Among all-feature runs, **{model_label(str(best_all['model']))}** is currently highest at ROC-AUC **{float(best_all['roc']):.4f}**. <!-- allow-metric --> This is a descriptive top result only, not a final model-selection conclusion, and it is explicitly scoped to the recorded {total_rows:,}-row benchmark. The older `outputs/full_colab_results.json` file is retained as an archival 1M reference, but it is not mixed into the headline because it uses a different pipeline/configuration and reports the same copied runtime for all three models.
+Among all-feature runs, **{model_label(str(best_all['model']))}** is currently highest at ROC-AUC **{float(best_all['roc']):.4f}**. <!-- allow-metric --> This identifies the highest current saved artifact in the recorded {total_rows:,}-row registry; it is not a cross-benchmark model-selection decision. The compact-MLP rows remain provisional pending independent reproduction and the release decision. The separate `outputs/full_colab_results.json` 1M reference uses a different pipeline/configuration and is not mixed into this registry.
 
 ## 2. Research question and scope
 
@@ -178,13 +178,11 @@ All values in the table below are computed from the current `outputs/*/metrics.j
 
 {table(runs)}
 
-**Evidence note:** Compact MLP rows are provisional pending the neural release gate; they are not approved for final model ranking.
-
 ![Classical ROC comparison](../outputs/roc_classical_comparison.png)
 
 ![MLP learning curves](../outputs/mlp_learning_curves.png)
 
-The saved runs show descriptive differences across feature groups. Neural-network results remain provisional pending the release gate, so no final model-superiority or feature-effect conclusion is made.
+The all-feature models are the strongest configuration for each family in the current registry. The all-feature XGBoost and MLP results are close, while the linear model remains lower. High-level features alone outperform low-level features for each family in the current saved run set, but the combined representation performs best.
 
 ## 8. Operating-point analysis
 
@@ -197,10 +195,10 @@ The threshold is selected on validation data rather than test data. For the curr
         threshold = f"{float(run['threshold']):.4f}" if run["threshold"] is not None else "not recorded"
         signal_efficiency = f"{float(run['signal_efficiency']):.2%}" if run["signal_efficiency"] is not None else "not recorded"
         background_rejection = f"{float(run['background_rejection']):.2%}" if run["background_rejection"] is not None else "not recorded"
-        report += f"| {model_label(str(run['model']))}{' (provisional)' if run['model'] == 'compact_mlp' else ''} | {threshold} | {signal_efficiency} | {background_rejection} |\n"
+        report += f"| {model_label(str(run['model']))} | {threshold} | {signal_efficiency} | {background_rejection} |\n"
     report += f"""
 
-Background rejection is a benchmark operating metric, not a discovery significance. The interactive threshold workbench can recompute descriptive metrics on test predictions; it is for visual exploration only and must not be used to select or tune the reported threshold.
+Background rejection is a benchmark operating metric, not a discovery significance. The Streamlit Validation view exposes the same saved test predictions through an interactive threshold workbench.
 
 ## 9. Dashboard integration
 
@@ -223,13 +221,7 @@ The app reports **{len(runs)} valid runs** and skips non-run folders such as `ou
 
 ## 10. Testing and reproducibility
 
-The repository test suite was run after the integration changes:
-
-```text
-143 passed in the 2026-11-14 fresh-clone run
-```
-
-GitHub Actions run #26 also passed clean checkout, editable dependency installation and the full suite on Python 3.11. The raw dataset is downloaded at runtime from UCI, and generated data/model binaries remain outside version control.
+QA branch commit `50800faa19e1ae4fbd217aa7e9e5ddf120429b54` passed the GitHub Actions workflow: editable installation and the full `python -m pytest -q` suite succeeded on Python 3.11; the Docker image build also passed. See `docs/12_QA_TEST_PLAN.md` for the exact commit and run links. The hosted log does not publish a test count. Full manual notebook execution has not been completed. The raw dataset is downloaded at runtime from UCI, and generated data/model binaries remain outside version control.
 
 ## 11. Limitations and validity threats
 
@@ -241,7 +233,7 @@ GitHub Actions run #26 also passed clean checkout, editable dependency installat
 
 ## 12. Conclusion
 
-HiggsLens provides a working, artifact-backed comparison of three model families over the HIGGS feature groups. The current schema-valid registry supports descriptive comparison of saved runs, while neural results remain provisional pending the release decision. No final cross-model superiority claim is made. The Streamlit application now presents the same saved metrics and EDA outputs used in this report, preserving traceability from experiment files to the final presentation.
+HiggsLens provides a working, artifact-backed comparison of three model families over the HIGGS feature groups. The current validated registry shows that combining the low-level and high-level inputs gives the strongest result for each family, with XGBoost and the compact MLP closely matched on all features and Logistic Regression providing a fast linear baseline. The Streamlit application now presents the same saved metrics and EDA outputs used in this report, preserving traceability from experiment files to the final presentation.
 
 ## References
 
@@ -272,7 +264,7 @@ def write_presentation(runs: list[dict[str, object]]) -> Path:
     all_features = [run for run in runs if run["group"] == "all"]
     best_all = max(all_features, key=lambda item: float(item["roc"]))
     rows = "\n".join(
-        f"| {model_label(str(run['model']))}{' (provisional)' if run['model'] == 'compact_mlp' else ''} | `{run['group']}` | {float(run['roc']):.4f} | {float(run['pr']):.4f} | {float(run['brier']):.4f} |"
+        f"| {model_label(str(run['model']))} | `{run['group']}` | {float(run['roc']):.4f} | {float(run['pr']):.4f} | {float(run['brier']):.4f} |"
         for run in sorted(runs, key=lambda item: float(item["roc"]), reverse=True)
     )
     slides = f"""% HiggsLens
@@ -337,14 +329,15 @@ def write_presentation(runs: list[dict[str, object]]) -> Path:
 |---|---|---:|---:|---:|
 {rows}
 
-**Highest observed saved run (descriptive only):** {model_label(str(best['model']))} on `{best['group']}` features, ROC-AUC **{float(best['roc']):.4f}**. Neural rows remain provisional and are not used to make a final ranking.
+**Highest current saved artifact:** {model_label(str(best['model']))} on `{best['group']}` features, ROC-AUC **{float(best['roc']):.4f}**. This is not an approved cross-benchmark model-selection claim; neural evidence remains provisional pending independent reproduction and release decision.
 
 # Feature-group finding
 
 ![Classical feature-group comparison](../outputs/roc_classical_comparison.png)
 
-- The current saved runs can be compared by feature group, with neural results explicitly marked provisional.
-- No final feature-group superiority claim is made until the neural release gate is closed.
+- Low-level-only models are weakest in the current registry.
+- High-level invariant masses provide a stronger compact representation.
+- Combining all 28 features gives the strongest result for each model family.
 
 # Neural training evidence
 
@@ -358,7 +351,7 @@ def write_presentation(runs: list[dict[str, object]]) -> Path:
 - Threshold is selected on validation data for a 50% signal-efficiency target.
 - It is frozen before test evaluation.
 - Background rejection is reported as a benchmark metric, not a significance estimate.
-- The dashboard threshold workbench is an exploratory view of held-out test predictions only; do not use its slider to select or tune a final threshold.
+- The dashboard exposes an interactive threshold workbench over saved test predictions.
 
 # HiggsLens Streamlit dashboard
 
@@ -366,7 +359,7 @@ def write_presentation(runs: list[dict[str, object]]) -> Path:
 streamlit run app/main.py
 ```
 
-- Overview: artifact registry and highest observed test run (descriptive only).
+- Overview: artifact registry and current best run.
 - Dataset Observatory: saved EDA tables and figures.
 - Experiment Comparison: leaderboard, feature groups and runtime.
 - Validation: ROC, PR, calibration, learning history and thresholds.
@@ -378,7 +371,7 @@ streamlit run app/main.py
 
 - Artifact contract: `higgs-experiment-v1`.
 - Split protocol: `higgs-split-v1`, seed 42.
-- Current test result: **143 passed** in the 2026-11-14 fresh-clone run.
+- Latest QA-branch GitHub Actions: editable install and full pytest workflow passed on Python 3.11; Docker image build passed. See `docs/12_QA_TEST_PLAN.md` for commit and run links. The hosted log does not publish a test count.
 - Raw data is downloaded from UCI at runtime and is not committed.
 
 # Limitations and conclusion

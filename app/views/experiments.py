@@ -69,10 +69,9 @@ def render_experiments(discovery: RunDiscoveryResult) -> None:
     metric_cols = st.columns(4)
     metric_cols[0].metric("Selected runs", len(runs))
     metric_cols[1].metric("Highest test ROC-AUC run", _model_label(winner.model_name))
-    metric_cols[2].metric("Observed test ROC-AUC", f"{winner.test_roc_auc:.4f}")
-    metric_cols[3].metric("Feature group", winner.feature_group)
-
-    st.caption("The highest test ROC-AUC run is shown descriptively. Use validation results for model selection and tuning; do not select a model based on held-out test metrics. Neural MLP results remain provisional pending the release review.")
+    metric_cols[2].metric("Highest test ROC-AUC", f"{winner.test_roc_auc:.4f}")
+    metric_cols[3].metric("Group of top observed run", winner.feature_group)
+    st.warning("The summary ranking uses held-out test ROC-AUC and is descriptive only. Do not use this ranking to choose models, tune settings, or make final model-selection decisions; those decisions must use training/validation evidence.")
 
     # Tabbed views for Leaderboard and Visual Comparative Analytics
     tab_table, tab_groups, tab_compute, tab_radar = st.tabs([
@@ -120,8 +119,8 @@ def render_experiments(discovery: RunDiscoveryResult) -> None:
         st.dataframe(df_sorted, width="stretch", hide_index=True)
 
         st.markdown(
-            "> **Note on Brier Score:** Lower values indicate lower mean squared probability error on this evaluated sample. "
-            "The score reflects overall probabilistic prediction quality and does not by itself establish calibration; inspect reliability diagrams as well. A constant 0.5 prediction has Brier score 0.25, which is not a universal baseline for every class prevalence."
+            "> **Note on Brier Score:** Lower values indicate superior probabilistic calibration, "
+            "where 0.0 is perfect certainty and 0.25 represents uninformative 50/50 guessing."
         )
 
     with tab_groups:

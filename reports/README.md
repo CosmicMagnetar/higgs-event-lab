@@ -48,14 +48,17 @@ These files are generated from the saved artifacts under `outputs/`:
 
 | File | Purpose |
 |---|---|
-| `HiggsLens_Final_Report.pdf` | Formatted artifact-backed final report |
-| `HiggsLens_Final_Report.html` | Browser-editable/previewable report version |
-| `HiggsLens_Final_Report.md` | Reproducible report source; updated 2026-11-14 with provisional neural status and current QA evidence |
-| `../presentations/HiggsLens_Final_Presentation.pptx` | Final presentation deck |
-| `../scripts/build_final_deliverables.py` | Rebuilds the report and presentation sources from current outputs |
-
-**Release note:** This script rebuilds the Markdown report and presentation sources only. The tracked HTML/PDF/PPTX files were not regenerated during the 2026-11-14 QA update and must be refreshed from the approved sources before final submission.
+| `HiggsLens_Final_Report.pdf` | Formatted artifact-backed final report; regenerate after source reconciliation before release |
+| `HiggsLens_Final_Report.html` | Browser preview; QA wording refreshed, full Pandoc regeneration still recommended |
+| `HiggsLens_Final_Report.md` | Reproducible report source |
+| `../presentations/HiggsLens_Final_Presentation.pptx` | Presentation deck; regenerate from the corrected Markdown source before release |
+| `../scripts/build_final_deliverables.py` | Rebuilds the Markdown report and presentation sources from current outputs; it does not regenerate HTML, PDF or PPTX |
 
 Placeholders marked `[RUN: ...]` indicate where real metric values should be inserted once artifacts exist.
 
 ---
+
+
+## Release export status
+
+The Markdown report and presentation sources have been reconciled to the current saved artifacts. The committed PDF and PPTX are binary exports from an earlier source state and have not been regenerated in this QA pass. Do not treat those two binary exports as final-release deliverables until rebuilt from the corrected Markdown sources. The HTML preview has had its stale QA statement corrected but should also be regenerated with Pandoc for exact source parity.
