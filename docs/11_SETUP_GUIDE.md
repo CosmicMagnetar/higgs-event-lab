@@ -1,7 +1,7 @@
 # Setup and Installation Guide
 
 > **Maintainer:** Saumya Mishra (MID-07). **Goal:** a new teammate can get from zero to "tests pass and data checked" without asking anyone.
- > **Verification status:** the repository records 143 passing tests on 2026-11-13 using Python 3.13. Editable installation was verified with existing system packages; a fresh network installation, Docker build, hosted CI run and clean-clone reproduction have not yet been verified. See `docs/12_QA_TEST_PLAN.md`.
+> **Verification status:** the repository records 143 passing tests on 2026-11-13 using Python 3.13. Editable installation was verified with existing system packages; a fresh network installation, Docker build, hosted CI run and clean-clone reproduction have not yet been verified. See `docs/12_QA_TEST_PLAN.md`.
 
 ---
 
