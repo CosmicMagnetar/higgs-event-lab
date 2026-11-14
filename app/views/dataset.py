@@ -220,11 +220,10 @@ def render_dataset(base_dir: str = "outputs") -> None:
             <div class="scientific-panel-cyan">
                 <h4 style="color:#127c80; margin-top:0;">Why ROC-AUC &amp; PR-AUC Over Simple Accuracy?</h4>
                 <p style="font-size:0.9rem; color:#475b70; margin-bottom:0;">
-                    Although class balance is roughly 53/47, in physical collider operations the true background rate
-                    is millions of times higher before pre-selection cuts. A classifier with 80% accuracy that achieves it by
-                    allowing 20% false positives would completely flood the experiment with millions of fake events.
-                    Therefore, <strong>background rejection at high signal efficiency</strong> and <strong>ROC-AUC</strong>
-                    provide the true measure of scientific ranking discrimination.
+                    Although this benchmark is roughly 53/47, that class mix does not represent real collider event rates.
+                    The practical impact of false positives depends on production rates, event selections and detector conditions,
+                    none of which this project estimates. Therefore, <strong>background rejection at a declared signal efficiency</strong>
+                    and <strong>ROC-AUC</strong> are useful benchmark discrimination metrics, not estimates of experimental discovery reach.
                 </p>
             </div>
             """,

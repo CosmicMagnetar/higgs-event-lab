@@ -1,7 +1,7 @@
 # Setup and Installation Guide
 
 > **Maintainer:** Saumya Mishra (MID-07). **Goal:** a new teammate can get from zero to "tests pass and data checked" without asking anyone.
-> **Verification status:** the repository records 143 passing tests on 2026-11-13 using Python 3.13. Editable installation was verified with existing system packages; a fresh network installation, Docker build, hosted CI run and clean-clone reproduction have not yet been verified. See `docs/12_QA_TEST_PLAN.md`.
+> **Verification status (2026-11-14):** a fresh macOS clone using Python 3.15.1 completed `python -m pip install -e ".[dev]"` and the full suite (`143 passed`); GitHub Actions also passed on Python 3.11. See `docs/12_QA_TEST_PLAN.md` for exact evidence. Docker build, real-data smoke test and independent model retraining remain unverified.
 
 ---
 
@@ -10,7 +10,7 @@
 | Requirement | Why | Check |
 |---|---|---|
 | Git | Clone and make pull requests | `git --version` |
-| Python 3.10 or newer (3.12 and 3.14 verified) | Everything is Python | `python --version` |
+| Python 3.10 or newer (Python 3.11 in CI and Python 3.15.1 on the QA Mac verified) | Everything is Python | `python --version` |
 | About 4 GB free disk for the compressed dataset, more if you decompress or cache subsets | The HIGGS file is about 2.6 GB compressed | `df -h` |
 | 8 GB RAM minimum recommended for 250k-row experiments (measured peak memory < 1.5 GB in streaming mode) | Subset-first workflow | n/a |
 | A GitHub account that Krishna has invited | Repository access | n/a |
@@ -54,22 +54,20 @@ If PowerShell blocks activation, run `Set-ExecutionPolicy -Scope CurrentUser Rem
 
 ---
 
-## 4. Install dependencies **[works now, with a caveat]**
+## 4. Install dependencies **[verified on a clean clone]**
+
+Use the project extras declared in `pyproject.toml`; this is the same installation command used by CI and the 2026-11-14 clean-clone QA run.
 
 ```bash
-pip install -r requirements.txt
+python -m pip install -e ".[dev]"
 ```
 
-Caveats (see BUG-005):
-
-- `requirements.txt` is a **proposed** list with lower bounds only. It has not yet been installed as a whole on a clean machine. The first person to do so should record the working versions in the PR.
-- `torch` is large (hundreds of MB to a few GB, depending on platform). If you only need the docs and tests, install the light subset instead: `pip install pytest nbformat`.
-- If `pip` picks a CUDA build you do not need, follow the selector on pytorch.org for a CPU-only wheel.
+The `dev` extra installs the package, dashboard dependencies and test dependencies. The separate `requirements.txt` remains a proposed lower-bound list and is not the canonical clean-install command. PyTorch and PyArrow downloads can be large; allow time for network retries on slower connections.
 
 Verify the environment:
 
 ```bash
-python -c "import numpy, pandas, sklearn, xgboost, torch; print('imports ok')"
+python -c "import numpy, pandas, sklearn, xgboost, torch, streamlit; print('imports ok')"
 ```
 
 ---
@@ -113,7 +111,7 @@ This fetches the archive into `data/raw/HIGGS.csv.gz`, checks the SHA-256 hash, 
 ## 6. Run the automated checks **[works now]**
 
 ```bash
-python -m pytest tests/unit -q
+python -m pytest -q
 ```
 
 What this covers today:
@@ -178,7 +176,7 @@ Follow the notebook policy in `notebooks/README.md`: explanations go in Markdown
 
 | Symptom | Likely cause | Fix |
 |---|---|---|
-| `ModuleNotFoundError: pytest` | Environment not activated or deps not installed | Activate `.venv`, run `pip install -r requirements.txt` |
+| `ModuleNotFoundError: pytest` | Environment not activated or deps not installed | Activate `.venv`, run `python -m pip install -e ".[dev]"` |
 | `test_no_data_model_or_system_junk_files_are_present` fails | A `.DS_Store`, `.gz`, `.pt` or similar file sits inside the repository folder | Delete it or move it under an ignored path; confirm `.gitignore` is present |
 | Smoke test: `File not found` | Wrong path or file name | Check `ls data/raw/` |
 | Smoke test: `rows do not have 29 columns` | Truncated download or wrong file | Re-download; compare the checksum |

@@ -31,8 +31,7 @@ def render_validation(discovery: RunDiscoveryResult) -> None:
         unsafe_allow_html=True,
     )
     st.markdown(
-        "Inspect test discrimination curves, probability calibration reliability, "
-        "and explore operating cutoffs interactively on genuine held-out test predictions."
+        "Inspect held-out test discrimination curves and calibration diagnostics. The threshold workbench is an exploratory view of test predictions, not a model-selection or threshold-tuning tool."
     )
 
     if not discovery.has_valid_runs:
@@ -160,6 +159,12 @@ def render_validation(discovery: RunDiscoveryResult) -> None:
             f"**Active Model:** `{wb_run.model_name}` ({wb_run.feature_group}) | "
             f"**Held-out Test Events:** `{len(wb_run.test_predictions):,}`"
         )
+        st.warning(
+            "This slider recomputes metrics on the held-out test set for visual inspection only. "
+            "Changing the cutoff here is test-set exploration and must not be used to choose, tune, "
+            "or report a final operating threshold. The reported operating point must remain the "
+            "threshold selected on validation data and frozen before test evaluation."
+        )
 
         if op_info and "validation_threshold" in op_info:
             st.info(
@@ -219,8 +224,8 @@ def render_validation(discovery: RunDiscoveryResult) -> None:
     with t6:
         st.markdown("### Score Distributions")
         st.markdown(
-            "Compare how each model spreads predicted probabilities across the held-out test set, "
-            "separated by true class."
+            "Compare classifier-score distributions across the held-out test set, separated by true class. "
+            "Scores in [0, 1] are not physical probabilities."
         )
         if selected_runs:
             fig_scores = plot_score_distributions(selected_runs)

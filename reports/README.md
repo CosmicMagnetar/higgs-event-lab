@@ -50,9 +50,11 @@ These files are generated from the saved artifacts under `outputs/`:
 |---|---|
 | `HiggsLens_Final_Report.pdf` | Formatted artifact-backed final report |
 | `HiggsLens_Final_Report.html` | Browser-editable/previewable report version |
-| `HiggsLens_Final_Report.md` | Reproducible report source |
+| `HiggsLens_Final_Report.md` | Reproducible report source; updated 2026-11-14 with provisional neural status and current QA evidence |
 | `../presentations/HiggsLens_Final_Presentation.pptx` | Final presentation deck |
 | `../scripts/build_final_deliverables.py` | Rebuilds the report and presentation sources from current outputs |
+
+**Release note:** This script rebuilds the Markdown report and presentation sources only. The tracked HTML/PDF/PPTX files were not regenerated during the 2026-11-14 QA update and must be refreshed from the approved sources before final submission.
 
 Placeholders marked `[RUN: ...]` indicate where real metric values should be inserted once artifacts exist.
 

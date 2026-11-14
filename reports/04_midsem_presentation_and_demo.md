@@ -45,7 +45,7 @@
 - **Model:** `scikit-learn` Logistic Regression with L-BFGS solver ($C = 1.0$).
 - **Pipeline:** Preprocessing encapsulated in an `sklearn.pipeline.Pipeline`.
 - **Validation Operating Point:** Threshold chosen on validation targeting $50\%$ signal efficiency, frozen, then evaluated on test.
-- **Key Observation:** Highly efficient linear baseline executing in $< 0.10$ seconds.
+- **Key Observation:** Logistic Regression is the linear reference model; timing comparisons are omitted here because the clean 250k reconciliation record does not include per-group runtimes.
 
 ### Slide 6: Compact PyTorch MLP Architecture
 - **Architecture:** Compact feedforward neural network:
@@ -57,44 +57,44 @@
 - **Regularization:** Checkpointing with early stopping on validation ROC-AUC (patience 5).
 
 ### Slide 7: Benchmark Leaderboard & Empirical Results
-- Genuine test metrics on $37,500$ held-out events:
+- The following table separates reconciled classical ROC-AUC values from provisional MLP artifacts. The clean 250k Logistic Regression rerun did not provide the other metrics below; they are intentionally not inferred.
 
-| Model | Feature Set | Test ROC-AUC | Test PR-AUC | Brier Score | Runtime (s) |
-|---|---|---|---|---|---|
-| Logistic Regression | Low-level (21) | 0.7476 <!-- allow-metric --> | 0.7622 <!-- allow-metric --> | 0.2035 <!-- allow-metric --> | 0.07 |
-| Logistic Regression | High-level (7) | 0.7661 <!-- allow-metric --> | 0.7427 <!-- allow-metric --> | 0.1945 <!-- allow-metric --> | 0.05 |
-| Logistic Regression | All features (28) | 0.8369 <!-- allow-metric --> | 0.8377 <!-- allow-metric --> | 0.1639 <!-- allow-metric --> | 0.10 |
-| Compact MLP | Low-level (21) | 0.8000 <!-- allow-metric --> | 0.8097 <!-- allow-metric --> | 0.1824 <!-- allow-metric --> | 15.02 |
-| Compact MLP | High-level (7) | 0.9043 <!-- allow-metric --> | 0.8888 <!-- allow-metric --> | 0.1184 <!-- allow-metric --> | 5.13 |
-| Compact MLP | All features (28) | 0.9406 <!-- allow-metric --> | 0.9372 <!-- allow-metric --> | 0.0945 <!-- allow-metric --> | 10.52 |
+| Model | Feature Set | Test ROC-AUC | Test PR-AUC | Brier Score | Runtime (s) | Evidence |
+|---|---|---|---|---|---|---|
+| Logistic Regression | Low-level (21) | 0.5960 <!-- allow-metric --> | Not in reconciliation record | Not in reconciliation record | Not in reconciliation record | Reconciled clean rerun |
+| Logistic Regression | High-level (7) | 0.6518 <!-- allow-metric --> | Not in reconciliation record | Not in reconciliation record | Not in reconciliation record | Reconciled clean rerun |
+| Logistic Regression | All features (28) | 0.6854 <!-- allow-metric --> | Not in reconciliation record | Not in reconciliation record | Not in reconciliation record | Reconciled clean rerun |
+| Compact MLP | Low-level (21) | 0.8000 <!-- allow-metric --> | 0.8097 <!-- allow-metric --> | 0.1824 <!-- allow-metric --> | 15.02 | Provisional; release gate open |
+| Compact MLP | High-level (7) | 0.9043 <!-- allow-metric --> | 0.8888 <!-- allow-metric --> | 0.1184 <!-- allow-metric --> | 5.13 | Provisional; release gate open |
+| Compact MLP | All features (28) | 0.9406 <!-- allow-metric --> | 0.9372 <!-- allow-metric --> | 0.0945 <!-- allow-metric --> | 10.52 | Provisional; release gate open |
 
 ### Slide 8: Scientific Findings on Representation Learning
-- **Finding 1:** High-level invariant masses carry immense discriminatory density. 7 high-level features outperform 21 low-level kinematic variables for both linear (0.7661 <!-- allow-metric --> vs 0.7476 <!-- allow-metric -->) and neural models (0.9043 <!-- allow-metric --> vs 0.8000 <!-- allow-metric -->).
-- **Finding 2:** Combining both feature groups achieves the highest discrimination (MLP test ROC-AUC = 0.9406 <!-- allow-metric -->), demonstrating that angular and momentum baselines complement composite mass resonances.
-- **Finding 3:** The compact MLP learns non-linear combinations that linear models cannot capture, improving test ROC-AUC by $+0.1037$ on all features. <!-- allow-metric -->
+- **Finding 1:** In the reconciled 250k Logistic Regression rerun, the high-level feature run records test ROC-AUC 0.6518 <!-- allow-metric --> versus 0.5960 <!-- allow-metric --> for low-level features. The corresponding MLP artifacts record 0.9043 <!-- allow-metric --> versus 0.8000 <!-- allow-metric -->, but those neural results remain provisional and are not approved for a final comparative conclusion.
+- **Finding 2:** The saved all-feature MLP artifact records test ROC-AUC = 0.9406 <!-- allow-metric -->. This value remains provisional pending the neural release gate; no causal claim about feature complementarity is made.
+- **Finding 3:** The current evidence does not yet support a final claim of MLP superiority over the reconciled classical baseline.
 
 ### Slide 9: Calibration & Decision Threshold Analysis
 - **Operating-Point Analysis:**
   - Target Signal Efficiency: $50\%$ on validation.
   - Frozen evaluation on test:
-    - Logistic Regression achieves $86.5\%$ background rejection.
-    - Compact MLP achieves $96.2\%$ background rejection.
-- **Probabilistic Calibration:** Brier score drops from $0.2035$ (linear) down to $0.0945$ (MLP all features), showing well-calibrated posterior confidence. <!-- allow-metric -->
+    - The reconciled classical record does not include a verified 250k background-rejection value for this slide.
+    - Neural operating-point values remain provisional pending the release gate.
+- **Probabilistic Calibration:** The MLP artifacts report Brier scores, but these results remain provisional. A Brier score alone does not establish calibration, and no physical posterior probability is claimed.
 
 ### Slide 10: Compute & Engineering Trade-Offs
-- **Training Budget:** Total training time for all 6 models combined is under 32 seconds on an ordinary 8-core CPU without GPU requirements.
-- **Software Quality:** 104 automated tests verifying repository hygiene, notebook readability, mathematical leak protection, and artifact schemas.
+- **Training Budget:** The current neural artifact runtimes are provisional; do not quote a combined training-time claim until the benchmark release evidence is reconciled.
+- **Software Quality:** 143 automated tests passed in the 2026-11-14 clean-clone QA run.
 - **Artifact Contract:** Versioned JSON envelope (`higgs-experiment-v1`) decoupling model training from dashboard presentation.
 
 ### Slide 11: Threats to Validity & Honest Limitations
 - **Simulation-to-Reality Gap:** Monte Carlo simulations omit real-world sensor drift, trigger latencies, and LHC pile-up.
-- **Class Balance Difference:** Benchmark mixture ($52.8\%$ signal) differs from rare real-world Higgs production ($10^{-6}$ to $10^{-9}$ signal-to-background ratio).
+- **Class Balance Difference:** The benchmark mixture ($52.8\%$ signal) is approximately balanced and must not be interpreted as a realistic collider event rate; this project does not calculate real-world signal-to-background ratios.
 - **Subsample Scaling:** Benchmark conducted on $250,000$ events; full 11M training reserved for end-semester scale-up.
 
 ### Slide 12: Live Demonstration & End-Semester Roadmap
 - **Live Demo:** HiggsLens Streamlit interactive dashboard (`app/main.py`).
 - **End-Semester Roadmap:**
-  - Gradient Boosted Trees baseline (XGBoost) across feature groups (`END-01`).
+  - Review and finalize the existing XGBoost feature-group benchmark evidence (`END-01`).
   - Extended MLP hyperparameter optimization and diagnostic learning rates (`END-02`).
   - Docker containerization and cloud deployment verification (`END-06`).
 
@@ -107,7 +107,7 @@
 streamlit run app/main.py
 ```
 - **What to show:**
-  - Point to the sidebar status badge showing all 6 valid experiment runs loaded from `outputs/`.
+  - Point to the sidebar status badge showing all 9 schema-valid experiment runs loaded from `outputs/`.
   - Explain that the dashboard operates strictly read-only on serialized `higgs-experiment-v1` artifacts without retraining models.
 
 ### Step 2: Navigate to "Physics Explorer"

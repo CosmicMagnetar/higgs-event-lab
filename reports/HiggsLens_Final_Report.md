@@ -12,7 +12,7 @@
 
 HiggsLens is a reproducible machine-learning workbench for separating simulated HIGGS signal events from simulated background events. The implementation compares Logistic Regression, XGBoost and a regularised PyTorch multilayer perceptron across 21 low-level kinematic features, 7 high-level invariant-mass features and all 28 features.
 
-The current validated artifact registry contains **9 runs** over **250,000 recorded benchmark rows**, using the `higgs-split-v1` protocol with seed 42. The strongest currently loaded artifact is **XGBoost on `all` features**, with test ROC-AUC **0.8123**, PR-AUC **0.8266**, Brier score **0.1765**, and accuracy **0.7334**. <!-- allow-metric -->
+The current schema-valid artifact registry contains **9 runs** over **250,000 recorded benchmark rows**, using the `higgs-split-v1` protocol with seed 42. The highest currently recorded all-feature non-neural run is **XGBoost**, with test ROC-AUC **0.8123**, PR-AUC **0.8266**, Brier score **0.1765**, and accuracy **0.7334**. <!-- allow-metric --> The neural-network results in the current registry are shown as provisional evidence and are not used to declare a final best model.
 
 Among all-feature runs, **XGBoost** is currently highest at ROC-AUC **0.8123**. <!-- allow-metric --> This is the report headline for the current saved registry, and it is explicitly scoped to the recorded 250,000-row benchmark. The older `outputs/full_colab_results.json` file is retained as an archival 1M reference, but it is not mixed into the headline because it uses a different pipeline/configuration and reports the same copied runtime for all three models.
 
@@ -89,23 +89,23 @@ The neural baseline uses hidden widths 64 and 32, BatchNorm1d, ReLU, dropout 0.2
 
 All values in the table below are computed from the current `outputs/*/metrics.json` and prediction files. Accuracy is recomputed at score threshold 0.5 from the saved test predictions.
 
-| Model | Feature group | Features | ROC-AUC | PR-AUC | Brier | Accuracy | Time (s) |
-|---|---:|---:|---:|---:|---:|---:|---:|
-| XGBoost | `all` | 28 | 0.8123 | 0.8266 | 0.1765 | 0.7334 | 4.72 |
-| Compact MLP | `all` | 28 | 0.8121 | 0.8270 | 0.1767 | 0.7322 | 50.22 |
-| XGBoost | `high_level` | 7 | 0.7848 | 0.8026 | 0.1882 | 0.7046 | 2.44 |
-| Compact MLP | `high_level` | 7 | 0.7832 | 0.8020 | 0.1892 | 0.7044 | 47.00 |
-| Compact MLP | `low_level` | 21 | 0.7257 | 0.7366 | 0.2113 | 0.6650 | 47.89 |
-| XGBoost | `low_level` | 21 | 0.7092 | 0.7233 | 0.2165 | 0.6512 | 4.17 |
-| Logistic Regression | `all` | 28 | 0.6854 | 0.6817 | 0.2231 | 0.6439 | 0.68 |
-| Logistic Regression | `high_level` | 7 | 0.6518 | 0.6217 | 0.2315 | 0.6295 | 0.32 |
-| Logistic Regression | `low_level` | 21 | 0.5960 | 0.6222 | 0.2418 | 0.5680 | 0.39 |
+| Model | Feature group | Features | ROC-AUC | PR-AUC | Brier | Accuracy | Time (s) | Evidence |
+|---|---:|---:|---:|---:|---:|---:|---:|---|
+| XGBoost | `all` | 28 | 0.8123 | 0.8266 | 0.1765 | 0.7334 | 4.72  Saved artifact |
+| Compact MLP | `all` | 28 | 0.8121 | 0.8270 | 0.1767 | 0.7322 | 50.22  Provisional; neural release gate open |
+| XGBoost | `high_level` | 7 | 0.7848 | 0.8026 | 0.1882 | 0.7046 | 2.44  Saved artifact |
+| Compact MLP | `high_level` | 7 | 0.7832 | 0.8020 | 0.1892 | 0.7044 | 47.00  Provisional; neural release gate open |
+| Compact MLP | `low_level` | 21 | 0.7257 | 0.7366 | 0.2113 | 0.6650 | 47.89  Provisional; neural release gate open |
+| XGBoost | `low_level` | 21 | 0.7092 | 0.7233 | 0.2165 | 0.6512 | 4.17  Saved artifact |
+| Logistic Regression | `all` | 28 | 0.6854 | 0.6817 | 0.2231 | 0.6439 | 0.68  Saved artifact |
+| Logistic Regression | `high_level` | 7 | 0.6518 | 0.6217 | 0.2315 | 0.6295 | 0.32  Saved artifact |
+| Logistic Regression | `low_level` | 21 | 0.5960 | 0.6222 | 0.2418 | 0.5680 | 0.39  Saved artifact |
 
 ![Classical ROC comparison](../outputs/roc_classical_comparison.png)
 
 ![MLP learning curves](../outputs/mlp_learning_curves.png)
 
-The all-feature models are the strongest configuration for each family in the current registry. The all-feature XGBoost and MLP results are close, while the linear model remains lower. High-level features alone outperform low-level features for each family in the current saved run set, but the combined representation performs best.
+The saved runs show the all-feature configuration as the highest-scoring feature group within each model family in this registry. Neural-network rows remain provisional pending the release gate, so this descriptive pattern is not treated as a final model-superiority or feature-effect conclusion.
 
 ## 8. Operating-point analysis
 
@@ -113,12 +113,12 @@ The threshold is selected on validation data rather than test data. For the curr
 
 | Model | Validation threshold | Test signal efficiency | Test background rejection |
 |---|---:|---:|---:|
-| XGBoost | 0.6906 | 50.30% | 89.17% |
-| Compact MLP | not recorded | not recorded | not recorded |
-| Logistic Regression | 0.5796 | 50.39% | 73.84% |
+| XGBoost | 0.6906 | 50.30% | 89.17%  Saved artifact |
+| Compact MLP | not recorded | not recorded | not recorded  Provisional; neural release gate open |
+| Logistic Regression | 0.5796 | 50.39% | 73.84%  Saved artifact |
 
 
-Background rejection is a benchmark operating metric, not a discovery significance. The Streamlit Validation view exposes the same saved test predictions through an interactive threshold workbench.
+Background rejection is a benchmark operating metric, not a discovery significance. The interactive threshold workbench can recompute descriptive metrics on test predictions; it is explicitly for visual exploration only and must not be used to select or tune the reported threshold.
 
 ## 9. Dashboard integration
 
@@ -141,13 +141,13 @@ The app reports **9 valid runs** and skips non-run folders such as `outputs/eda/
 
 ## 10. Testing and reproducibility
 
-The repository test suite was run after the integration changes:
+The repository test suite passed in a fresh macOS clone on 2026-11-14:
 
 ```text
-105 passed
+143 passed in 80.52s
 ```
 
-Notebook JSON parsing, code-cell compilation and `git diff --check` also passed. The raw dataset is downloaded at runtime from UCI, and generated data/model binaries remain outside version control.
+GitHub Actions run #26 also passed the fresh checkout, editable dependency installation and full test suite on Python 3.11. See `docs/12_QA_TEST_PLAN.md` for the exact environment and remaining checks. The raw dataset is downloaded at runtime from UCI, and generated data/model binaries remain outside version control.
 
 ## 11. Limitations and validity threats
 
@@ -159,7 +159,7 @@ Notebook JSON parsing, code-cell compilation and `git diff --check` also passed.
 
 ## 12. Conclusion
 
-HiggsLens provides a working, artifact-backed comparison of three model families over the HIGGS feature groups. The current validated registry shows that combining the low-level and high-level inputs gives the strongest result for each family, with XGBoost and the compact MLP closely matched on all features and Logistic Regression providing a fast linear baseline. The Streamlit application now presents the same saved metrics and EDA outputs used in this report, preserving traceability from experiment files to the final presentation.
+HiggsLens provides a working, artifact-backed comparison of three model families over the HIGGS feature groups. The current schema-valid registry supports descriptive comparison of saved runs, while neural results remain provisional pending the release decision. The Streamlit application presents saved metrics and EDA outputs, with explicit limits on test-set exploration and physical interpretation.
 
 ## References
 
