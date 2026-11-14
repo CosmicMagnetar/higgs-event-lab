@@ -95,6 +95,16 @@ The dataset was split using the deterministic `higgs-split-v1` protocol:
    - Loss & Optimizer: `BCEWithLogitsLoss` optimized via `AdamW` ($\eta = 10^{-3}$, weight decay $\lambda = 10^{-4}$, batch size $1024$).
    - Stopping: Validation ROC-AUC monitored after each epoch; early stopping patience of 5 epochs with checkpoint restoration.
 
+### M5a. Model Rationale
+
+The model families provide complementary baselines. Logistic Regression is the interpretable linear reference: it tests how much discrimination is available through a linear decision boundary. XGBoost is a nonlinear tree-ensemble baseline suited to tabular inputs and capable of representing threshold effects and feature interactions. The compact MLP learns dense nonlinear representations through stacked linear layers and nonlinear activations.
+
+In the MLP, BatchNorm1d normalizes hidden activations within a mini-batch, ReLU introduces nonlinear transformations, and Dropout (0.20) randomly masks activations during training to regularize the network. AdamW combines adaptive gradient updates with decoupled weight decay. Validation ROC-AUC controls early stopping, and the best validation checkpoint is restored before held-out testing.
+
+### M5b. Evaluation Metrics
+
+ROC-AUC measures ranking discrimination across thresholds; it is not accuracy and does not select an operating threshold. PR-AUC (average precision) summarizes precision-recall behaviour and must be interpreted with the positive-class prevalence. The Brier score is the mean squared probability error; a single Brier value does not by itself establish calibration. Accuracy is threshold-dependent. Signal efficiency is the fraction of signal events retained at a chosen threshold, while background rejection is the fraction of background events rejected. The operating threshold is selected on validation data and frozen before test evaluation. None of these metrics is a discovery significance.
+
 ### M6. Reconciled Empirical Results
 
 The benchmark results are reported separately by sample size and protocol. The reconciliation record (2026-11-13) confirms that the original 250k all-features Logistic Regression value of 0.8369 was fabricated placeholder data. A clean 250k rerun produced test ROC-AUC values of 0.6854 (all features), 0.6518 (high-level), and 0.5960 (low-level). The corresponding 1M Logistic Regression result is 0.6834. These results are consistent across the two sample sizes.
