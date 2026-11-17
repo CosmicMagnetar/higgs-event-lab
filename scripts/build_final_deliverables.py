@@ -403,7 +403,7 @@ The app reports **{len(runs)} valid runs** and skips non-run folders such as `ou
 
 ## 12. Conclusion
 
-The mid-semester result (a small MLP tied with XGBoost) was a property of the network's size and the amount of data, not a limit of neural networks on this problem. With the depth of Baldi et al. and up to 2.5M events, the deep and residual networks clearly beat a tuned XGBoost, the gap widens as data grows, and on raw low-level kinematics alone the deep network outperforms every classical model even when those models get the hand-built physics features. XGBoost remains far cheaper to train and better calibrated, so it is the right tool when data or compute is limited. The Streamlit application presents the same saved artifacts used in this report.
+The release benchmark shows that the deep and residual networks outperform validation-tuned XGBoost on all 28 features at each of the three tested sample budgets. At 2.5M events, the residual MLP reaches test ROC-AUC 0.8613 versus 0.8382 for XGBoost; on low-level features alone it reaches 0.8532 versus 0.7669 for XGBoost. These results support the benchmark-specific claim that deep networks can learn useful structure from low-level kinematics. XGBoost remains substantially faster and has lower expected calibration error in the reported runs. This is a single-seed simulated-data benchmark, not evidence of real-detector performance or particle discovery. The Streamlit dashboard presents saved experiment artifacts and must retain the same scientific limitations. <!-- allow-metric -->
 
 ## References
 
