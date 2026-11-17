@@ -332,19 +332,11 @@ For the classical models and the compact MLP, the 7 high-level features beat the
 {release_section(release)}
 ## 8. Operating-point analysis
 
-The release `metrics.json` files do not serialize a complete per-model operating-point record. Thresholds, signal efficiencies and background rejections are therefore not reported; no values are inferred from test predictions. The threshold workbench is exploratory and must not be used for model selection:
-
-| Model | Validation threshold | Test signal efficiency | Test background rejection |
-|---|---:|---:|---:|
-"""
-    for run in sorted(all_features, key=lambda item: float(item["roc"]), reverse=True):
-        threshold = f"{float(run['threshold']):.4f}" if run["threshold"] is not None else "not recorded"
-        signal_efficiency = f"{float(run['signal_efficiency']):.2%}" if run["signal_efficiency"] is not None else "not recorded"
-        background_rejection = f"{float(run['background_rejection']):.2%}" if run["background_rejection"] is not None else "not recorded"
-        report += f"| {model_label(str(run['model']))} | {threshold} | {signal_efficiency} | {background_rejection} |\n"
-    report += f"""
+The release `metrics.json` files do not serialize a complete per-model operating-point record. Thresholds, signal efficiencies and background rejections are therefore not reported; no values are inferred from test predictions. The threshold workbench is exploratory and must not be used for model selection.
 
 Background rejection, when calculated from a frozen validation-selected threshold, is a benchmark metric and not a discovery significance. The dashboard threshold workbench is exploratory and does not establish a release operating point.
+"""
+    report += f"""
 
 ## 9. Dashboard integration
 
@@ -445,7 +437,7 @@ def write_presentation(runs: list[dict[str, object]]) -> Path:
 
 - UCI HIGGS dataset: approximately 11 million simulated events.
 - Exact duplicate events removed before sampling: **{release.get('duplicate_rows_removed', 0):,}**.
-- Nested sample budgets: {", ".join(tags)}; seed {release["seed"]}.
+- Nested sample budgets: {", ".join(tags)}; seed {release['seed']}.
 - Each budget: 70% train / 15% validation / 15% test.
 - Same release script, model/feature matrix and split protocol at each budget.
 - StandardScaler is fit on training rows only; validation data is used for model selection and early stopping.
@@ -476,13 +468,13 @@ def write_presentation(runs: list[dict[str, object]]) -> Path:
 
 - Both deep networks outperform XGBoost at every budget.
 - Best deep-network advantage over XGBoost: {", ".join(gaps)}.
-- At {largest}, Residual MLP: **{metric(largest,"resnet_mlp","all"):.4f}**; XGBoost: **{metric(largest,"xgboost","all"):.4f}**.
+- At {largest}, Residual MLP: **{metric(largest,'resnet_mlp','all'):.4f}**; XGBoost: **{metric(largest,'xgboost','all'):.4f}**.
 
 # Low-level-only benchmark: test ROC-AUC
 
 {budget_table("low_level")}
 
-- At {largest}, Residual MLP on 21 low-level features scores **{metric(largest,"resnet_mlp","low_level"):.4f}**.
+- At {largest}, Residual MLP on 21 low-level features scores **{metric(largest,'resnet_mlp','low_level'):.4f}**.
 - This exceeds XGBoost on all 28 features (**{metric(largest,"xgboost","all"):.4f}**) in this benchmark.
 - This is evidence of learned feature interactions in this simulated dataset, not a physics-discovery claim.
 
