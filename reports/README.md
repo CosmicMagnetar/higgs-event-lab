@@ -49,7 +49,6 @@ These files are generated from the saved artifacts under `outputs/`:
 | File | Purpose |
 |---|---|
 | `HiggsLens_Final_Report.pdf` | Formatted artifact-backed final report; regenerate after source reconciliation before release |
-| `HiggsLens_Final_Report.html` | Browser preview; QA wording refreshed, full Pandoc regeneration still recommended |
 | `HiggsLens_Final_Report.md` | Reproducible report source |
 | `../presentations/HiggsLens_Final_Presentation.pptx` | Presentation deck; regenerate from the corrected Markdown source before release |
 | `../scripts/build_final_deliverables.py` | Rebuilds the Markdown report and presentation sources from current outputs; it does not regenerate HTML, PDF or PPTX |
@@ -61,4 +60,4 @@ Placeholders marked `[RUN: ...]` indicate where real metric values should be ins
 
 ## Release export status — 2026-11-17
 
-The Markdown report and presentation source are updated to the 15 November release benchmark: 45 runs across 5 model families, 3 feature groups and 3 budgets. The report generator now refuses to create a 250k-only presentation when the release summary is missing. The committed PDF, PPTX and HTML have **not** been regenerated from these corrected sources in this change; treat them as stale and do not use them as final-release artifacts until they are rebuilt and visually inspected. The updated commit must pass CI, and the exports must be checked for table overflow, figure paths, font/layout issues and exact metric parity before END-12 can be closed.
+The Markdown report and presentation source are updated to the 15 November release benchmark: 45 runs across 5 model families, 3 feature groups and 3 budgets. The report generator now refuses to create a 250k-only presentation when the release summary is missing. The committed PDF is being retained as the report deliverable; the HTML report has been removed. The PDF must still be regenerated from the corrected source and visually inspected before it is treated as the final release. The PPTX has not been regenerated. Check table overflow, figure paths, font/layout issues and exact metric parity before END-12 can be closed.
