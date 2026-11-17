@@ -59,11 +59,11 @@ The EDA table above describes the saved 250,000-row EDA artifact. It is a separa
 
 The EDA artifacts are generated under `outputs/eda/` and are displayed by the Dataset Observatory in Streamlit. The saved report contains feature summaries, class balance, feature distributions, group separation and correlation outputs.
 
-![Class balance](../outputs/eda/class_balance.png)
+![Class balance](../../outputs/eda/class_balance.png)
 
-![Feature distributions](../outputs/eda/feature_distributions.png)
+![Feature distributions](../../outputs/eda/feature_distributions.png)
 
-![Feature-group separation](../outputs/eda/feature_group_separation.png)
+![Feature-group separation](../../outputs/eda/feature_group_separation.png)
 
 The strongest saved feature correlations include `m_wbb`–`m_wwbb` (**0.895**) and `m_jj`–`m_jjj` (**0.791**). The four b-tag features have three unique values each in the saved summary and are strongly zero-inflated, which supports treating them as discrete indicators rather than smooth measurements.
 
@@ -117,9 +117,9 @@ The following table is the 250k release-budget snapshot currently loaded by the 
 | Logistic Regression | `high_level` | 7 | 0.6466 | 0.6314 | 0.2307 | 0.6328 | 0.32 |
 | Logistic Regression | `low_level` | 21 | 0.5962 | 0.6369 | 0.2407 | 0.5703 | 0.37 |
 
-![ROC-AUC against sample size](figures/scaling.png)
+![ROC-AUC against sample size](../figures/scaling.png)
 
-![ROC-AUC by feature group at the largest budget](figures/feature_groups.png)
+![ROC-AUC by feature group at the largest budget](../figures/feature_groups.png)
 
 For the classical models and the compact MLP, the 7 high-level features beat the 21 low-level ones: they need the physicists' invariant masses. The deep and residual networks reverse that once there is enough data, scoring higher on low-level features alone than on high-level features alone. Calibration is a point in XGBoost's favour: its expected calibration error stays below 0.01, while the networks sit around 0.01 to 0.03, so the network scores would need recalibration before being used as probabilities.
 
@@ -190,7 +190,7 @@ The dashboard now uses:
 
 The app reports **15 valid runs** and skips non-run folders such as `outputs/eda/` and `outputs/model_weights/` during artifact discovery.
 
-![Streamlit dashboard overview](dashboard_overview.png)
+![Streamlit dashboard overview](../dashboard_overview.png)
 
 ## 10. Testing and reproducibility
 
