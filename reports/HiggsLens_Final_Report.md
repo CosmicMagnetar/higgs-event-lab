@@ -25,7 +25,7 @@ The central question is whether models can learn useful separation directly from
 In scope:
 
 - Binary classification of simulated signal/background events.
-- Logistic Regression, XGBoost and compact MLP models.
+- Logistic Regression, XGBoost, the compact MLP, the deep MLP and the residual MLP.
 - Low-level, high-level and combined feature groups.
 - Stratified train/validation/test evaluation with saved prediction artifacts.
 - Streamlit inspection of metrics, curves, thresholds and EDA evidence.
@@ -53,7 +53,7 @@ The source is the UCI Machine Learning Repository HIGGS dataset (id 280), releas
 | Non-finite values | 0 |
 | Split | 70% train / 15% validation / 15% test, seed 42 |
 
-The exact raw-file row count and checksum should be recorded from the runtime that downloads the final archive. The saved EDA artifact is the authoritative source for the values above.
+The EDA table above describes the saved 250,000-row EDA artifact. It is a separate descriptive snapshot; the deduplicated release benchmark uses its own nested samples and per-budget class fractions recorded in `outputs/release/release_summary.json`. Do not substitute the EDA class counts for release-benchmark class fractions.
 
 ## 4. Exploratory data analysis
 
@@ -69,7 +69,7 @@ The strongest saved feature correlations include `m_wbb`–`m_wwbb` (**0.895**) 
 
 ## 5. Experimental protocol
 
-The loader validates column count, numeric values, binary labels and finite feature values. A fixed seed of 42 creates a stratified `higgs-split-v1` partition. StandardScaler is fitted on training rows only for Logistic Regression and the MLP. XGBoost uses the validated feature matrix without requiring standardisation. The operating threshold is selected on validation data for a 50% signal-efficiency target, then frozen before test evaluation.
+The loader validates column count, numeric values, binary labels and finite feature values. A fixed seed of 42 creates the `higgs-split-v1` partition for each budget. StandardScaler is fitted on training rows only for Logistic Regression and the MLP. XGBoost uses the validated feature matrix without requiring standardisation. Validation data is used for model selection and early stopping; the release artifacts do not include a complete per-run operating-point record, so no operating threshold is quoted in this report.
 
 Every run exports a `metrics.json` envelope and a `test_predictions.csv` file. The dashboard reads those files and never trains a model during startup.
 
@@ -97,7 +97,7 @@ Four residual blocks of width 256 (BatchNorm, Linear to 512, ReLU, dropout, Line
 
 ## 7. Current saved results
 
-All values in the table below are computed from the current `outputs/*/metrics.json` and prediction files. Accuracy is recomputed at score threshold 0.5 from the saved test predictions.
+The following table is the 250k release-budget snapshot currently loaded by the dashboard. Metrics are read from the saved run artifacts; accuracy is computed at score threshold 0.5 from each run's saved test predictions. The complete 250k/1M/2.5M comparison follows in Section 7.1.
 
 | Model | Feature group | Features | ROC-AUC | PR-AUC | Brier | Accuracy | Time (s) |
 |---|---:|---:|---:|---:|---:|---:|---:|
@@ -160,18 +160,18 @@ Environment: Python 3.13.16, torch 2.11.0+cu130, GPU Tesla T4, Linux-6.18.55+-x8
 
 ## 8. Operating-point analysis
 
-The threshold is selected on validation data rather than test data. For the current all-feature runs, the saved operating-point records show:
+The release metric envelopes record validation-selected operating points for Logistic Regression and XGBoost. The three neural-network families do not contain an `operating_point` record, so their thresholds and efficiencies are unavailable and are not inferred. Thresholds below are selected on validation data for a target signal efficiency of 50%; test metrics are then evaluated once at the frozen threshold.
 
-| Model | Validation threshold | Test signal efficiency | Test background rejection |
-|---|---:|---:|---:|
-| Residual MLP | not recorded | not recorded | not recorded |
-| Deep MLP (5x300) | not recorded | not recorded | not recorded |
-| XGBoost | 0.7322 | 49.22% | 90.48% |
-| Compact MLP | not recorded | not recorded | not recorded |
-| Logistic Regression | 0.5940 | 50.44% | 74.13% |
+| Budget | Model | Validation threshold | Validation signal efficiency | Validation background rejection | Test signal efficiency | Test background rejection |
+|---|---|---:|---:|---:|---:|---:|
+| 250k | Logistic Regression | 0.5940 | 50.00% | 73.33% | 50.44% | 74.13% |
+| 250k | XGBoost | 0.7322 | 50.00% | 90.30% | 49.22% | 90.48% |
+| 1M | Logistic Regression | 0.5969 | 50.00% | 74.33% | 50.25% | 73.84% |
+| 1M | XGBoost | 0.7494 | 50.00% | 91.10% | 50.11% | 91.18% |
+| 2.5M | Logistic Regression | 0.5963 | 50.00% | 74.05% | 50.13% | 73.95% |
+| 2.5M | XGBoost | 0.7562 | 50.00% | 91.85% | 49.82% | 91.89% |
 
-
-Background rejection is a benchmark operating metric, not a discovery significance. The Streamlit Validation view exposes the same saved test predictions through an interactive threshold workbench.
+The dashboard's interactive threshold workbench can explore alternative cutoffs, but any model-selection threshold must be chosen on validation data and frozen before test evaluation. Background rejection is a benchmark operating metric, not a discovery significance.
 
 ## 9. Dashboard integration
 
@@ -194,7 +194,7 @@ The app reports **15 valid runs** and skips non-run folders such as `outputs/eda
 
 ## 10. Testing and reproducibility
 
-`python -m pytest -q` runs the unit and integration suite, and the GitHub Actions workflow runs it on every push. The release benchmark was run end to end on Kaggle against the full 11M-row UCI file (Section 7.1), covering sampling, the split-integrity checks, all nine trainings per budget and the determinism check. The raw dataset and model binaries stay out of version control. `scripts/release_benchmark.py` regenerates everything from the raw file.
+`python -m pytest -q` runs the unit and integration suite, and the GitHub Actions workflow runs it on every push. The release benchmark was run end to end on Kaggle against the full 11M-row UCI file (Section 7.1), covering sampling, split-integrity checks, all fifteen model/feature-group trainings per budget and the determinism check. The raw dataset and model binaries stay out of version control. `scripts/release_benchmark.py` regenerates everything from the raw file.
 
 ## 11. Limitations and validity threats
 
@@ -206,7 +206,7 @@ The app reports **15 valid runs** and skips non-run folders such as `outputs/eda
 
 ## 12. Conclusion
 
-The mid-semester result (a small MLP tied with XGBoost) was a property of the network's size and the amount of data, not a limit of neural networks on this problem. With the depth of Baldi et al. and up to 2.5M events, the deep and residual networks clearly beat a tuned XGBoost, the gap widens as data grows, and on raw low-level kinematics alone the deep network outperforms every classical model even when those models get the hand-built physics features. XGBoost remains far cheaper to train and better calibrated, so it is the right tool when data or compute is limited. The Streamlit application presents the same saved artifacts used in this report.
+The release benchmark shows that the deep and residual networks outperform validation-tuned XGBoost on all 28 features at each of the three tested sample budgets. At 2.5M events, the residual MLP reaches test ROC-AUC 0.8613 versus 0.8382 for XGBoost; on low-level features alone it reaches 0.8532 versus 0.7669 for XGBoost. These results support the benchmark-specific claim that deep networks can learn useful structure from low-level kinematics. XGBoost remains substantially faster and has lower expected calibration error in the reported runs. This is a single-seed simulated-data benchmark, not evidence of real-detector performance or particle discovery. The Streamlit dashboard presents saved experiment artifacts and must retain the same scientific limitations. <!-- allow-metric -->
 
 ## References
 
@@ -222,7 +222,7 @@ The mid-semester result (a small MLP tied with XGBoost) was a property of the ne
 - `outputs/eda/feature_distributions.png`
 - `outputs/eda/correlation_heatmap.png`
 - `outputs/release/release_summary.json`
-- `outputs/release/250k/*/metrics.json`, `outputs/release/1m/*/metrics.json`
+- `outputs/release/250k/*/metrics.json`, `outputs/release/1m/*/metrics.json`, `outputs/release/2.5m/*/metrics.json`
 - `outputs/mlp_*/metrics.json`
 - `outputs/logreg_*/metrics.json`
 - `outputs/xgboost_*/metrics.json`

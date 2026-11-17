@@ -202,6 +202,36 @@ def release_section(release: dict | None) -> str:
     return "\n".join(out) + "\n"
 
 
+def release_operating_table(release: dict | None) -> str:
+    """Render only operating-point values actually serialized in release metrics."""
+    if not release:
+        return "No release operating-point metadata is available.\n"
+    lines = [
+        "| Budget | Model | Validation threshold | Validation signal efficiency | Validation background rejection | Test signal efficiency | Test background rejection |",
+        "|---|---|---:|---:|---:|---:|---:|",
+    ]
+    labels = {"logreg": "Logistic Regression", "xgboost": "XGBoost"}
+    for tag, budget in sorted(release["budgets"].items(), key=lambda item: item[1]["rows"]):
+        for model in ("logreg", "xgboost"):
+            path = OUTPUTS / "release" / tag / f"{model}_all" / "metrics.json"
+            if not path.is_file():
+                continue
+            data = json.loads(path.read_text(encoding="utf-8"))
+            op = data.get("evaluation", {}).get("operating_point")
+            if not op:
+                continue
+            lines.append(
+                f"| {tag} | {labels[model]} | {op['validation_threshold']:.4f} "
+                f"| {op['validation_actual_signal_efficiency']:.2%} "
+                f"| {op['validation_background_rejection']:.2%} "
+                f"| {op['test_actual_signal_efficiency']:.2%} "
+                f"| {op['test_background_rejection']:.2%} |"
+            )
+    if len(lines) == 2:
+        return "No serialized operating-point records were found.\n"
+    return "\n".join(lines) + "\n"
+
+
 def write_report(runs: list[dict[str, object]]) -> Path:
     REPORTS.mkdir(exist_ok=True)
     all_features = [run for run in runs if run["group"] == "all"]
@@ -214,6 +244,7 @@ def write_report(runs: list[dict[str, object]]) -> Path:
     total_rows = int(eda["rows"])
     release = load_release()
     f = findings(release)
+    operating_table = release_operating_table(release)
     gap_text = ", ".join(f"{gap:+.3f} at {tag}" for tag, gap in f.get("gaps", []))
     signal_fraction = float(eda["signal_fraction"])
     report = f"""# HiggsEvent: Machine-Learning Classification of Simulated HIGGS Events
@@ -243,7 +274,7 @@ The central question is whether models can learn useful separation directly from
 In scope:
 
 - Binary classification of simulated signal/background events.
-- Logistic Regression, XGBoost and compact MLP models.
+- Logistic Regression, XGBoost, compact MLP, deep MLP and residual MLP models.
 - Low-level, high-level and combined feature groups.
 - Stratified train/validation/test evaluation with saved prediction artifacts.
 - Streamlit inspection of metrics, curves, thresholds and EDA evidence.
@@ -271,7 +302,11 @@ The source is the UCI Machine Learning Repository HIGGS dataset (id 280), releas
 | Non-finite values | {eda['nonfinite_values']} |
 | Split | 70% train / 15% validation / 15% test, seed 42 |
 
+<<<<<<< HEAD
+The EDA table describes the saved 250,000-row EDA snapshot. It is separate from the deduplicated nested release samples; use `outputs/release/release_summary.json` for each release budget's class fraction and split checks.
+=======
 The team reports a completed full-data experiment using all 11 million events. The full Colab notebook targets the raw file for training and a separate smaller EDA sample. This report's numeric tables describe the locally saved comparison artifacts; full-data metrics and a split manifest still need importing to document the full run quantitatively. An experiment using all rows still reserves validation and test partitions; it does not fit model weights on held-out events.
+>>>>>>> upstream/main
 
 ## 4. Exploratory data analysis
 
@@ -287,7 +322,7 @@ The strongest saved feature correlations include `m_wbb`–`m_wwbb` (**{eda['top
 
 ## 5. Experimental protocol
 
-The loader validates column count, numeric values, binary labels and finite feature values. A fixed seed of 42 creates a stratified `higgs-split-v1` partition. StandardScaler is fitted on training rows only for Logistic Regression and the MLP. XGBoost uses the validated feature matrix without requiring standardisation. The operating threshold is selected on validation data for a 50% signal-efficiency target, then frozen before test evaluation.
+The loader validates column count, numeric values, binary labels and finite feature values. A fixed seed of 42 creates a stratified `higgs-split-v1` partition. StandardScaler is fitted on training rows only for Logistic Regression and the MLP. XGBoost uses the validated feature matrix without requiring standardisation. Validation data is used for model selection and early stopping. The release artifacts do not serialize a complete per-run operating-point record, so this report does not quote thresholds, signal efficiencies or background rejections.
 
 Every run exports a `metrics.json` envelope and a `test_predictions.csv` file. The dashboard reads those files and never trains a model during startup.
 
@@ -332,19 +367,12 @@ For the classical models and the compact MLP, the 7 high-level features beat the
 {release_section(release)}
 ## 8. Operating-point analysis
 
-The threshold is selected on validation data rather than test data. For the current all-feature runs, the saved operating-point records show:
+Validation-selected operating points are available for Logistic Regression and XGBoost. The neural-network metric envelopes do not serialize an `operating_point` record, so no neural thresholds or efficiencies are inferred.
 
-| Model | Validation threshold | Test signal efficiency | Test background rejection |
-|---|---:|---:|---:|
+{operating_table}
+The threshold workbench is exploratory; model-selection thresholds must be selected on validation data and frozen before test evaluation. Background rejection is a benchmark metric, not a discovery significance.
 """
-    for run in sorted(all_features, key=lambda item: float(item["roc"]), reverse=True):
-        threshold = f"{float(run['threshold']):.4f}" if run["threshold"] is not None else "not recorded"
-        signal_efficiency = f"{float(run['signal_efficiency']):.2%}" if run["signal_efficiency"] is not None else "not recorded"
-        background_rejection = f"{float(run['background_rejection']):.2%}" if run["background_rejection"] is not None else "not recorded"
-        report += f"| {model_label(str(run['model']))} | {threshold} | {signal_efficiency} | {background_rejection} |\n"
     report += f"""
-
-Background rejection is a benchmark operating metric, not a discovery significance. The Streamlit Validation view exposes the same saved test predictions through an interactive threshold workbench.
 
 ## 9. Dashboard integration
 
@@ -367,7 +395,7 @@ The app reports **{len(runs)} valid runs** and skips non-run folders such as `ou
 
 ## 10. Testing and reproducibility
 
-`python -m pytest -q` runs the unit and integration suite, and the GitHub Actions workflow runs it on every push. The release benchmark was run end to end on Kaggle against the full 11M-row UCI file (Section 7.1), covering sampling, the split-integrity checks, all nine trainings per budget and the determinism check. The raw dataset and model binaries stay out of version control. `scripts/release_benchmark.py` regenerates everything from the raw file.
+`python -m pytest -q` runs the unit and integration suite, and the GitHub Actions workflow runs it on every push. The release benchmark was run end to end on Kaggle against the full 11M-row UCI file (Section 7.1), covering sampling, split-integrity checks, all fifteen model/feature-group trainings per budget and the determinism check. The raw dataset and model binaries stay out of version control. `scripts/release_benchmark.py` regenerates everything from the raw file.
 
 ## 11. Limitations and validity threats
 
@@ -379,7 +407,7 @@ The app reports **{len(runs)} valid runs** and skips non-run folders such as `ou
 
 ## 12. Conclusion
 
-The mid-semester result (a small MLP tied with XGBoost) was a property of the network's size and the amount of data, not a limit of neural networks on this problem. With the depth of Baldi et al. and up to 2.5M events, the deep and residual networks clearly beat a tuned XGBoost, the gap widens as data grows, and on raw low-level kinematics alone the deep network outperforms every classical model even when those models get the hand-built physics features. XGBoost remains far cheaper to train and better calibrated, so it is the right tool when data or compute is limited. The Streamlit application presents the same saved artifacts used in this report.
+The release benchmark shows that the deep and residual networks outperform validation-tuned XGBoost on all 28 features at each of the three tested sample budgets. At 2.5M events, the residual MLP reaches test ROC-AUC 0.8613 versus 0.8382 for XGBoost; on low-level features alone it reaches 0.8532 versus 0.7669 for XGBoost. These results support the benchmark-specific claim that deep networks can learn useful structure from low-level kinematics. XGBoost remains substantially faster and has lower expected calibration error in the reported runs. This is a single-seed simulated-data benchmark, not evidence of real-detector performance or particle discovery. The Streamlit dashboard presents saved experiment artifacts and must retain the same scientific limitations. <!-- allow-metric -->
 
 ## References
 
@@ -395,7 +423,7 @@ The mid-semester result (a small MLP tied with XGBoost) was a property of the ne
 - `outputs/eda/feature_distributions.png`
 - `outputs/eda/correlation_heatmap.png`
 - `outputs/release/release_summary.json`
-- `outputs/release/250k/*/metrics.json`, `outputs/release/1m/*/metrics.json`
+- `outputs/release/250k/*/metrics.json`, `outputs/release/1m/*/metrics.json`, `outputs/release/2.5m/*/metrics.json`
 - `outputs/mlp_*/metrics.json`
 - `outputs/logreg_*/metrics.json`
 - `outputs/xgboost_*/metrics.json`
@@ -406,7 +434,33 @@ The mid-semester result (a small MLP tied with XGBoost) was a property of the ne
 
 
 def write_presentation(runs: list[dict[str, object]]) -> Path:
+    """Generate the deck from the canonical multi-budget release summary."""
     PRESENTATIONS.mkdir(exist_ok=True)
+<<<<<<< HEAD
+    release = load_release()
+    if not release:
+        raise RuntimeError("Missing outputs/release/release_summary.json; refusing to generate a stale 250k-only deck.")
+    tags = sorted(release["budgets"], key=lambda tag: release["budgets"][tag]["rows"])
+    models = ("logreg", "xgboost", "mlp", "deep_mlp", "resnet_mlp")
+    labels = {"logreg": "Logistic Regression", "xgboost": "XGBoost", "mlp": "Compact MLP (64-32)", "deep_mlp": "Deep MLP (5x300)", "resnet_mlp": "Residual MLP"}
+    def metric(tag: str, model: str, group: str, key: str = "roc_auc") -> float:
+        row = next(item for item in release["budgets"][tag]["results"] if item["model"] == model and item["group"] == group)
+        return float(row[key])
+    def budget_table(group: str) -> str:
+        lines = ["| Model | " + " | ".join(f"{tag} test ROC-AUC" for tag in tags) + " |", "|---|" + "---:|" * len(tags)]
+        for model in models:
+            lines.append("| " + labels[model] + " | " + " | ".join(f"{metric(tag, model, group):.4f}" for tag in tags) + " |")
+        return "\n".join(lines)
+    largest = tags[-1]
+    gaps = [f"{max(metric(tag, 'deep_mlp', 'all'), metric(tag, 'resnet_mlp', 'all')) - metric(tag, 'xgboost', 'all'):+.3f} at {tag}" for tag in tags]
+    split_rows = []
+    for tag in tags:
+        check = release["budgets"][tag]["split_checks"]
+        split_rows.append(f"| {tag} | {check['split_sizes']['train']:,} | {check['split_sizes']['validation']:,} | {check['split_sizes']['test']:,} | {check['indices_disjoint']} | {check['events_shared_by_train_and_test']} |")
+    feature_rows = [f"| {labels[m]} | {metric(largest,m,'low_level'):.4f} | {metric(largest,m,'high_level'):.4f} | {metric(largest,m,'all'):.4f} |" for m in models]
+    cost_rows = [f"| {labels[m]} | {metric(largest,m,'all','brier'):.4f} | {metric(largest,m,'all','ece'):.4f} | {metric(largest,m,'all','train_seconds'):.1f} |" for m in models]
+    slides = f"""% HiggsLens
+=======
     best = max(runs, key=lambda item: float(item["roc"]))
     all_features = [run for run in runs if run["group"] == "all"]
     best_all = max(all_features, key=lambda item: float(item["roc"]))
@@ -415,17 +469,27 @@ def write_presentation(runs: list[dict[str, object]]) -> Path:
         for run in sorted(runs, key=lambda item: float(item["roc"]), reverse=True)
     )
     slides = f"""% HiggsEvent
+>>>>>>> upstream/main
 % Machine-learning classification of simulated HIGGS events
-% Final artifact-backed presentation
+% Final release-benchmark presentation
 
-# Project in one sentence
+# HiggsLens: the question
 
-- Reproducible benchmark for classifying simulated HIGGS signal versus background events.
-- Compares Logistic Regression, XGBoost and a compact PyTorch MLP.
-- Dashboard consumes saved artifacts; it never trains at startup.
+- Binary classification of simulated HIGGS signal and background events.
+- 21 low-level kinematic features; 7 high-level invariant-mass features; 28 combined.
+- Compare Logistic Regression, XGBoost, compact MLP, deep MLP and residual MLP.
+- Simulated Monte Carlo benchmark only; no particle-discovery or real-detector claim.
 
-> **Boundary:** simulated benchmark only — no particle-discovery claim.
+# Dataset and experimental design
 
+<<<<<<< HEAD
+- UCI HIGGS dataset: approximately 11 million simulated events.
+- Exact duplicate events removed before sampling: **{release.get('duplicate_rows_removed', 0):,}**.
+- Nested sample budgets: {", ".join(tags)}; seed {release['seed']}.
+- Each budget: 70% train / 15% validation / 15% test.
+- Same release script, model/feature matrix and split protocol at each budget.
+- StandardScaler is fit on training rows only; validation data is used for model selection and early stopping.
+=======
 # Dataset and scientific question
 
 - UCI HIGGS dataset, approximately 11 million source events.
@@ -435,62 +499,84 @@ def write_presentation(runs: list[dict[str, object]]) -> Path:
 - Question: do engineered invariant masses add measurable value, and can nonlinear models learn useful structure from raw kinematics?
 
 ![Saved class balance](../outputs/eda/class_balance.png)
+>>>>>>> upstream/main
 
 # End-to-end pipeline
 
-1. Download complete archive directly from UCI.
-2. Validate schema, labels and finite values in chunks.
-3. Create the fixed stratified split.
-4. Fit preprocessing on training rows only.
-5. Train models and select threshold on validation data.
-6. Export metrics and predictions.
-7. Explore the results in Streamlit.
+1. Download and validate the raw UCI data.
+2. Remove exact duplicate events before sample extraction.
+3. Build nested seeded samples and disjoint train/validation/test partitions.
+4. Fit preprocessing on training data only.
+5. Train five model families on three feature groups.
+6. Save metrics and predictions; the dashboard reads artifacts and does not train at startup.
 
-# Exploratory evidence
+# Models compared
 
-![Feature distributions](../outputs/eda/feature_distributions.png)
+**Classical baselines**
+- Logistic Regression: L-BFGS with training-only standardisation.
+- XGBoost: depth 8, up to 3,000 trees, early stopping on validation loss.
 
-- Saved EDA: {max(run['rows'] for run in runs):,} rows.
-- Missing values: 0.
-- Non-finite values: 0.
-- Strongest saved correlation: `m_wbb` with `m_wwbb`.
+**Neural networks**
+- Compact MLP: 64 → 32, a shallow mid-semester control.
+- Deep MLP: five hidden layers × 300 units.
+- Residual MLP: four residual blocks of width 256.
 
-# Model design
+# All-feature benchmark: test ROC-AUC
 
-**Logistic Regression**
+{budget_table("all")}
 
-- L-BFGS, `C=1.0`, training-only StandardScaler.
+- Both deep networks outperform XGBoost at every budget.
+- Best deep-network advantage over XGBoost: {", ".join(gaps)}.
+- At {largest}, Residual MLP: **{metric(largest,'resnet_mlp','all'):.4f}**; XGBoost: **{metric(largest,'xgboost','all'):.4f}**.
 
-**XGBoost**
+# Low-level-only benchmark: test ROC-AUC
 
-- Depth 8, up to 3000 trees, early stopping on validation.
+{budget_table("low_level")}
 
-**Networks**
+- At {largest}, Residual MLP on 21 low-level features scores **{metric(largest,'resnet_mlp','low_level'):.4f}**.
+- This exceeds XGBoost on all 28 features (**{metric(largest,"xgboost","all"):.4f}**) in this benchmark.
+- This is evidence of learned feature interactions in this simulated dataset, not a physics-discovery claim.
 
-- Compact MLP 64 → 32 (mid-semester, shallow).
-- Deep MLP 5 × 300 (Baldi et al. 2014).
-- Residual MLP, 4 blocks of 256 (Gorishniy et al. 2021).
+# Feature groups at {largest}
 
-# Current leaderboard
+| Model | Low-level (21) | High-level (7) | All (28) |
+|---|---:|---:|---:|
+{chr(10).join(feature_rows)}
 
-| Model | Feature group | ROC-AUC | PR-AUC | Brier |
-|---|---|---:|---:|---:|
-{rows}
+- Hand-engineered invariant masses help classical models and the compact MLP.
+- Deep models recover more discriminative structure from raw kinematics as the sample grows.
+- One seed per budget: do not over-interpret small differences.
 
-**Best at 250k:** {model_label(str(best['model']))} on `{best['group']}` features, ROC-AUC **{float(best['roc']):.4f}**. The 2.5M results are on the next two slides.
+# Calibration and compute trade-off
 
-# Feature-group finding
+| Model | Brier | ECE | Training time (s) |
+|---|---:|---:|---:|
+{chr(10).join(cost_rows)}
 
-![Feature groups](../reports/figures/feature_groups.png)
+- XGBoost is much faster than the deep networks in this run.
+- Lower Brier/ECE indicates better calibration; this is distinct from discrimination.
+- Training times are hardware- and run-specific (Kaggle Tesla T4).
 
-- Trees and the small MLP need the high-level invariant masses.
-- The deep networks score higher on raw low-level features than XGBoost does on all 28.
-- That is the paper's claim: depth lets the network learn the physics features itself.
+# Reproducibility and release checks
 
-# Why deep learning: it scales
+- Artifact contract: `higgs-experiment-v1`; split protocol: `higgs-split-v1`.
 
-![Scaling with data](../reports/figures/scaling.png)
+| Budget | Train | Validation | Test | Indices disjoint | Shared train/test events |
+|---|---:|---:|---:|---|---:|
+{chr(10).join(split_rows)}
 
+<<<<<<< HEAD
+- Two CPU compact-MLP trainings with seed 42 produced identical test probabilities in the release determinism check.
+- Raw data and model checkpoints are not committed; regenerate with `scripts/release_benchmark.py`.
+
+# Limitations and conclusion
+
+- Simulated Monte Carlo data; class balance is not representative of a rare-event search.
+- One seed per budget: cross-seed variance and statistical uncertainty are not measured.
+- Some deep runs reached the 60-epoch cap; further training may change the ranking.
+- Release metrics do not serialize complete operating-point thresholds; none are quoted here.
+- Deeper networks improve discrimination on this benchmark as sample size grows; XGBoost remains much cheaper and better calibrated in these runs.
+=======
 - Same code, same seed, nested 250k ⊂ 1M ⊂ 2.5M samples.
 - XGBoost and the compact MLP flatten; the deep and residual MLPs keep improving.
 - Trade-off: the networks take minutes on a GPU, XGBoost seconds.
@@ -531,11 +617,11 @@ streamlit run streamlit_app.py
 - HiggsEvent is an engineering and benchmark study, not a physics-discovery analysis.
 
 **Takeaway:** the artifact-backed system works end to end, and the dashboard, report and slides now use the same saved evidence.
+>>>>>>> upstream/main
 """
     output = PRESENTATIONS / "HiggsEvent_Final_Presentation.md"
     output.write_text(slides, encoding="utf-8")
     return output
-
 
 def main() -> None:
     runs = load_runs()

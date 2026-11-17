@@ -63,7 +63,7 @@ Sweep scope: every file in the uploaded scaffold (60 entries), read in full and 
 | BUG-025 | P2 | Deployment | The setup guide had a generic `<OWNER>` clone placeholder and did not identify the canonical Streamlit Cloud repository. | `docs/11_SETUP_GUIDE.md` | Krishna | **Fixed 2026-11-12 in merged PR #23.** Canonical repository is `CosmicMagnetar/higgs-event-lab`; clone URL and Streamlit Cloud repository are explicit. |
 | BUG-026 | P2 | Data privacy | `data/processed/higgs_sample_250k.csv.gz.manifest.json` records the local machine path (a personal user folder). The path is not needed for reproduction. | manifest file | Krishna / Aditya | **Fixed** 2026-11-12 (PR #24) & 2026-11-13 (Issue #18): Stripped local user paths (`/Users/...`, `/content/...`) from `data/processed/higgs_sample_250k.csv.gz.manifest.json`, `data/interim/cleaning_manifest.json`, and all `outputs/*/metrics.json` artifacts. Added `to_relative_manifest_path()` in `src/higgs_event_lab/data.py` to ensure all future manifests use repository-relative paths. |
 
-### Summary counts (2026-11-14, after clean-clone QA)
+### Historical summary counts (2026-11-14; superseded by the 2026-11-15 release closure below)
 
 | Severity | Total | Fixed | Open |
 |---|---|---|---|
@@ -84,8 +84,8 @@ These are not bugs yet. Each becomes a bug the moment the code fails the check. 
 | W-01 | Label column leaks into the feature matrix | Assert the feature matrix has 21, 7 or 28 columns and no column equal to the label | Aditya | **Implemented & passing** (`test_reconciliation_w01_w02_w03_w06.py`) |
 | W-02 | Off-by-one in column indices (UCI says "columns 2 to 22", Python starts at 0) | Compare loader column names against `docs/feature_dictionary.csv` | Aditya | **Implemented & passing** (`test_reconciliation_w01_w02_w03_w06.py`) |
 | W-03 | Scaler or imputer fitted before the split | Fit on a toy set where train and test have different means; assert test mean is not used | Aditya, Rachit | **Implemented & passing** (`test_reconciliation_w01_w02_w03_w06.py`) |
-| W-04 | Different models evaluated on different test rows | Assert identical test indices (or hash) across all nine experiments | Krishna | Open |
-| W-05 | Threshold or hyperparameters chosen with test data | Assert the operating threshold is computed from validation arrays only | Krishna | Open |
+| W-04 | Different models evaluated on different test rows | Assert identical test indices (or hash) across all 45 release runs | Krishna | **Closed by release evidence (2026-11-15):** one release runner and nested seeded samples; per-budget split checks pass and sample-index SHA-256 values are recorded in `outputs/release/release_summary.json`. |
+| W-05 | Threshold or hyperparameters chosen with test data | Add an automated assertion that the operating threshold is computed from validation arrays only | Krishna | **Open:** protocol documentation states validation-only selection, but the explicit regression assertion is not evidenced in the release record. |
 | W-06 | Non-reproducible runs | Same seed gives identical split and near-identical metrics | Rachit, Aditya | **Implemented & passing** (`test_reconciliation_w01_w02_w03_w06.py`) |
 | W-07 | MLP in train mode at inference (dropout and batch-norm active) | Assert `model.eval()` is used and predictions are deterministic | Rachit | Open |
 | W-08 | Metric edge cases (one class only, ties) | Unit tests with tiny arrays | Krishna | Open |
@@ -123,3 +123,8 @@ Regression test or checklist item added:  yes / no
 | BUG-022 | Closed. Streamlit is in the `dashboard` extra and the suite passes with `pip install -e ".[dev,dashboard,training]"` (138 tests). |
 | BUG-023 | Closed. The report is regenerated from artifacts by `scripts/build_final_deliverables.py`. |
 | BUG-024, BUG-025, BUG-026 | Already resolved (ADR-0002, PR #23, PR #24). |
+
+
+## Release evidence and current disposition — 17 November 2026
+
+The 2026-11-14 summary counts above are a historical snapshot and are not a current open-bug count. The 2026-11-15 release closure table supersedes the earlier BUG-015 through BUG-026 statuses. W-04 is closed by the shared release-runner/split-integrity evidence. W-05 and W-08 remain open as shown in the watchlist. W-07 (Rachit), W-09/W-10 (Ronit) also remain open pending their owners' evidence. W-11 and W-12 remain in progress: source review is documented, but binary export regeneration and manual browser screenshot review have not been completed. Do not infer that the entire watchlist is closed from the benchmark release closure.
