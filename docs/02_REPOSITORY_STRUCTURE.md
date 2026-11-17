@@ -48,7 +48,7 @@ higgs-event-lab/
 │   ├── unit/            (README.md, test_*.py)
 │   └── integration/     (README.md, smoke_check_raw_file.py)
 ├── app/README.md
-├── reports/             (README.md, 01_report_draft_methodology_limitations.md)
+├── reports/             (README.md, HiggsLens_Final_Report.md)
 ├── outputs/README.md
 ├── artifacts/README.md
 ├── deployment/README.md

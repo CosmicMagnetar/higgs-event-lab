@@ -73,7 +73,7 @@ The names below follow the UCI order exactly. Our snake_case column names map to
 | 26 | `m_wbb` | the W candidate plus two b-jets |
 | 27 | `m_wwbb` | the W W b b system |
 
-The exact jet combinations used for each mass are defined in the original paper, not on the UCI page. If the report describes them in more detail, cite the paper (verified against Baldi et al. 2014 Section 4 and documented in `reports/01_report_draft_methodology_limitations.md`).
+The exact jet combinations used for each mass are defined in the original paper, not on the UCI page. If the report describes them in more detail, cite the paper (verified against Baldi et al. 2014 Section 4 and documented in `reports/HiggsLens_Final_Report.md`).
 
 ### 3.3 Feature groups used in the experiments
 

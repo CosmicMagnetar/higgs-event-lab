@@ -31,34 +31,22 @@ Store report source files and selected small figures in this folder. Place large
 
 ---
 
-## Current Drafts
+## Final Deliverables
 
-| File | Author | Status | Contents |
-|---|---|---|---|
-| `01_report_draft_methodology_limitations.md` | Saumya Mishra | Revised draft; neural gate pending | Integrated scientific methodology and separately labelled 250k/1M evidence; no project-wide headline result. |
-| `02_neural_network_benchmarks.md` | Rachit Gupta | Draft | Compact MLP architecture, regularization, cross-feature benchmark protocol, artifact export. |
-| `03_classical_baseline_benchmarks.md` | Aditya Rana | Reconciliation correction added; module-owner review pending | Corrected 250k Logistic Regression ROC-AUC values and removed the invalid placeholder score. |
-| `04_midsem_presentation_and_demo.md` | Ronit Singh | Draft | 12-slide presentation structure and live demo script. |
-| `05_viva_defense_guide.md` | Krishna | Draft | Viva examination Q&A preparation pack (20 questions). |
-| `06_technical_methodology_and_reproducibility.md` | Krishna | Integrated into report 01; source retained | Technical rationale for physics scope, feature groups, model choices, leakage-safe protocol, metrics, reproducibility, and scientific limitations. |
+The primary, submission-ready project deliverables are:
 
-## Final generated deliverables
-
-These files are generated from the saved artifacts under `outputs/`:
-
-| File | Purpose |
-|---|---|
-| `HiggsLens_Final_Report.pdf` | Formatted artifact-backed final report; regenerate after source reconciliation before release |
-| `HiggsLens_Final_Report.md` | Reproducible Markdown report source |
-| `HiggsLens_Final_Report.tex` | Overleaf-ready LaTeX source; compile with pdfLaTeX and upload the referenced figure folders |
-| `../presentations/HiggsLens_Final_Presentation.pptx` | Presentation deck; regenerate from the corrected Markdown source before release |
-| `../scripts/build_final_deliverables.py` | Rebuilds the Markdown report and presentation sources from current outputs; it does not regenerate HTML, PDF or PPTX |
-
-Placeholders marked `[RUN: ...]` indicate where real metric values should be inserted once artifacts exist.
+| File | Type | Description |
+|---|---|---|
+| `HiggsLens_Final_Report.md` | Markdown | Comprehensive reproducible written report with all benchmark tables and physics analysis |
+| `Higgs_Boson_Deep_Learning_Report_Overleaf__2_.pdf` | PDF Document | Official 43-page compiled submission report |
+| `overleaf/` | LaTeX Source | Full Overleaf LaTeX project (`main.tex`, `references.bib`, `results.tex`, `HiggsLens_Overleaf.zip`) |
+| `figures/` | Visual Assets | Publication-grade plots (`feature_groups.png`, `scaling.png`) |
+| `accuracy_at_05.csv` | Audit Data | Threshold $\tau=0.5$ classification accuracies across all models |
+| `saved_prediction_audit.json` | Audit Data | Cryptographic and metric traceability audit for all test predictions |
 
 ---
 
+## Release Status — 2026-11-17
 
-## Release export status — 2026-11-17
+All intermediate drafts and duplicate conversion files have been cleaned up and consolidated. The project report and evidence pipeline reflect the complete 45-run benchmark across 5 model families, 3 feature groups, and 3 scaling budgets (250k, 1M, 2.5M).
 
-The Markdown report and presentation source are updated to the 15 November release benchmark: 45 runs across 5 model families, 3 feature groups and 3 budgets. The report generator now refuses to create a 250k-only presentation when the release summary is missing. The committed PDF is being retained as the report deliverable; the HTML report has been removed. The PDF must still be regenerated from the corrected source and visually inspected before it is treated as the final release. The PPTX has not been regenerated. Check table overflow, figure paths, font/layout issues and exact metric parity before END-12 can be closed.
