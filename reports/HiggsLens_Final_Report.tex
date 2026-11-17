@@ -1,5 +1,15 @@
 \documentclass[11pt,a4paper,oneside]{report}
 \usepackage[utf8]{inputenc}
+\DeclareUnicodeCharacter{2013}{--}
+\DeclareUnicodeCharacter{2014}{---}
+\DeclareUnicodeCharacter{2019}{'}
+\DeclareUnicodeCharacter{2018}{`}
+\DeclareUnicodeCharacter{201C}{``}
+\DeclareUnicodeCharacter{201D}{''}
+\DeclareUnicodeCharacter{00D7}{$\times$}
+\DeclareUnicodeCharacter{2264}{$\leq$}
+\DeclareUnicodeCharacter{2265}{$\geq$}
+\DeclareUnicodeCharacter{2192}{$\rightarrow$}
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
 \usepackage[a4paper,margin=0.78in]{geometry}
@@ -35,7 +45,7 @@
 \clearpage
 \chapter{HiggsLens: Machine-Learning Classification of Simulated HIGGS Events}
 
-\textbf{Final artifact-backed report}   \textbf{Project team:} Saumya Mishra · Aditya Rana · Rachit Gupta · Ronit Singh · Krishna   \textbf{Dataset:} UCI HIGGS, dataset 280   \textbf{Source:} <https://archive.ics.uci.edu/dataset/280/higgs>   \textbf{Generated from:} saved artifacts under \texttt{outputs/}
+\textbf{Final artifact-backed report}   \textbf{Project team:} Saumya Mishra · Aditya Rana · Rachit Gupta · Ronit Singh · Krishna   \textbf{Dataset:} UCI HIGGS, dataset 280   \textbf{Source:} \\url{https://archive.ics.uci.edu/dataset/280/higgs}   \textbf{Generated from:} saved artifacts under \texttt{outputs/}
 
 \begin{quote}\textbf{Scientific boundary.} HIGGS is a simulated Monte Carlo benchmark. This project evaluates classification software and makes no claim of particle discovery, real-detector performance, or physical probabilities.\end{quote}
 
@@ -80,7 +90,7 @@ The source is the UCI Machine Learning Repository HIGGS dataset (id 280), releas
 \toprule
 Item & Verified value \\ \midrule
 Dataset & UCI HIGGS, dataset 280 \\ 
-Raw source URL & <https://archive.ics.uci.edu/static/public/280/higgs.zip> \\ 
+Raw source URL & \\url{https://archive.ics.uci.edu/static/public/280/higgs.zip} \\ 
 Schema & 1 label + 28 features \\ 
 Feature groups & 21 low-level + 7 high-level + 28 combined \\ 
 Current saved EDA rows & 250,000 \\ 
@@ -284,8 +294,8 @@ The release benchmark shows that the deep and residual networks outperform valid
 \section{References}
 
 \begin{enumerate}
-\item P. Baldi, P. Sadowski and D. Whiteson, “Searching for exotic particles in high-energy physics with deep learning,” \emph{Nature Communications}, 5, 4308, 2014. <https://www.nature.com/articles/ncomms5308>
-\item D. Whiteson, “HIGGS,” UCI Machine Learning Repository, dataset 280. <https://archive.ics.uci.edu/dataset/280/higgs>
+\item P. Baldi, P. Sadowski and D. Whiteson, “Searching for exotic particles in high-energy physics with deep learning,” \emph{Nature Communications}, 5, 4308, 2014. \\url{https://www.nature.com/articles/ncomms5308}
+\item D. Whiteson, “HIGGS,” UCI Machine Learning Repository, dataset 280. \\url{https://archive.ics.uci.edu/dataset/280/higgs}
 \item T. Chen and C. Guestrin, “XGBoost: A scalable tree boosting system,” KDD, 2016.
 \item A. Paszke et al., “PyTorch: An imperative style, high-performance deep learning library,” NeurIPS, 2019.
 \end{enumerate}
