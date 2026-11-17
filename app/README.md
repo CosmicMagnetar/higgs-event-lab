@@ -1,8 +1,8 @@
-# HiggsLens — Interactive Scientific Dashboard
+# HiggsEvent — Interactive Scientific Dashboard
 
 **Owner:** Ronit Singh (Product UI / Streamlit Dashboard).
 
-HiggsLens provides an interactive, scientific workbench for inspecting machine-learning experiments on the simulated UCI HIGGS dataset (Baldi et al., 2014). It visualizes held-out evaluation curves, compares classical baselines (Logistic Regression, XGBoost) against compact neural networks (Wide MLP) across feature groups, enables interactive operating-threshold exploration, and includes a **Model Simulation** view for scoring new events with trained models.
+HiggsEvent provides an interactive scientific workbench for inspecting machine-learning experiments on the simulated UCI HIGGS dataset (Baldi et al., 2014). It visualizes held-out evaluation curves, compares Logistic Regression, XGBoost and compact MLP runs across feature groups, and includes a **Model Simulation** view for scoring new events with available tuned model weights.
 
 ---
 
@@ -40,7 +40,7 @@ creates synthetic predictions and hard-coded metrics.
 
 ## 2. Navigation & Application Architecture
 
-HiggsLens is organized into seven focused scientific sections:
+HiggsEvent is organized into seven focused scientific sections:
 
 | Section | What it shows |
 |---|---|
@@ -56,7 +56,7 @@ HiggsLens is organized into seven focused scientific sections:
 
 ## 3. Artifact Discovery & Schema Contract
 
-HiggsLens dynamically discovers run folders beneath `outputs/` (or a custom path entered in the sidebar). A run folder is classified as usable only when it contains both required files complying with `higgs-experiment-v1`:
+HiggsEvent dynamically discovers run folders beneath `outputs/` (or a custom path entered in the sidebar). A run folder is classified as usable only when it contains both required files complying with `higgs-experiment-v1`:
 
 ### Required Files
 
@@ -77,7 +77,7 @@ The dashboard validates every discovered artifact before displaying it:
 
 ### Honest Empty State Policy
 
-If `outputs/` is missing or contains no valid runs, HiggsLens displays an honest empty state with verified CLI commands to reproduce runs. It never simulates fake benchmark metrics or trains heavy models on dashboard startup.
+If `outputs/` is missing or contains no valid runs, HiggsEvent displays an empty state with commands to reproduce runs. Cloud startup never manufactures results. The legacy synthetic fixture generator is isolated under `artifacts/synthetic_demo/` and is not called by the dashboard.
 
 ---
 

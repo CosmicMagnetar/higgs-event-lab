@@ -1,4 +1,4 @@
-"""High-fidelity scientific visualizations for the HiggsLens dashboard.
+"""High-fidelity scientific visualizations for the HiggsEvent dashboard.
 
 Uses Matplotlib with high DPI, dark surfaces, and cyan/blue accents to render:
 - Held-out ROC curves

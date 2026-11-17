@@ -1,4 +1,4 @@
-"""Dataset Observatory section for HiggsLens Streamlit application.
+"""Dataset Observatory section for HiggsEvent Streamlit application.
 
 Displays verified feature dictionary, group architectures, interactive feature
 distribution explorer, cross-feature correlation matrix, and empirical class balance.
@@ -13,6 +13,7 @@ import json
 import numpy as np
 import pandas as pd
 import streamlit as st
+from app.formatting import format_count
 
 from app.loader import load_saved_eda as read_saved_eda
 from app.styles import (
@@ -84,7 +85,7 @@ def render_dataset(base_dir: str = "outputs") -> None:
     """Render Dataset Observatory view."""
     st.markdown(
         '<div class="section-header">'
-        '<span class="material-icons icon-md" style="color:#127c80;">dashboard</span>'
+        '<span class="material-icons icon-md" style="color:#127c80;">database</span>'
         '<h2 style="margin:0;">Dataset Observatory</h2>'
         "</div>",
         unsafe_allow_html=True,
@@ -99,10 +100,10 @@ def render_dataset(base_dir: str = "outputs") -> None:
     )
 
     t1, t2, t3, t4 = st.tabs([
-        "Feature Dictionary",
-        "Distribution Explorer",
-        "Cross-Feature Correlations",
-        "Class Balance Observatory",
+        "Features",
+        "Distributions",
+        "Correlations",
+        "Class balance",
     ])
 
     with t1:
@@ -154,13 +155,13 @@ def render_dataset(base_dir: str = "outputs") -> None:
                 c1.metric("Signal Mean", f"{row['signal_mean']:.3f}")
                 c2.metric("Background Mean", f"{row['background_mean']:.3f}")
                 c3.metric("Mean Difference", f"{abs(row['signal_mean'] - row['background_mean']):.3f}")
-                c4.metric("Unique Values", f"{int(row['unique_count']):,}")
+                c4.metric("Unique Values", format_count(int(row['unique_count'])), help=f"{int(row['unique_count']):,} distinct values")
                 st.caption(f"Measured on {int(summary['rows']):,} saved EDA rows from the recorded run.")
 
     with t3:
         st.markdown("### Cross-Feature Correlation Matrix")
         st.markdown(
-            "Linear models rely heavily on the orthogonality of features. "
+            "Correlated inputs can make linear coefficients harder to interpret. "
             "High-level invariant masses concentrate correlations from multiple decay products."
         )
 
@@ -171,20 +172,6 @@ def render_dataset(base_dir: str = "outputs") -> None:
                 st.image(str(heatmap_path), caption="Saved Pearson correlation heatmap")
             if not correlations.empty:
                 st.dataframe(correlations.head(10), width="stretch", hide_index=True)
-
-    st.markdown("---")
-
-    # Feature group performance heatmap
-    st.markdown("### Model Performance Heatmap by Feature Group")
-    st.markdown(
-        "ROC-AUC and PR-AUC heatmap across all loaded models and feature configurations."
-    )
-    # We need access to runs here; this will be empty if no runs loaded.
-    # Placeholder: the heatmap is rendered in the Experiments view instead.
-    st.info(
-        "The feature-group performance heatmap is displayed in the Experiment Comparison view "
-        "when valid artifact runs are loaded."
-    )
 
     with t4:
         st.markdown("### Class Balance Observatory")

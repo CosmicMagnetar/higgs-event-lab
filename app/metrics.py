@@ -1,6 +1,6 @@
 """Evaluation metrics, curve generation, and interactive threshold calculations.
 
-Provides rigorous, leakage-safe evaluation calculations for the HiggsLens dashboard:
+Provides rigorous, leakage-safe evaluation calculations for the HiggsEvent dashboard:
 - ROC curve points and area calculation
 - Precision-Recall curve points and average precision
 - Calibration reliability points and Brier score

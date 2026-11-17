@@ -216,7 +216,7 @@ def write_report(runs: list[dict[str, object]]) -> Path:
     f = findings(release)
     gap_text = ", ".join(f"{gap:+.3f} at {tag}" for tag, gap in f.get("gaps", []))
     signal_fraction = float(eda["signal_fraction"])
-    report = f"""# HiggsLens: Machine-Learning Classification of Simulated HIGGS Events
+    report = f"""# HiggsEvent: Machine-Learning Classification of Simulated HIGGS Events
 
 **Final artifact-backed report**  
 **Project team:** Saumya Mishra · Aditya Rana · Rachit Gupta · Ronit Singh · Krishna  
@@ -271,7 +271,7 @@ The source is the UCI Machine Learning Repository HIGGS dataset (id 280), releas
 | Non-finite values | {eda['nonfinite_values']} |
 | Split | 70% train / 15% validation / 15% test, seed 42 |
 
-The exact raw-file row count and checksum should be recorded from the runtime that downloads the final archive. The saved EDA artifact is the authoritative source for the values above.
+The team reports a completed full-data experiment using all 11 million events. The full Colab notebook targets the raw file for training and a separate smaller EDA sample. This report's numeric tables describe the locally saved comparison artifacts; full-data metrics and a split manifest still need importing to document the full run quantitatively. An experiment using all rows still reserves validation and test partitions; it does not fit model weights on held-out events.
 
 ## 4. Exploratory data analysis
 
@@ -400,7 +400,7 @@ The mid-semester result (a small MLP tied with XGBoost) was a property of the ne
 - `outputs/logreg_*/metrics.json`
 - `outputs/xgboost_*/metrics.json`
 """
-    output = REPORTS / "HiggsLens_Final_Report.md"
+    output = REPORTS / "HiggsEvent_Final_Report.md"
     output.write_text(report, encoding="utf-8")
     return output
 
@@ -414,7 +414,7 @@ def write_presentation(runs: list[dict[str, object]]) -> Path:
         f"| {model_label(str(run['model']))} | `{run['group']}` | {float(run['roc']):.4f} | {float(run['pr']):.4f} | {float(run['brier']):.4f} |"
         for run in sorted(runs, key=lambda item: float(item["roc"]), reverse=True)
     )
-    slides = f"""% HiggsLens
+    slides = f"""% HiggsEvent
 % Machine-learning classification of simulated HIGGS events
 % Final artifact-backed presentation
 
@@ -429,6 +429,7 @@ def write_presentation(runs: list[dict[str, object]]) -> Path:
 # Dataset and scientific question
 
 - UCI HIGGS dataset, approximately 11 million source events.
+- Completed 11-million-event experiment reported by the team; full-run artifacts await import.
 - 28 inputs: 21 low-level kinematic features + 7 high-level invariant masses.
 - Current saved benchmark: {max(run['rows'] for run in runs):,} rows, seed 42, 70/15/15 split.
 - Question: do engineered invariant masses add measurable value, and can nonlinear models learn useful structure from raw kinematics?
@@ -501,7 +502,7 @@ def write_presentation(runs: list[dict[str, object]]) -> Path:
 - Background rejection is reported as a benchmark metric, not a significance estimate.
 - The dashboard exposes an interactive threshold workbench over saved test predictions.
 
-# HiggsLens Streamlit dashboard
+# HiggsEvent Streamlit dashboard
 
 ```bash
 streamlit run streamlit_app.py
@@ -527,11 +528,11 @@ streamlit run streamlit_app.py
 - HIGGS events are simulated Monte Carlo events.
 - The class balance is not representative of real rare-event searches.
 - Current saved metrics cover the {max(run['rows'] for run in runs):,}-row benchmark; the historical 1M summary is kept separate because it used a different pipeline and copied timing values.
-- HiggsLens is an engineering and benchmark study, not a physics-discovery analysis.
+- HiggsEvent is an engineering and benchmark study, not a physics-discovery analysis.
 
 **Takeaway:** the artifact-backed system works end to end, and the dashboard, report and slides now use the same saved evidence.
 """
-    output = PRESENTATIONS / "HiggsLens_Final_Presentation.md"
+    output = PRESENTATIONS / "HiggsEvent_Final_Presentation.md"
     output.write_text(slides, encoding="utf-8")
     return output
 

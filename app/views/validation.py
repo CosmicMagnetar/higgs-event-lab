@@ -1,4 +1,4 @@
-"""Validation and Threshold Analysis section for HiggsLens Streamlit application.
+"""Validation and Threshold Analysis section for HiggsEvent Streamlit application.
 
 Displays held-out ROC curves, Precision-Recall curves, reliability calibration diagrams,
 MLP training histories (when genuine data exists), and an interactive threshold workbench.
@@ -48,7 +48,7 @@ def render_validation(discovery: RunDiscoveryResult) -> None:
     # Run Selector for Curve Overlay
     preferred_defaults = [r.run_id for r in runs if r.feature_group == "all"][:3]
     selected_run_ids = st.multiselect(
-        "Select Runs to Compare on Validation Curves:",
+        "Compare held-out test runs:",
         options=list(run_options.keys()),
         default=preferred_defaults or list(run_options.keys())[:3],
     )
@@ -61,12 +61,12 @@ def render_validation(discovery: RunDiscoveryResult) -> None:
     ], hide_index=True)
 
     t1, t2, t3, t4, t5, t6 = st.tabs([
-        "ROC Curves",
+        "ROC",
         "Precision-Recall",
-        "Reliability Calibration",
-        "MLP Training History",
-        "Interactive Threshold Workbench",
-        "Score Distributions",
+        "Calibration",
+        "Learning history",
+        "Thresholds",
+        "Score distributions",
     ])
 
     with t1:
@@ -187,7 +187,8 @@ def render_validation(discovery: RunDiscoveryResult) -> None:
         m1.metric("Signal Efficiency (Recall)", f"{metrics['signal_efficiency']:.2%}")
         m2.metric("Background Rejection", f"{metrics['background_rejection']:.2%}")
         m3.metric("Precision (PPV)", f"{metrics['precision']:.2%}" if not metrics["precision_undefined"] else "Undefined (0 selected)")
-        m4.metric("Signal Selections", f"{metrics['signal_selections']:,}")
+        from app.formatting import format_count
+        m4.metric("Signal Selections", format_count(metrics['signal_selections']), help=f"{metrics['signal_selections']:,} events")
         m5.metric("False Positive Rate", f"{metrics['false_positive_rate']:.2%}")
 
         # Confusion Matrix Heatmap and Counts

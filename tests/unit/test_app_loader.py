@@ -1,4 +1,4 @@
-"""Unit tests for the HiggsLens dashboard artifact loader and schema validator.
+"""Unit tests for the HiggsEvent dashboard artifact loader and schema validator.
 
 Tests:
 - Directory discovery when outputs/ is missing, empty, or populated

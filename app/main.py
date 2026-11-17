@@ -1,4 +1,4 @@
-"""HiggsLens — Streamlit Scientific Dashboard for Higgs Event Lab.
+"""HiggsEvent — Streamlit Scientific Dashboard for Higgs Event Lab.
 
 Provides a polished, scientific, interactive interface for exploring:
 1. Overview: project objective, dataset information, available experiment results and status.
@@ -34,18 +34,17 @@ from app.views.overview import render_overview
 from app.views.physics import render_physics
 from app.views.simulation import render_simulation
 from app.views.validation import render_validation
-
-# Page Configuration
-st.set_page_config(
-    page_title="HiggsLens | Evidence Workbench",
-    page_icon="🔬",
-    layout="wide",
-    initial_sidebar_state="expanded",
-)
-
+from app.views.research import render_research
 
 def main() -> None:
     """Main dashboard entry point."""
+    # Configure every session/rerun, including imports through compatibility entrypoints.
+    st.set_page_config(
+        page_title="HiggsLens | Evidence Workbench",
+        page_icon="🔬",
+        layout="wide",
+        initial_sidebar_state="auto",
+    )
     apply_theme()
 
     # Sidebar Header & Branding
@@ -53,7 +52,7 @@ def main() -> None:
         """
         <div class="sidebar-brand">
             <h2>HiggsLens</h2>
-            <p>Experiment dashboard · v0.2</p>
+            <p>Particle event classification</p>
         </div>
         """,
         unsafe_allow_html=True,
@@ -116,6 +115,7 @@ def main() -> None:
         ("Validation", "insights"),
         ("Methods and Research", "article"),
         ("Model Simulation", "psychology"),
+        ("Research Evidence & Rationale", "school"),
     ]
 
     navigation_slot.markdown('<div class="sidebar-nav-label">WORKSPACE</div>', unsafe_allow_html=True)
@@ -147,7 +147,7 @@ def main() -> None:
 
     # Section Routing
     if selected_section == "Overview":
-        render_overview(discovery)
+        render_overview(discovery, Path(outputs_path))
     elif selected_section == "Physics Explorer":
         render_physics()
     elif selected_section == "Dataset Observatory":
@@ -158,8 +158,12 @@ def main() -> None:
         render_validation(discovery)
     elif selected_section == "Methods and Research":
         render_methods()
+    elif selected_section in ("Research Evidence", "Research Evidence & Rationale"):
+        render_research(discovery.base_dir)
     elif selected_section == "Model Simulation":
         render_simulation(discovery)
+    else:
+        st.error(f"Unknown section: {selected_section!r}. This is a routing bug — please report it.")
 
 
 if __name__ == "__main__":

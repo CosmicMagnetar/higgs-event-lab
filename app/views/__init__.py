@@ -1,1 +1,1 @@
-"""View modules for the HiggsLens Streamlit application."""
+"""View modules for the HiggsEvent Streamlit application."""
