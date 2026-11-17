@@ -1,4 +1,4 @@
-"""Experiment Comparison section for HiggsLens Streamlit application.
+"""Experiment Comparison section for HiggsEvent Streamlit application.
 
 Displays comprehensive model leaderboards, multi-group benchmark comparisons,
 and compute efficiency trade-offs across low-level, high-level, and all features.
@@ -77,10 +77,10 @@ def render_experiments(discovery: RunDiscoveryResult) -> None:
 
     # Tabbed views for Leaderboard and Visual Comparative Analytics
     tab_table, tab_groups, tab_compute, tab_radar = st.tabs([
-        "Comparison Leaderboard",
-        "Feature-Group Comparison",
-        "Compute Efficiency Trade-Off",
-        "Model Performance Radar",
+        "Leaderboard",
+        "Feature groups",
+        "Training cost",
+        "Metric radar",
     ])
 
     with tab_table:
@@ -90,7 +90,8 @@ def render_experiments(discovery: RunDiscoveryResult) -> None:
         for r in runs:
             records.append({
                 "Run ID": r.run_id,
-                    "Model": _model_label(r.model_name),
+                "Model": _model_label(r.model_name),
+                "Events": r.row_count,
                 "Family": r.model_family,
                 "Group": r.feature_group,
                 "Features": r.feature_count,
@@ -102,10 +103,10 @@ def render_experiments(discovery: RunDiscoveryResult) -> None:
                 "Runtime (s)": round(r.training_seconds, 2) if r.training_seconds is not None else None,
                 "Val ROC-AUC": round(r.validation_metrics.get("roc_auc", 0.0), 4) if "roc_auc" in r.validation_metrics else None,
                 "Test ROC-AUC": round(r.test_roc_auc, 4) if r.test_roc_auc is not None else None,
-                    "Test PR-AUC": round(r.test_pr_auc, 4) if r.test_pr_auc is not None else None,
-                    "Brier Score": round(r.test_brier_score, 4) if r.test_brier_score is not None else None,
-                    "Accuracy": r.test_metrics.get("accuracy"),
-                })
+                "Test PR-AUC": round(r.test_pr_auc, 4) if r.test_pr_auc is not None else None,
+                "Brier Score": round(r.test_brier_score, 4) if r.test_brier_score is not None else None,
+                "Accuracy": r.test_metrics.get("accuracy"),
+            })
 
         df_leaderboard = pd.DataFrame(records)
 
@@ -119,10 +120,11 @@ def render_experiments(discovery: RunDiscoveryResult) -> None:
         df_sorted = df_leaderboard.sort_values(by=sort_col, ascending=ascending, na_position="last")
 
         st.dataframe(df_sorted, width="stretch", hide_index=True)
+        st.download_button("Download comparison CSV", df_sorted.to_csv(index=False), "higgsevent_comparison.csv", "text/csv")
 
         st.markdown(
-            "> **Note on Brier Score:** Lower values indicate superior probabilistic calibration, "
-            "where 0.0 is perfect certainty and 0.25 represents uninformative 50/50 guessing."
+            "> **Brier score:** lower is better probability-prediction error, reflecting both calibration "
+            "and discrimination. Perfect predictions score 0; constant 0.5 predictions score 0.25."
         )
 
     with tab_groups:
@@ -168,7 +170,7 @@ def render_experiments(discovery: RunDiscoveryResult) -> None:
                     <li>Each vertex represents one evaluation metric; larger area indicates stronger overall performance.</li>
                     <li><strong>ROC-AUC</strong> measures ranking discrimination across all thresholds.</li>
                     <li><strong>PR-AUC</strong> measures precision-recall trade-off, sensitive to class imbalance.</li>
-                    <li><strong>1 - Brier</strong> measures probabilistic calibration (higher = better calibrated).</li>
+                    <li><strong>1 - Brier</strong> summarises probability-prediction quality, not calibration alone.</li>
                     <li><strong>Background Rejection</strong> measures background events rejected at the validation-frozen threshold.</li>
                 </ul>
             </div>

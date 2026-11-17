@@ -1,4 +1,4 @@
-"""Physics Explorer section for HiggsLens Streamlit application.
+"""Physics Explorer section for HiggsEvent Streamlit application.
 
 Presents the Standard Model foundation, electroweak symmetry breaking,
 the exotic-Higgs benchmark classification task, decay kinematics, and

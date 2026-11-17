@@ -247,7 +247,7 @@ def write_report(runs: list[dict[str, object]]) -> Path:
     operating_table = release_operating_table(release)
     gap_text = ", ".join(f"{gap:+.3f} at {tag}" for tag, gap in f.get("gaps", []))
     signal_fraction = float(eda["signal_fraction"])
-    report = f"""# HiggsLens: Machine-Learning Classification of Simulated HIGGS Events
+    report = f"""# HiggsEvent: Machine-Learning Classification of Simulated HIGGS Events
 
 **Final artifact-backed report**  
 **Project team:** Saumya Mishra · Aditya Rana · Rachit Gupta · Ronit Singh · Krishna  
@@ -302,7 +302,11 @@ The source is the UCI Machine Learning Repository HIGGS dataset (id 280), releas
 | Non-finite values | {eda['nonfinite_values']} |
 | Split | 70% train / 15% validation / 15% test, seed 42 |
 
+<<<<<<< HEAD
 The EDA table describes the saved 250,000-row EDA snapshot. It is separate from the deduplicated nested release samples; use `outputs/release/release_summary.json` for each release budget's class fraction and split checks.
+=======
+The team reports a completed full-data experiment using all 11 million events. The full Colab notebook targets the raw file for training and a separate smaller EDA sample. This report's numeric tables describe the locally saved comparison artifacts; full-data metrics and a split manifest still need importing to document the full run quantitatively. An experiment using all rows still reserves validation and test partitions; it does not fit model weights on held-out events.
+>>>>>>> upstream/main
 
 ## 4. Exploratory data analysis
 
@@ -424,7 +428,7 @@ The release benchmark shows that the deep and residual networks outperform valid
 - `outputs/logreg_*/metrics.json`
 - `outputs/xgboost_*/metrics.json`
 """
-    output = REPORTS / "HiggsLens_Final_Report.md"
+    output = REPORTS / "HiggsEvent_Final_Report.md"
     output.write_text(report, encoding="utf-8")
     return output
 
@@ -432,6 +436,7 @@ The release benchmark shows that the deep and residual networks outperform valid
 def write_presentation(runs: list[dict[str, object]]) -> Path:
     """Generate the deck from the canonical multi-budget release summary."""
     PRESENTATIONS.mkdir(exist_ok=True)
+<<<<<<< HEAD
     release = load_release()
     if not release:
         raise RuntimeError("Missing outputs/release/release_summary.json; refusing to generate a stale 250k-only deck.")
@@ -455,6 +460,16 @@ def write_presentation(runs: list[dict[str, object]]) -> Path:
     feature_rows = [f"| {labels[m]} | {metric(largest,m,'low_level'):.4f} | {metric(largest,m,'high_level'):.4f} | {metric(largest,m,'all'):.4f} |" for m in models]
     cost_rows = [f"| {labels[m]} | {metric(largest,m,'all','brier'):.4f} | {metric(largest,m,'all','ece'):.4f} | {metric(largest,m,'all','train_seconds'):.1f} |" for m in models]
     slides = f"""% HiggsLens
+=======
+    best = max(runs, key=lambda item: float(item["roc"]))
+    all_features = [run for run in runs if run["group"] == "all"]
+    best_all = max(all_features, key=lambda item: float(item["roc"]))
+    rows = "\n".join(
+        f"| {model_label(str(run['model']))} | `{run['group']}` | {float(run['roc']):.4f} | {float(run['pr']):.4f} | {float(run['brier']):.4f} |"
+        for run in sorted(runs, key=lambda item: float(item["roc"]), reverse=True)
+    )
+    slides = f"""% HiggsEvent
+>>>>>>> upstream/main
 % Machine-learning classification of simulated HIGGS events
 % Final release-benchmark presentation
 
@@ -467,12 +482,24 @@ def write_presentation(runs: list[dict[str, object]]) -> Path:
 
 # Dataset and experimental design
 
+<<<<<<< HEAD
 - UCI HIGGS dataset: approximately 11 million simulated events.
 - Exact duplicate events removed before sampling: **{release.get('duplicate_rows_removed', 0):,}**.
 - Nested sample budgets: {", ".join(tags)}; seed {release['seed']}.
 - Each budget: 70% train / 15% validation / 15% test.
 - Same release script, model/feature matrix and split protocol at each budget.
 - StandardScaler is fit on training rows only; validation data is used for model selection and early stopping.
+=======
+# Dataset and scientific question
+
+- UCI HIGGS dataset, approximately 11 million source events.
+- Completed 11-million-event experiment reported by the team; full-run artifacts await import.
+- 28 inputs: 21 low-level kinematic features + 7 high-level invariant masses.
+- Current saved benchmark: {max(run['rows'] for run in runs):,} rows, seed 42, 70/15/15 split.
+- Question: do engineered invariant masses add measurable value, and can nonlinear models learn useful structure from raw kinematics?
+
+![Saved class balance](../outputs/eda/class_balance.png)
+>>>>>>> upstream/main
 
 # End-to-end pipeline
 
@@ -538,6 +565,7 @@ def write_presentation(runs: list[dict[str, object]]) -> Path:
 |---|---:|---:|---:|---|---:|
 {chr(10).join(split_rows)}
 
+<<<<<<< HEAD
 - Two CPU compact-MLP trainings with seed 42 produced identical test probabilities in the release determinism check.
 - Raw data and model checkpoints are not committed; regenerate with `scripts/release_benchmark.py`.
 
@@ -548,8 +576,50 @@ def write_presentation(runs: list[dict[str, object]]) -> Path:
 - Some deep runs reached the 60-epoch cap; further training may change the ranking.
 - Release metrics do not serialize complete operating-point thresholds; none are quoted here.
 - Deeper networks improve discrimination on this benchmark as sample size grows; XGBoost remains much cheaper and better calibrated in these runs.
+=======
+- Same code, same seed, nested 250k ⊂ 1M ⊂ 2.5M samples.
+- XGBoost and the compact MLP flatten; the deep and residual MLPs keep improving.
+- Trade-off: the networks take minutes on a GPU, XGBoost seconds.
+
+# Operating-point view
+
+- Threshold is selected on validation data for a 50% signal-efficiency target.
+- It is frozen before test evaluation.
+- Background rejection is reported as a benchmark metric, not a significance estimate.
+- The dashboard exposes an interactive threshold workbench over saved test predictions.
+
+# HiggsEvent Streamlit dashboard
+
+```bash
+streamlit run streamlit_app.py
+```
+
+- Overview: artifact registry and current best run.
+- Dataset Observatory: saved EDA tables and figures.
+- Experiment Comparison: leaderboard, feature groups and runtime.
+- Validation: ROC, PR, calibration, learning history and thresholds.
+- Methods and Research: protocol, references and limitations.
+
+![Dashboard overview](../reports/dashboard_overview.png)
+
+# Reproducibility and checks
+
+- Artifact contract: `higgs-experiment-v1`.
+- Split protocol: `higgs-split-v1`, seed 42.
+- Latest QA-branch GitHub Actions: editable install and full pytest workflow passed on Python 3.11; Docker image build passed. See `docs/12_QA_TEST_PLAN.md` for commit and run links. The hosted log does not publish a test count.
+- Raw data is downloaded from UCI at runtime and is not committed.
+
+# Limitations and conclusion
+
+- HIGGS events are simulated Monte Carlo events.
+- The class balance is not representative of real rare-event searches.
+- Current saved metrics cover the {max(run['rows'] for run in runs):,}-row benchmark; the historical 1M summary is kept separate because it used a different pipeline and copied timing values.
+- HiggsEvent is an engineering and benchmark study, not a physics-discovery analysis.
+
+**Takeaway:** the artifact-backed system works end to end, and the dashboard, report and slides now use the same saved evidence.
+>>>>>>> upstream/main
 """
-    output = PRESENTATIONS / "HiggsLens_Final_Presentation.md"
+    output = PRESENTATIONS / "HiggsEvent_Final_Presentation.md"
     output.write_text(slides, encoding="utf-8")
     return output
 

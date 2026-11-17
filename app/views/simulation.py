@@ -1,4 +1,4 @@
-"""Model Simulation section for HiggsLens Streamlit application.
+"""Model Simulation section for HiggsEvent Streamlit application.
 
 Lets users run the trained benchmark models on their own data:
 - Upload a CSV of events and get per-model classifier scores.
@@ -93,14 +93,16 @@ def load_models() -> tuple[dict[str, Any], Any]:
         except Exception as exc:
             MODEL_LOAD_NOTICES.append(f"Logistic Regression weights could not be loaded: {exc}")
 
-    if xgb_path.exists() and os.environ.get("HIGGSLENS_ENABLE_XGB_WEIGHTS") == "1":
+    if xgb_path.exists() and os.environ.get("HIGGSEVENT_ENABLE_XGB_WEIGHTS") == "1":
         try:
             models["xgboost_tuned"] = joblib.load(xgb_path)
         except Exception as exc:
             MODEL_LOAD_NOTICES.append(f"XGBoost weights were skipped because they are incompatible: {exc}")
     elif xgb_path.exists():
         MODEL_LOAD_NOTICES.append(
-            "XGBoost interactive weights are disabled by default because the saved binary was created with a different XGBoost runtime. Re-run the full training notebook in this environment to enable them."
+            "XGBoost interactive weights are disabled because this saved binary crashed during loading. "
+            "Saved XGBoost test results are available in Comparison and Validation. "
+            "Replacement weights must be checked in a compatible runtime before enabling interactive loading."
         )
 
     if scaler_path.exists():
@@ -213,7 +215,7 @@ def _render_batch_upload(models: dict[str, Any], scaler: Any, feature_cols: list
     )
     uploaded = st.file_uploader("Choose a CSV file", type=["csv"], key="sim_batch_csv")
     if uploaded is None:
-        st.caption("Example: a CSV with columns such as lepton_p_t, lepton_eta, ..., m_wwbb.")
+        st.caption("Use all 28 named features in the Dataset Observatory, from lepton_pt through m_wwbb.")
         return
 
     try:

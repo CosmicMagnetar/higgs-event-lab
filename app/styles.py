@@ -1,4 +1,4 @@
-"""Scientific theme styling, color tokens, and custom CSS for HiggsLens dashboard.
+"""Scientific theme styling, color tokens, and custom CSS for HiggsEvent dashboard.
 
 Uses a light canvas, navy navigation and restrained teal, blue and amber accents.
 Material Icons are loaded from Google Fonts CDN and used via <span class="material-icons">...</span>.
@@ -7,7 +7,7 @@ Material Icons are loaded from Google Fonts CDN and used via <span class="materi
 from __future__ import annotations
 
 # Shared UI and chart palette.
-SURFACE_BASE = "#f6f8fa"
+SURFACE_BASE = "#ffffff"
 SURFACE_CARD = "#ffffff"
 SURFACE_CARD_HOVER = "#eef5f6"
 SURFACE_BORDER = "#dce4eb"
@@ -38,12 +38,12 @@ CUSTOM_CSS = """
 <style>
 :root { color-scheme: light; }
 .stApp {
-    background: #f6f8fa;
+    background: #ffffff;
     color: #15283f;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 [data-testid="stMainBlockContainer"] { max-width: 1600px; padding: 2rem 2.2rem 3rem; }
-[data-testid="stHeader"] { background: #f6f8fa; }
+[data-testid="stHeader"] { background: #ffffff; }
 h1, h2, h3, h4 { color: #15283f; font-weight: 650; letter-spacing: -0.025em; }
 h1 { font-size: 2rem; line-height: 1.2; }
 h2 { font-size: 1.45rem; }
@@ -59,6 +59,9 @@ section[data-testid="stSidebar"] hr { border-color: #355065; }
 section[data-testid="stSidebar"] { min-width: 290px; max-width: 340px; }
 section[data-testid="stSidebar"] [data-testid="stSidebarUserContent"] { padding: 1.25rem 1rem 1.5rem; }
 .sidebar-nav-label { color: #9db7ca; font-size: .68rem; font-weight: 650; letter-spacing: .12em; margin: .7rem .7rem .3rem; }
+.sidebar-brand { padding: 0.5rem 0.75rem 0.4rem; }
+.sidebar-brand h2 { color: #e8f3fb; margin: 0; }
+.sidebar-brand p  { color: #9db7ca; font-size: 0.82rem; margin: 0.1rem 0 0; }
 section[data-testid="stSidebar"] [role="radiogroup"] { gap: .35rem; }
 section[data-testid="stSidebar"] [role="radiogroup"] label {
     box-sizing: border-box; min-height: 48px; width: 100%; margin: 0;
@@ -71,20 +74,6 @@ section[data-testid="stSidebar"] [role="radiogroup"] label:has(input:checked) {
     background: #127c80; color: #fff; border-color: #279297; box-shadow: inset 3px 0 #8cdbd5;
 }
 section[data-testid="stSidebar"] [role="radiogroup"] label:has(input:focus-visible) { outline: 2px solid #b3e8e1; outline-offset: 2px; }
-/* Keep the native radio input for keyboard navigation; replace its visual dot with an icon. */
-section[data-testid="stSidebar"] [role="radiogroup"] label > div:first-of-type { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
-section[data-testid="stSidebar"] [role="radiogroup"] label::before {
-    font-family: "Material Symbols Outlined"; font-size: 21px; line-height: 1;
-    flex: 0 0 22px; font-weight: 400; color: #9fc6d9;
-}
-section[data-testid="stSidebar"] [role="radiogroup"] label:has(input:checked)::before { color: #fff; }
-section[data-testid="stSidebar"] [role="radiogroup"] label:nth-of-type(1)::before { content: "home"; }
-section[data-testid="stSidebar"] [role="radiogroup"] label:nth-of-type(2)::before { content: "science"; }
-section[data-testid="stSidebar"] [role="radiogroup"] label:nth-of-type(3)::before { content: "database"; }
-section[data-testid="stSidebar"] [role="radiogroup"] label:nth-of-type(4)::before { content: "bar_chart"; }
-section[data-testid="stSidebar"] [role="radiogroup"] label:nth-of-type(5)::before { content: "verified_user"; }
-section[data-testid="stSidebar"] [role="radiogroup"] label:nth-of-type(6)::before { content: "article"; }
-section[data-testid="stSidebar"] [role="radiogroup"] label:nth-of-type(7)::before { content: "play_circle"; }
 section[data-testid="stSidebar"] [role="radiogroup"] label p { color: inherit; font-size: .88rem; line-height: 1.4; font-weight: 500; }
 section[data-testid="stSidebar"] [data-testid="stExpander"] { border: 1px solid #355065; border-radius: 8px; margin-top: .6rem; background: #18334b; }
 section[data-testid="stSidebar"] [data-testid="stExpander"] summary,
@@ -159,6 +148,37 @@ button[data-baseweb="tab"][aria-selected="true"] { color: #127c80; font-weight: 
 @media (prefers-reduced-motion: reduce) {
     .stButton button, .stDownloadButton button, section[data-testid="stSidebar"] label { transition: none; }
 }
+/* Editorial evidence workbench: open canvas and quiet tables. */
+[data-testid="stMainBlockContainer"] { max-width: 1500px; padding: 3rem 2.2rem 2rem; }
+h1, h2, h3, .sidebar-brand h2 { font-family: Georgia, "Times New Roman", serif !important; }
+h1 { font-size: clamp(2.2rem, 4vw, 3.2rem) !important; line-height: 1.1; }
+h3 { font-size: 1.7rem !important; }
+.page-intro { color: #566173; font-size: 1.2rem; margin-bottom: 1.7rem; }
+section[data-testid="stSidebar"] { background: #101c2d; min-width: 265px; max-width: 290px; }
+.sidebar-brand h2 { font-size: 2rem; }
+section[data-testid="stSidebar"] [role="radiogroup"] label { border-radius: 5px; font-size: 1rem; }
+[data-testid="stMetric"] { border: 0; border-right: 1px solid #dce4eb; border-radius: 0; box-shadow: none; padding: .5rem 1rem; }
+[data-testid="stMetric"]::after { display: none; }
+[data-testid="stMetricValue"] { color: #087f75; font-family: Georgia, serif; font-size: 2.4rem; }
+[data-testid="stMetricValue"], [data-testid="stMetricLabel"] p { white-space: normal; overflow: visible; text-overflow: clip; }
+.benchmark-table { width: 100%; overflow-x: auto; margin: 1rem 0 1.5rem; border: 1px solid #e0e4e8; border-radius: 6px; }
+.benchmark-table table { border-collapse: collapse; width: 100%; font-size: 1.05rem; }
+.benchmark-table th { text-align: left; background: #edf0f2; color: #101c2d; font-weight: 650; }
+.benchmark-table th, .benchmark-table td { padding: .85rem 1rem; border: 0; border-bottom: 1px solid #e5e8ec; }
+.benchmark-table tr:nth-child(even) { background: #f8f9fa; }
+.benchmark-table td:not(:first-child) { font-variant-numeric: tabular-nums; }
+@media(max-width: 640px) {
+ [data-testid="stMainBlockContainer"] { padding: 3.8rem 1rem 1.5rem; }
+ .benchmark-table table { font-size: .85rem; }
+ .benchmark-table th, .benchmark-table td { padding: .65rem .55rem; }
+ [data-testid="stMetric"] { border-right: 0; border-bottom: 1px solid #dce4eb; }
+ h3 { font-size: 1.4rem; }
+}
+section[data-testid="stSidebar"] [data-testid="stSidebarHeader"] { height: 28px; min-height: 28px; margin-bottom: 0; }
+section[data-testid="stSidebar"] [data-testid="stSidebarUserContent"] { padding: .3rem .4rem 1rem; }
+section[data-testid="stSidebar"] [role="radiogroup"] label { display: flex; width: 100% !important; min-height: 44px; }
+section[data-testid="stSidebar"] [role="radiogroup"] label p { font-size: .95rem; }
+section[data-testid="stSidebar"] [role="radiogroup"] label input { accent-color: #16858a; }
 </style>
 """
 

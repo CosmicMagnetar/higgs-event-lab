@@ -1,4 +1,4 @@
-"""Methods and Research section for HiggsLens Streamlit application.
+"""Methods and Research section for HiggsEvent Streamlit application.
 
 Documents the strict experiment protocol (higgs-split-v1), model architectures,
 academic citations, and explicit physical limitations.
@@ -7,6 +7,7 @@ academic citations, and explicit physical limitations.
 from __future__ import annotations
 
 import streamlit as st
+from pathlib import Path
 
 
 def render_methods() -> None:
@@ -24,7 +25,11 @@ def render_methods() -> None:
         "and properly credits original foundational sources."
     )
 
-    t1, t2, t3 = st.tabs(["Experiment Protocol", "Citations &amp; References", "Research Limitations"])
+    intro, t1, t2, t3 = st.tabs(["Project explained", "Protocol", "References", "Limitations"])
+
+    with intro:
+        guide = Path(__file__).resolve().parents[2] / "docs/HiggsEvent_End_to_End_Guide.md"
+        st.markdown(guide.read_text(encoding="utf-8"))
 
     with t1:
         st.markdown("### The `higgs-split-v1` Stratified Holdout Protocol")
@@ -91,6 +96,14 @@ def render_methods() -> None:
                 """,
                 unsafe_allow_html=True,
             )
+
+        st.markdown("#### XGBoost: the nonlinear tabular baseline")
+        st.markdown(
+            "Boosted trees capture interacting feature ranges that a weighted linear sum cannot. "
+            "The release runner uses up to 3,000 trees, depth 8, learning rate 0.1 and validation-log-loss early stopping (patience 50). "
+            "This is a fixed configuration with early stopping, not a recorded hyperparameter search. XGBoost uses unscaled numeric inputs; Logistic Regression and neural models fit scalers on training rows only. "
+            "Logistic Regression remains the linear reference; the MLP tests learned nonlinear representations."
+        )
 
     with t2:
         st.markdown("### Academic Citations &amp; Data Sources")

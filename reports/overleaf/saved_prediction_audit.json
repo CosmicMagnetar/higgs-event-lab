@@ -1,0 +1,172 @@
+{
+  "scope": "Saved test predictions only; not an independent training reproduction",
+  "shared_rows_and_labels": true,
+  "runs": [
+    {
+      "run": "deep_mlp_all",
+      "rows": 37500,
+      "recomputed": {
+        "roc_auc": 0.8271243465366538,
+        "pr_auc": 0.8463568902426142,
+        "brier_score": 0.16930127269783682
+      },
+      "maximum_absolute_difference": 3.697736561392162e-11,
+      "matches": true
+    },
+    {
+      "run": "deep_mlp_high_level",
+      "rows": 37500,
+      "recomputed": {
+        "roc_auc": 0.7944621388066604,
+        "pr_auc": 0.8204284187273391,
+        "brier_score": 0.1836456134546555
+      },
+      "maximum_absolute_difference": 2.6627339222429214e-11,
+      "matches": true
+    },
+    {
+      "run": "deep_mlp_low_level",
+      "rows": 37500,
+      "recomputed": {
+        "roc_auc": 0.7560852570695271,
+        "pr_auc": 0.7755368472083929,
+        "brier_score": 0.2001121244271606
+      },
+      "maximum_absolute_difference": 5.35545774393853e-11,
+      "matches": true
+    },
+    {
+      "run": "logreg_all",
+      "rows": 37500,
+      "recomputed": {
+        "roc_auc": 0.6863972371012195,
+        "pr_auc": 0.6944347363514026,
+        "brier_score": 0.22161905639115614
+      },
+      "maximum_absolute_difference": 1.1102230246251565e-16,
+      "matches": true
+    },
+    {
+      "run": "logreg_high_level",
+      "rows": 37500,
+      "recomputed": {
+        "roc_auc": 0.6466207232614534,
+        "pr_auc": 0.631372034972238,
+        "brier_score": 0.2307256610798689
+      },
+      "maximum_absolute_difference": 1.1102230246251565e-16,
+      "matches": true
+    },
+    {
+      "run": "logreg_low_level",
+      "rows": 37500,
+      "recomputed": {
+        "roc_auc": 0.5962092900663742,
+        "pr_auc": 0.636895273518067,
+        "brier_score": 0.24071263422941644
+      },
+      "maximum_absolute_difference": 5.551115123125783e-17,
+      "matches": true
+    },
+    {
+      "run": "mlp_all",
+      "rows": 37500,
+      "recomputed": {
+        "roc_auc": 0.8165119252322236,
+        "pr_auc": 0.8384864118730511,
+        "brier_score": 0.17458206564253956
+      },
+      "maximum_absolute_difference": 7.885886388336871e-11,
+      "matches": true
+    },
+    {
+      "run": "mlp_high_level",
+      "rows": 37500,
+      "recomputed": {
+        "roc_auc": 0.7845582320070137,
+        "pr_auc": 0.8114917524623048,
+        "brier_score": 0.18806186467259428
+      },
+      "maximum_absolute_difference": 8.417358476897618e-11,
+      "matches": true
+    },
+    {
+      "run": "mlp_low_level",
+      "rows": 37500,
+      "recomputed": {
+        "roc_auc": 0.7250277502947279,
+        "pr_auc": 0.7485972090180808,
+        "brier_score": 0.2103079261177745
+      },
+      "maximum_absolute_difference": 3.5590919100769725e-11,
+      "matches": true
+    },
+    {
+      "run": "resnet_mlp_all",
+      "rows": 37500,
+      "recomputed": {
+        "roc_auc": 0.8339145924467264,
+        "pr_auc": 0.8530677350927901,
+        "brier_score": 0.1659548375219013
+      },
+      "maximum_absolute_difference": 5.4705184826531195e-11,
+      "matches": true
+    },
+    {
+      "run": "resnet_mlp_high_level",
+      "rows": 37500,
+      "recomputed": {
+        "roc_auc": 0.7944878508648124,
+        "pr_auc": 0.8206180589642535,
+        "brier_score": 0.18351531482636735
+      },
+      "maximum_absolute_difference": 3.2149560791339127e-12,
+      "matches": true
+    },
+    {
+      "run": "resnet_mlp_low_level",
+      "rows": 37500,
+      "recomputed": {
+        "roc_auc": 0.7715611090149455,
+        "pr_auc": 0.7889035358101416,
+        "brier_score": 0.19691822449718252
+      },
+      "maximum_absolute_difference": 6.589484513597199e-11,
+      "matches": true
+    },
+    {
+      "run": "xgboost_all",
+      "rows": 37500,
+      "recomputed": {
+        "roc_auc": 0.81881875279902,
+        "pr_auc": 0.8397870886436732,
+        "brier_score": 0.17270170772640905
+      },
+      "maximum_absolute_difference": 7.224690290463798e-11,
+      "matches": true
+    },
+    {
+      "run": "xgboost_high_level",
+      "rows": 37500,
+      "recomputed": {
+        "roc_auc": 0.7851846266916515,
+        "pr_auc": 0.8117100328078036,
+        "brier_score": 0.1873082394741341
+      },
+      "maximum_absolute_difference": 9.582593052392951e-11,
+      "matches": true
+    },
+    {
+      "run": "xgboost_low_level",
+      "rows": 37500,
+      "recomputed": {
+        "roc_auc": 0.7223482970586068,
+        "pr_auc": 0.7455705991974042,
+        "brier_score": 0.21070182303672869
+      },
+      "maximum_absolute_difference": 2.0598550642958458e-11,
+      "matches": true
+    }
+  ],
+  "passed": true
+}

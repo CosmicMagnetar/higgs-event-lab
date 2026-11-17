@@ -12,7 +12,7 @@ This repository is the shared home for a five-person course project. It establis
 
 #### One-Time Repository Setup
 
-* **Create Repository:** Create a new private repository named `higgs-event-lab` under the intended GitHub account (keep separate from the existing `HiggsLens` repository).
+* **Create Repository:** Create a new private repository named `higgs-event-lab` under the intended GitHub account (keep separate from the legacy repository).
 * **Initial Commit:** Upload the files from this starter scaffold as the initial commit.
 * **Collaborator Access:** Add Saumya Mishra, Aditya Rana, Rachit Gupta, and Ronit Singh as collaborators using their exact GitHub usernames (collect usernames rather than guessing).
 * **Branch Policy:** Maintain `main` as the stable branch. Require all work to occur on issue branches and merge via pull requests.

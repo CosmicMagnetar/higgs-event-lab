@@ -27,7 +27,7 @@ Three things stand out:
 2. The deep network gets 0.880 **from the low-level features alone**, which is better than any model given the physicists' features. It learns the useful non-linear combinations itself.
 3. Adding the high-level features to the deep network barely helps (0.880 to 0.885), because it had already discovered what they encode.
 
-The paper also converts AUC into discovery significance: the deep network on all features reaches 5.0σ, against 3.7σ for the shallow network, on the same simulated sample. In high-energy physics, 5σ is the threshold for claiming a discovery.
+Separately from AUC, the paper estimates discovery significance under its specified physics assumptions: the deep network on all features reaches 5.0σ, against 3.7σ for the shallow network, on the same simulated sample. In high-energy physics, 5σ is the threshold for claiming a discovery.
 
 **How they trained it.** Five hidden layers of 300 tanh units, learning rate 0.05 decaying every batch, momentum rising from 0.9 to 0.99 over 200 epochs, weight decay 1e-5, mini-batches of 100, and early stopping on a 500k validation set. Each network trained for 200 to 1000 epochs on GPUs. Unsupervised pre-training and extra layers added training time without helping.
 
@@ -44,7 +44,7 @@ Gorishniy, Rubachev, Khrulkov and Babenko, *Revisiting Deep Learning Models for 
 - A plain residual MLP (ResNet-style blocks: BatchNorm, Linear, ReLU, Dropout, Linear, plus a skip connection) is a strong baseline that many papers leave out. On HIGGS it beats NODE, a much more complex differentiable-tree model.
 - No model wins on every dataset. Gradient boosting stays very strong on small tables, so any deep-learning claim has to be backed by a fair comparison rather than assumed.
 
-That is why our benchmark includes both a Baldi-style deep MLP and a residual MLP, and keeps a properly tuned XGBoost as the opponent.
+That is why our benchmark includes both a Baldi-style deep MLP and a residual MLP, and keeps an XGBoost configuration with validation early stopping as the opponent.
 
 ## 4. What we added
 
@@ -95,14 +95,14 @@ Answers to the four questions in Section 5:
 
 1. **Fixed budget.** At every budget both deep networks beat XGBoost on all features. The residual MLP is best: 0.8613 against 0.8382 at 2.5M.
 2. **Scaling.** On all features, the best deep network leads XGBoost by +0.015 at 250k, +0.020 at 1M and +0.023 at 2.5M. On low-level features the lead grows from +0.049 to +0.086.
-3. **Learned features.** At 2.5M the residual MLP on low-level features alone (0.8532) beats XGBoost on the 7 high-level features (0.7921) and even XGBoost on all 28 (0.8382). This reproduces the paper's main finding at a quarter of its training size.
+3. **Learned features.** At 2.5M the residual MLP on low-level features alone (0.8532) beats XGBoost on the 7 high-level features (0.7921) and even XGBoost on all 28 (0.8382). This is qualitatively consistent with the paper’s representation-learning motivation, under a different architecture, sample and split protocol; it is not an exact reproduction.
 4. **Shallow versus deep.** The compact 64-32 MLP gains only +0.009 from 250k to 2.5M on all features, against +0.027 for the residual MLP. A small network can't use the extra data, which is why the mid-semester comparison looked like a tie.
 
 **Costs.** At 2.5M XGBoost trains in about 29 s, against about 494 s for the residual MLP on a T4 GPU. XGBoost is also better calibrated (ECE 0.0033 against 0.0184). Several deep runs at 2.5M stopped at the 60-epoch cap while still improving, so the network numbers are conservative.
 
 ## 7. Limits
 
-- We train on at most 2.5M events, a quarter of the paper's training set, with one seed per budget. Absolute AUCs will be lower than the paper's 0.885, and small differences (under about 0.002) should not be ranked.
+- We train on at most 2.5M events, a quarter of the paper's training set, with one seed per budget. Absolute AUCs will be lower than the paper's 0.885, and uncertainty has not been measured; no fixed AUC-difference cutoff establishes a reliable ranking.
 - HIGGS is simulated. A better AUC here means a better classifier on this benchmark, not a physics discovery.
 
 ## References
@@ -111,3 +111,7 @@ Answers to the four questions in Section 5:
 2. Y. Gorishniy, I. Rubachev, V. Khrulkov and A. Babenko. Revisiting deep learning models for tabular data. *NeurIPS*, 2021. arXiv:2106.11959.
 3. K. He, X. Zhang, S. Ren and J. Sun. Deep residual learning for image recognition. *CVPR*, 2016.
 4. I. Loshchilov and F. Hutter. SGDR: stochastic gradient descent with warm restarts. *ICLR*, 2017 (cosine schedule).
+
+## Review decision — 17 November 2026
+
+Keep Logistic Regression, XGBoost and compact MLP as the core course comparison. Deep and residual MLPs are extensions, not required replacements. At 250k with all features, saved-prediction accuracy at threshold 0.5 is 73.75% for XGBoost, 74.70% for Deep MLP and 75.26% for Residual MLP. The gain must be weighed against training cost and single-seed uncertainty. Larger-budget AUC gains do not establish larger-budget accuracy gains. See the Overleaf report for the paper-to-design mapping, protocol gaps and proposed controlled experiments.

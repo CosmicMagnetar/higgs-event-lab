@@ -1,4 +1,4 @@
-"""Artifact discovery and validation loader for the HiggsLens dashboard.
+"""Artifact discovery and validation loader for the HiggsEvent dashboard.
 
 Loads and validates experiment artifacts complying with the higgs-experiment-v1
 schema under outputs/. Handles missing directories, malformed JSON, missing

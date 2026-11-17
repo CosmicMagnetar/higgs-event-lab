@@ -9,7 +9,7 @@ def test_xgboost_weight_is_disabled_by_default(tmp_path: Path, monkeypatch):
     """A stale serialized XGBoost binary must not be deserialized during page load."""
     monkeypatch.setattr(simulation, "WEIGHTS_DIR", tmp_path)
     (tmp_path / "xgboost_tuned.joblib").write_bytes(b"incompatible-binary")
-    monkeypatch.delenv("HIGGSLENS_ENABLE_XGB_WEIGHTS", raising=False)
+    monkeypatch.delenv("HIGGSEVENT_ENABLE_XGB_WEIGHTS", raising=False)
 
     models, scaler = simulation.load_models()
 
