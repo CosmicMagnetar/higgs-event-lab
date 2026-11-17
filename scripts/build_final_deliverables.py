@@ -202,6 +202,35 @@ def release_section(release: dict | None) -> str:
     return "\n".join(out) + "\n"
 
 
+def release_operating_table(release: dict | None) -> str:
+    """Render only operating-point values actually serialized in release metrics."""
+    if not release:
+        return "No release operating-point metadata is available.\\n"
+    lines = [
+        "| Budget | Model | Validation threshold | Validation signal efficiency | Validation background rejection | Test signal efficiency | Test background rejection |",
+        "|---|---|---:|---:|---:|---:|---:|",
+    ]
+    labels = {"logreg": "Logistic Regression", "xgboost": "XGBoost"}
+    for tag, budget in sorted(release["budgets"].items(), key=lambda item: item[1]["rows"]):
+        for model in ("logreg", "xgboost"):
+            path = OUTPUTS / "release" / tag / f"{model}_all" / "metrics.json"
+            if not path.is_file():
+                continue
+            data = json.loads(path.read_text(encoding="utf-8"))
+            op = data.get("evaluation", {}).get("operating_point")
+            if not op:
+                continue
+            lines.append(
+                f"| {tag} | {labels[model]} | {op['validation_threshold']:.4f} "
+                f"| {op['validation_actual_signal_efficiency']:.2%} "
+                f"| {op['validation_background_rejection']:.2%} "
+                f"| {op['test_actual_signal_efficiency']:.2%} "
+                f"| {op['test_background_rejection']:.2%} |"
+            )
+    if len(lines) == 2:
+        return "No serialized operating-point records were found.\\n"
+    return "\\n".join(lines) + "\\n"
+
 def write_report(runs: list[dict[str, object]]) -> Path:
     REPORTS.mkdir(exist_ok=True)
     all_features = [run for run in runs if run["group"] == "all"]
@@ -214,6 +243,7 @@ def write_report(runs: list[dict[str, object]]) -> Path:
     total_rows = int(eda["rows"])
     release = load_release()
     f = findings(release)
+    operating_table = release_operating_table(release)
     gap_text = ", ".join(f"{gap:+.3f} at {tag}" for tag, gap in f.get("gaps", []))
     signal_fraction = float(eda["signal_fraction"])
     report = f"""# HiggsLens: Machine-Learning Classification of Simulated HIGGS Events
@@ -332,9 +362,10 @@ For the classical models and the compact MLP, the 7 high-level features beat the
 {release_section(release)}
 ## 8. Operating-point analysis
 
-The release `metrics.json` files do not serialize a complete per-model operating-point record. Thresholds, signal efficiencies and background rejections are therefore not reported; no values are inferred from test predictions. The threshold workbench is exploratory and must not be used for model selection.
+Validation-selected operating points are available for Logistic Regression and XGBoost. The neural-network metric envelopes do not serialize an `operating_point` record, so no neural thresholds or efficiencies are inferred.
 
-Background rejection, when calculated from a frozen validation-selected threshold, is a benchmark metric and not a discovery significance. The dashboard threshold workbench is exploratory and does not establish a release operating point.
+{operating_table}
+The threshold workbench is exploratory; model-selection thresholds must be selected on validation data and frozen before test evaluation. Background rejection is a benchmark metric, not a discovery significance.
 """
     report += f"""
 

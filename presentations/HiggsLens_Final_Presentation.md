@@ -94,6 +94,21 @@
 - Lower Brier/ECE indicates better calibration; this is distinct from discrimination.
 - Training times are hardware- and run-specific (Kaggle Tesla T4).
 
+# Operating point: classical models only
+
+Thresholds are selected on validation data for a 50% signal-efficiency target, then frozen before test evaluation. Release metric envelopes include these records for Logistic Regression and XGBoost; the neural-network envelopes do not.
+
+| Budget | Model | Validation threshold | Test signal efficiency | Test background rejection |
+|---|---|---:|---:|---:|
+| 250k | Logistic Regression | 0.5940 | 50.44% | 74.13% |
+| 250k | XGBoost | 0.7322 | 49.22% | 90.48% |
+| 1M | Logistic Regression | 0.5969 | 50.25% | 73.84% |
+| 1M | XGBoost | 0.7494 | 50.11% | 91.18% |
+| 2.5M | Logistic Regression | 0.5963 | 50.13% | 73.95% |
+| 2.5M | XGBoost | 0.7562 | 49.82% | 91.89% |
+
+These are classifier operating metrics, not discovery significance or physical probabilities.
+
 # Reproducibility and release checks
 
 - Artifact contract: `higgs-experiment-v1`; split protocol: `higgs-split-v1`.
@@ -112,5 +127,5 @@
 - Simulated Monte Carlo data; class balance is not representative of a rare-event search.
 - One seed per budget: cross-seed variance and statistical uncertainty are not measured.
 - Some deep runs reached the 60-epoch cap; further training may change the ranking.
-- Release metrics do not serialize complete operating-point thresholds; none are quoted here.
+- Validation-selected operating points are serialized for Logistic Regression and XGBoost only; neural-network operating-point records are absent and are not inferred.
 - Deeper networks improve discrimination on this benchmark as sample size grows; XGBoost remains much cheaper and better calibrated in these runs.

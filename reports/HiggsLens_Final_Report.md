@@ -160,7 +160,18 @@ Environment: Python 3.13.16, torch 2.11.0+cu130, GPU Tesla T4, Linux-6.18.55+-x8
 
 ## 8. Operating-point analysis
 
-The release `metrics.json` files do not serialize a per-model operating-point threshold, test signal efficiency and background rejection. Those values are therefore **not reported here**; no values are inferred from test predictions. The protocol specifies validation-only model selection and early stopping. Any threshold workbench interaction over held-out test predictions is exploratory only, not a valid model-selection procedure. Background rejection, when reported from a frozen validation-selected threshold, is a benchmark operating metric and not a discovery significance.
+The release metric envelopes record validation-selected operating points for Logistic Regression and XGBoost. The three neural-network families do not contain an `operating_point` record, so their thresholds and efficiencies are unavailable and are not inferred. Thresholds below are selected on validation data for a target signal efficiency of 50%; test metrics are then evaluated once at the frozen threshold.
+
+| Budget | Model | Validation threshold | Validation signal efficiency | Validation background rejection | Test signal efficiency | Test background rejection |
+|---|---|---:|---:|---:|---:|---:|
+| 250k | Logistic Regression | 0.5940 | 50.00% | 73.33% | 50.44% | 74.13% |
+| 250k | XGBoost | 0.7322 | 50.00% | 90.30% | 49.22% | 90.48% |
+| 1M | Logistic Regression | 0.5969 | 50.00% | 74.33% | 50.25% | 73.84% |
+| 1M | XGBoost | 0.7494 | 50.00% | 91.10% | 50.11% | 91.18% |
+| 2.5M | Logistic Regression | 0.5963 | 50.00% | 74.05% | 50.13% | 73.95% |
+| 2.5M | XGBoost | 0.7562 | 50.00% | 91.85% | 49.82% | 91.89% |
+
+The dashboard's interactive threshold workbench can explore alternative cutoffs, but any model-selection threshold must be chosen on validation data and frozen before test evaluation. Background rejection is a benchmark operating metric, not a discovery significance.
 
 ## 9. Dashboard integration
 
