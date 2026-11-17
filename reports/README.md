@@ -49,7 +49,8 @@ These files are generated from the saved artifacts under `outputs/`:
 | File | Purpose |
 |---|---|
 | `HiggsLens_Final_Report.pdf` | Formatted artifact-backed final report; regenerate after source reconciliation before release |
-| `HiggsLens_Final_Report.md` | Reproducible report source |
+| `HiggsLens_Final_Report.md` | Reproducible Markdown report source |
+| `HiggsLens_Final_Report.tex` | Overleaf-ready LaTeX source; compile with pdfLaTeX and upload the referenced figure folders |
 | `../presentations/HiggsLens_Final_Presentation.pptx` | Presentation deck; regenerate from the corrected Markdown source before release |
 | `../scripts/build_final_deliverables.py` | Rebuilds the Markdown report and presentation sources from current outputs; it does not regenerate HTML, PDF or PPTX |
 
