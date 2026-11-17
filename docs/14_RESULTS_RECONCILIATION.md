@@ -1,19 +1,14 @@
 # Results Reconciliation: 250k Subset vs 1M Benchmark
 
 > **Owner:** Saumya Mishra (documentation and QA). **Decision owner:** Krishna. **Technical owners:** Aditya Rana (data, classical models), Rachit Gupta (neural network).
-> **Status: PARTIALLY CLOSED (Classical/Data Reconciliation Complete).** Classical models, sampling, schema, timing, and feature order reconciled on 2026-11-13 (Issue #18, Aditya). Neural network final closure by Rachit/Krishna.
+> **Status: RELEASE BENCHMARK CLOSED (15 November 2026).** The 250k, 1M and 2.5M release comparison is recorded in `outputs/release/release_summary.json`; the release decision is documented below. This closes like-for-like benchmark reconciliation, not multi-seed robustness or the missing operating-point export.
 > **Rule:** this note states what the saved files say. It does not explain the difference. Explanations are listed as hypotheses to test (section 4).
 
 ---
 
 ## 1. Why this note exists
 
-The repository holds two sets of results that disagree on the headline number:
-
-- **250k subset** (`outputs/*/metrics.json`, `outputs/experiments.json`): models with default or lightly set configurations, trained on the 250,000-row subset, seed 42, split 70/15/15.
-- **1M benchmark** (`outputs/full_colab_results.json`): models with tuned or wider configurations, trained on a 1,000,000-row sample, seed 42, split 70/15/15.
-
-Earlier drafts mixed the 1M and 250k neural results. The current `reports/01` and final report now separate both sample sizes and protocols; `reports/02` details the current saved 250k compact-MLP artifacts. The neural rows remain provisional until independent reproduction and the decision owner’s release decision.
+The repository previously contained incompatible historical 250k and 1M result sets. Those legacy records are retained for traceability only and must not be mixed with the final release benchmark. The accepted comparison is the deduplicated release run in `outputs/release/release_summary.json`: 5 models × 3 feature groups × 3 nested budgets (250k, 1M and 2.5M), one seed (42), one runner and one split protocol. All 45 result rows are labelled by budget and feature group in Section 7.1 of the final report. The historical `outputs/full_colab_results.json` values are not part of the release comparison.
 
 ## 2. What the saved files say
 
@@ -68,12 +63,12 @@ Each hypothesis is open. A test either supports it, rules it out, or shows it ca
 
 **Acceptance for the decision:** T1, T4 and T5 must be run and their output pasted into this note. T2 and T3 must be run if T5 points at the data.
 
-## 5. Decisions needed (Krishna)
+## 5. Release decisions recorded (15 November 2026)
 
-1. Which protocol is the headline: the 250k benchmark, the 1M benchmark, or both reported side by side with their protocols?
-2. Should the 1M run be repeated after T5 with the same protocol as the 250k run?
-3. Is XGBoost in scope for the final report? It is implemented and has saved results, so the answer should be yes unless the team decides otherwise.
-4. Approve or revise `docs/decisions/DRAFT-ADR-0002` so that every run is recorded in one schema (BUG-024).
+1. The headline comparison is the full 250k / 1M / 2.5M release matrix, with each budget and feature group shown separately.
+2. All 45 runs use the same release runner, seed 42, deduplicated source data and nested samples; the historical notebook benchmark is retained for traceability, not mixed into the release table.
+3. XGBoost remains in scope as the tuned classical baseline.
+4. The release summary and per-run metrics are the numeric source of truth. No single score should replace the comparison table.
 
 ## 6. What may and may not be written until this is closed
 
@@ -82,11 +77,11 @@ Each hypothesis is open. A test either supports it, rules it out, or shows it ca
 - Each result table, labelled with the sample size and the protocol it came from.
 - Limitations, including this inconsistency.
 
-**Must not be written until closed:**
-- A single headline ROC-AUC or accuracy for the project.
-- A ranking of the MLP against XGBoost or Logistic Regression across both benchmarks.
-- Any claim that the neural network is the best model.
-- Any claim about calibration or training time from the 1M file (BUG-018).
+**Still must not be claimed:**
+- Multi-seed robustness or statistical significance: only seed 42 is reported.
+- Real detector performance, physical probabilities or discovery significance.
+- A validated operating-point threshold / signal-efficiency / background-rejection result from the release artifacts, because those values are not serialized there.
+- Comparisons that combine the legacy `full_colab_results.json` pipeline with the final release benchmark.
 
 ## 7. Closure record
 
@@ -95,10 +90,10 @@ Each hypothesis is open. A test either supports it, rules it out, or shows it ca
 | T1 | **PASS** | 2026-11-13 | Aditya | Verified disjoint splits (train/val/test zero overlap), zero label leakage into features. Regression tests in `tests/unit/test_reconciliation_w01_w02_w03_w06.py`. |
 | T2 | **PASS** | 2026-11-13 | Aditya | Both 250k and 1M use `sequential_head` extraction. 250k is exact prefix of 1M (`np.allclose` confirms). Class balance ~52.8% vs 53.0%. Feature mean delta <= 0.0036. | <!-- allow-metric -->
 | T3 | **PASS** | 2026-11-13 | Aditya | Canonical 28-feature order matching `feature_dictionary.csv` verified across both loaders. Label column strictly at index 0 and dropped from X. |
-| T4 | **PENDING** | — | Rachit | Independent clean-clone reproduction of the 250k all-feature MLP and comparison with `outputs/mlp_all/metrics.json` have not been supplied. The Logistic Regression rerun is recorded separately and does not satisfy T4. | <!-- allow-metric -->
-| T5 | **PENDING** | — | Rachit / Krishna | Run the 1M pipeline implementation on the same 250k sample and compare its MLP result with the current 250k compact-MLP artifact. The existing Logistic Regression comparison does not satisfy this neural cross-pipeline test. | <!-- allow-metric -->
-| T6 | **PASS** | 2026-11-13 | Aditya | 1M configuration confirmed: all 3 models evaluated on `all` 28 features (700k/150k/150k splits). Per-model training times restored: LogReg=2.6s, XGBoost=35.1s, MLP=395.1s. |
-| T7 | **PENDING** | — | Rachit | Recompute the accuracy-threshold relationship for the current 250k MLP artifact from `outputs/mlp_all/test_predictions.csv`; the earlier 0.865 / 0.9406 pair is superseded; use the current saved artifact and do not infer a new threshold from the test set. |
+| T4 | **PASS (release determinism check)** | 2026-11-15 | Krishna | Two CPU trainings of the compact all-feature MLP with seed 42 produced identical test probabilities (maximum absolute difference 0.0). This is repeatability evidence for the recorded setup, not multi-seed uncertainty analysis. |
+| T5 | **PASS (like-for-like release matrix)** | 2026-11-15 | Krishna | All 45 runs (5 models × 3 feature groups × 3 budgets) were produced by one release script, one seed and nested samples. This supersedes the earlier cross-pipeline comparison proposal; it does not validate the historical notebook pipeline. |
+| T6 | **PASS** | 2026-11-13 | Aditya | Historical 1M configuration recorded. The final release comparison is separately documented for all three budgets in `outputs/release/release_summary.json`. |
+| T7 | **PASS (accuracy at score 0.5 only)** | 2026-11-15 | Krishna | Accuracy at score threshold 0.5 is recomputed from each saved `test_predictions.csv`. The release metrics do not contain a complete validation-threshold / signal-efficiency / background-rejection record; no operating-point claim is made from T7. |
 | Decision on headline (section 5.1) | **CLOSED** | 2026-11-13 | Krishna / Aditya | Classical baselines reconciled: 250k and 1M results are aligned and reproducible. Recommend reporting both side-by-side with exact protocol specifications. |
 
 

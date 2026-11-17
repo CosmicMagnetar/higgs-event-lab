@@ -33,6 +33,9 @@
 
 ### Changed
 
+* **2026-11-17:** Final report and presentation Markdown aligned to the 15 November release benchmark (45 runs across 5 models, 3 feature groups and 3 nested budgets); clarified the separate 250k EDA snapshot and removed unsupported operating-point values. *(Saumya)*
+* **2026-11-17:** Reconciliation and QA records updated to distinguish closed release checks from still-open validation-only threshold and metric-edge-case tests; task backlog acceptance criteria clarified. *(Saumya)*
+* **2026-11-17:** Report generator updated to preserve release-scope wording and build the presentation from `outputs/release/release_summary.json`, refusing to fall back to a 250k-only deck. *(Saumya)*
 * **2026-11-14:** Dashboard ranking labels now identify highest observed held-out test ROC-AUC as descriptive only; threshold workbench warns that operating-point selection must remain validation-only; simulation outputs are labelled class-1 classifier scores rather than physical probabilities. *(Saumya)*
 * **2026-11-14:** QA plan and setup guide record the macOS Python 3.15 clean-clone result (143 passed), the earlier Python 3.11 hosted CI baseline, and successful current-branch Python 3.11 test and Docker CI runs; BUG-022 verified fixed. *(Saumya)*
 * **2026-11-14:** Corrected stale classical baseline comparisons, softened provisional MLP interpretations, removed unsupported prevalence figures, and fixed duplicate report section numbering. *(Saumya)*

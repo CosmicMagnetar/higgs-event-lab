@@ -1,6 +1,6 @@
 # Reports and Figures
 
-The final report is synthesized by **Krishna** from actual results. Each module owner writes the methods/results for their experiments, and **Saumya Mishra** reviews readability, references, terminology, and consistency.
+The final report is maintained collaboratively: module owners provide and verify their methods/results; **Saumya Mishra** integrates documentation, references, terminology, evidence traceability and QA; **Krishna** retains final scientific/release review responsibility.
 
 ## Folder Purpose
 
@@ -59,6 +59,6 @@ Placeholders marked `[RUN: ...]` indicate where real metric values should be ins
 ---
 
 
-## Release export status
+## Release export status — 2026-11-17
 
-The Markdown report and presentation sources have been reconciled to the current saved artifacts. The committed PDF and PPTX are binary exports from an earlier source state and have not been regenerated in this QA pass. Do not treat those two binary exports as final-release deliverables until rebuilt from the corrected Markdown sources. The HTML preview has had its stale QA statement corrected but should also be regenerated with Pandoc for exact source parity.
+The Markdown report and presentation source are updated to the 15 November release benchmark: 45 runs across 5 model families, 3 feature groups and 3 budgets. The report generator now refuses to create a 250k-only presentation when the release summary is missing. The committed PDF, PPTX and HTML have **not** been regenerated from these corrected sources in this change; treat them as stale and do not use them as final-release artifacts until they are rebuilt and visually inspected. The updated commit must pass CI, and the exports must be checked for table overflow, figure paths, font/layout issues and exact metric parity before END-12 can be closed.

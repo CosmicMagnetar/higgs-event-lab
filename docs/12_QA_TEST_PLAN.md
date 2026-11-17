@@ -279,3 +279,24 @@ Result: editable package and all declared development dependencies installed suc
 - Editable install: passed.
 - Full suite: `python -m pytest -q` — **144 passed in 14.59s** (Python 3.11).
 - Docker image build: passed.
+
+
+## Release evidence reconciliation — 2026-11-17
+
+This section supersedes earlier statements in this document that the neural release decision, T4/T5/T7, or release benchmark comparison were still pending. Krishna's 2026-11-15 release closure is recorded in `docs/14_RESULTS_RECONCILIATION.md` and `team/BUG_TRACKER.md`.
+
+- **Release evidence source:** `outputs/release/release_summary.json` plus the 45 per-run metric envelopes under `outputs/release/{250k,1m,2.5m}/`.
+- **Coverage:** 5 model families × 3 feature groups × 3 sample budgets = 45 runs, produced by `scripts/release_benchmark.py` with seed 42 and nested samples.
+- **Split integrity:** for each budget, the release summary reports disjoint indices, complete row coverage, zero duplicate events inside the sampled data and zero events shared between train and test. The raw file had 278,698 exact duplicate events removed before sampling.
+- **Determinism:** two CPU compact-MLP trainings with seed 42 produced identical test probabilities (maximum absolute difference 0.0). This does not measure variability across different seeds.
+- **Accuracy:** T7 recomputes accuracy at a fixed score cutoff of 0.5 from saved test predictions. It is not evidence of a validation-selected operating point.
+- **Operating-point limitation:** the release metric envelopes do not serialize a complete per-run validation threshold, test signal efficiency and background rejection. Those values are not reported and must not be inferred from test predictions.
+- **Previously verified repository CI:** commit `00de4267632e0302f587c46187e03a5f56b52874`, GitHub Actions run [#43574590439](https://github.com/Saumya-Mishra-536/Higgs_Boson_Capstone/actions/runs/43574590439), passed editable installation, 144 pytest tests (14.59s, Python 3.11) and Docker image build. The clean-clone macOS result was 143 passed on Python 3.15. These are historical checks on that commit; CI must run again on this documentation update commit before it is described as verified.
+- **Not verified by this documentation pass:** full manual execution of all notebooks, cross-seed variance, manual browser screenshot review, hosted deployment health, and module-owner review of final scientific wording.
+
+### Release-gate disposition
+
+- Benchmark reconciliation and report-source corrections: documentation-ready, subject to the module-owner review already assigned in the backlog.
+- W-05 validation-only threshold assertion and W-08 metric edge-case tests: remain open under Krishna's ownership.
+- W-11/W-12: remain in progress until final PDF/PPTX exports and browser screenshots are regenerated and inspected.
+- Do not mark END-08, END-09, END-11 or END-12 fully done solely because this documentation update is committed.
