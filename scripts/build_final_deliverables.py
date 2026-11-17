@@ -205,7 +205,7 @@ def release_section(release: dict | None) -> str:
 def release_operating_table(release: dict | None) -> str:
     """Render only operating-point values actually serialized in release metrics."""
     if not release:
-        return "No release operating-point metadata is available.\\n"
+        return "No release operating-point metadata is available.\n"
     lines = [
         "| Budget | Model | Validation threshold | Validation signal efficiency | Validation background rejection | Test signal efficiency | Test background rejection |",
         "|---|---|---:|---:|---:|---:|---:|",
@@ -228,8 +228,9 @@ def release_operating_table(release: dict | None) -> str:
                 f"| {op['test_background_rejection']:.2%} |"
             )
     if len(lines) == 2:
-        return "No serialized operating-point records were found.\\n"
-    return "\\n".join(lines) + "\\n"
+        return "No serialized operating-point records were found.\n"
+    return "\n".join(lines) + "\n"
+
 
 def write_report(runs: list[dict[str, object]]) -> Path:
     REPORTS.mkdir(exist_ok=True)
